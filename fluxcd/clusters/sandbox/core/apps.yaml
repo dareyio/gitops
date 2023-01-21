@@ -8,5 +8,5 @@ spec:
   sourceRef:
     kind: GitRepository
     name: flux-system
-  path: ./gitops/fluxcd/apps
+  path: ./fluxcd/apps
   prune: true
