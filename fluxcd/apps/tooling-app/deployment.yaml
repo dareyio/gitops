@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tooling-deployment
+  labels:
+    app: tooling
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: tooling
+  template:
+    metadata:
+      labels:
+        app: tooling
+    spec:
+      containers:
+      - name: tooling
+        image: dareyregistry/tooling-app:1.0.2
+        ports:
+        - containerPort: 80
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: "250m"
+          limits:
+            memory: "128Mi"
+            cpu: "500m"
