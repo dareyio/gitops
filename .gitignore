@@ -1,0 +1,27 @@
+# SSH keys (NEVER commit these!)
+.ssh/
+*.pem
+*.key
+*_rsa
+*_ed25519
+id_rsa*
+id_ed25519*
+
+# IDE files
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# macOS
+.DS_Store
+
+# Backup files
+*.backup
+*.bak
+
+# Temporary files
+*.tmp
+.cache/
+
