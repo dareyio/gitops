@@ -1,71 +1,20 @@
-apiVersion: v1
-kind: List
-items:
-  # Prometheus Stack
-  - apiVersion: argoproj.io/v1alpha1
-    kind: Application
-    metadata:
-      name: kube-prometheus-stack
-      namespace: argocd
-    spec:
-      project: default
-      source:
-        repoURL: https://prometheus-community.github.io/helm-charts
-        chart: kube-prometheus-stack
-        targetRevision: 56.0.0
-        helm:
-          valuesObject:
-            prometheus:
-              prometheusSpec:
-                retention: 30d
-                storageSpec:
-                  volumeClaimTemplate:
-                    spec:
-                      accessModes: ["ReadWriteOnce"]
-                      resources:
-                        requests:
-                          storage: 50Gi
-            grafana:
-              adminPassword: "admin"
-              ingress:
-                enabled: false
-      destination:
-        server: https://kubernetes.default.svc
-        namespace: monitoring
-      syncPolicy:
-        automated:
-          prune: true
-          selfHeal: true
-        syncOptions:
-          - CreateNamespace=true
-          - ServerSideApply=true
-
-  # Loki Stack
-  - apiVersion: argoproj.io/v1alpha1
-    kind: Application
-    metadata:
-      name: loki
-      namespace: argocd
-    spec:
-      project: default
-      source:
-        repoURL: https://grafana.github.io/helm-charts
-        chart: loki-stack
-        targetRevision: 2.10.0
-        helm:
-          valuesObject:
-            loki:
-              persistence:
-                enabled: true
-                size: 10Gi
-            promtail:
-              enabled: true
-      destination:
-        server: https://kubernetes.default.svc
-        namespace: monitoring
-      syncPolicy:
-        automated:
-          prune: true
-          selfHeal: true
-        syncOptions:
-          - CreateNamespace=true
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: prod-prometheus-stack
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: git@github.com:dareyio/gitops.git
+    targetRevision: HEAD
+    path: argocd/applications/prod
+    directory:
+      recurse: true
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: monitoring
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
