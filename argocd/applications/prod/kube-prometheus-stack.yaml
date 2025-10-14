@@ -18,7 +18,7 @@ spec:
               volumeClaimTemplate:
                 spec:
                   accessModes: ["ReadWriteOnce"]
-                  storageClassName: "gp2"
+                  storageClassName: "gp2-csi-immediate"
                   resources:
                     requests:
                       storage: 50Gi
