@@ -39,10 +39,6 @@ spec:
           enabled: true
         service:
           enabled: true
-        # Prevent deletion of manually created records
-        registry:
-          txt:
-            ownerId: external-dns
         # Only manage records with specific annotations
         annotationFilter: "external-dns.alpha.kubernetes.io/manage=true"
         podSecurityContext:
