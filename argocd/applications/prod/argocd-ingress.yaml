@@ -28,10 +28,6 @@ metadata:
     
     # Security (ALB controller will create security groups automatically)
     
-    # ArgoCD Specific - Handle gRPC
-    alb.ingress.kubernetes.io/conditions.argocd-server: |
-      [{"field":"http-header","httpHeaderConfig":{"httpHeaderName": "Content-Type", "values":["application/grpc"]}}]
-    
     # Tags
     alb.ingress.kubernetes.io/tags: Environment=prod,Service=argocd,ManagedBy=ArgoCD
   labels:
