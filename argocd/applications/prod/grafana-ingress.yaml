@@ -25,8 +25,7 @@ metadata:
     alb.ingress.kubernetes.io/healthy-threshold-count: "2"
     alb.ingress.kubernetes.io/unhealthy-threshold-count: "2"
     
-    # Security
-    alb.ingress.kubernetes.io/security-groups: auto
+    # Security (ALB controller will create security groups automatically)
     
     # Tags
     alb.ingress.kubernetes.io/tags: Environment=prod,Service=grafana,ManagedBy=ArgoCD

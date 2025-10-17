@@ -26,8 +26,7 @@ metadata:
     alb.ingress.kubernetes.io/healthy-threshold-count: "2"
     alb.ingress.kubernetes.io/unhealthy-threshold-count: "2"
     
-    # Security
-    alb.ingress.kubernetes.io/security-groups: auto
+    # Security (ALB controller will create security groups automatically)
     
     # ArgoCD Specific - Handle gRPC
     alb.ingress.kubernetes.io/conditions.argocd-server: |
