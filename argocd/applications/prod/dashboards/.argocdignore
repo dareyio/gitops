@@ -1,4 +1,0 @@
-# Ignore dashboard JSON source files
-# These are embedded in ConfigMaps, not deployed directly
-*.json
-
