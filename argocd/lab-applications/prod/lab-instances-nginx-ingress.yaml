@@ -1,0 +1,57 @@
+# NGINX Ingress for Lab Instances
+# This ingress will handle dynamic lab subdomains: *.projectlabs-api.talentos.darey.io
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: lab-instances-ingress-template
+  namespace: lab-controller
+  annotations:
+    # NGINX Configuration
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+    
+    # cert-manager Configuration
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    
+    # External DNS Configuration
+    external-dns.alpha.kubernetes.io/hostname: "*.projectlabs-api.talentos.darey.io"
+    external-dns.alpha.kubernetes.io/manage: "true"
+    
+    # NGINX specific annotations for lab environments
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
+    nginx.ingress.kubernetes.io/proxy-body-size: "0"
+    nginx.ingress.kubernetes.io/proxy-connect-timeout: "60"
+    
+    # WebSocket support for lab environments
+    nginx.ingress.kubernetes.io/proxy-set-header: "Upgrade $http_upgrade, Connection $connection_upgrade"
+    
+    # Security headers
+    nginx.ingress.kubernetes.io/configuration-snippet: |
+      add_header X-Frame-Options "SAMEORIGIN" always;
+      add_header X-Content-Type-Options "nosniff" always;
+      add_header X-XSS-Protection "1; mode=block" always;
+    
+    # Tags
+    nginx.ingress.kubernetes.io/tags: Environment=prod,Service=lab-instances,ManagedBy=ArgoCD
+  labels:
+    app: lab-instances
+    environment: prod
+spec:
+  ingressClassName: nginx
+  tls:
+    - hosts:
+        - "*.projectlabs-api.talentos.darey.io"
+      secretName: wildcard-projectlabs-api-talentos-darey-io
+  rules:
+    - host: "*.projectlabs-api.talentos.darey.io"
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: lab-instance-service-template
+                port:
+                  number: 80

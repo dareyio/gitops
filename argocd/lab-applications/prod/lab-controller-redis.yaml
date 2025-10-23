@@ -1,0 +1,66 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis
+  namespace: lab-controller
+  labels:
+    app: redis
+    environment: prod
+spec:
+  ports:
+    - port: 6379
+      targetPort: 6379
+      protocol: TCP
+  selector:
+    app: redis
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis
+  namespace: lab-controller
+  labels:
+    app: redis
+    environment: prod
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: redis
+  template:
+    metadata:
+      labels:
+        app: redis
+        environment: prod
+    spec:
+      containers:
+        - name: redis
+          image: redis:7-alpine
+          ports:
+            - containerPort: 6379
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "200m"
+              memory: "256Mi"
+          command:
+            - redis-server
+            - --appendonly
+            - "yes"
+            - --save
+            - "900"
+            - "1"
+            - --save
+            - "300"
+            - "10"
+            - --save
+            - "60"
+            - "10000"
+          volumeMounts:
+            - name: redis-data
+              mountPath: /data
+      volumes:
+        - name: redis-data
+          emptyDir: {}
