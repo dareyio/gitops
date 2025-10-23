@@ -62,6 +62,4 @@ spec:
           requests:
             cpu: 100m
             memory: 128Mi
-      imagePullSecrets:
-      - name: ecr-secret
       serviceAccountName: lab-controller-sa
