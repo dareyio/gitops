@@ -11,7 +11,7 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: https://github.com/your-org/gitops-repo.git  # Update with your GitOps repo URL
+    repoURL: git@github.com:dareyio/gitops.git
     targetRevision: main
     path: argocd/lab-applications/prod
   destination:
