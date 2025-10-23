@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  labels:
+    environment: prod
+    name: lab-controller
+  name: lab-controller
