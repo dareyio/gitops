@@ -132,9 +132,9 @@ spec:
               value: "true"
             - name: LAB_TYPES_PATH
               value: "/app/lab-types"
-            - name: APP_VERSION
+            - name: APP_VERSION: latest
               value: "1.0.0"
-            - name: GIT_COMMIT
+            - name: GIT_COMMIT: latest
               value: "latest"
           resources:
             requests:
