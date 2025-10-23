@@ -19,6 +19,13 @@ spec:
     spec:
       containers:
       - env:
+        - name: K8S_MODE
+          value: "cluster"
+        - name: SUPABASE_JWT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: supabase-jwt-secret
+              key: SUPABASE_JWT_SECRET
         - name: REDIS_HOST
           value: redis.lab-controller.svc.cluster.local
         - name: REDIS_PORT
