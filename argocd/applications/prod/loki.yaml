@@ -11,6 +11,13 @@ spec:
     targetRevision: 2.10.0
     helm:
       valuesObject:
+        # Disable Loki chart from creating a Grafana datasource ConfigMap
+        # which conflicts with the Prometheus default datasource
+        grafana:
+          enabled: false
+          sidecar:
+            datasources:
+              enabled: false
         loki:
           persistence:
             enabled: true
