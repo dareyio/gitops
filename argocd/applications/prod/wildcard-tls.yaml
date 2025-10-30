@@ -1,0 +1,14 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: wildcard-projectlabs-api-talentos-darey-io
+  namespace: default
+spec:
+  secretName: wildcard-projectlabs-api-talentos-darey-io
+  issuerRef:
+    name: letsencrypt-prod
+    kind: ClusterIssuer
+  commonName: "*.talentos.darey.io"
+  dnsNames:
+    - "*.talentos.darey.io"
+    - talentos.darey.io
