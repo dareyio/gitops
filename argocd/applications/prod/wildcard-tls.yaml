@@ -13,5 +13,4 @@ spec:
     - "*.talentos.darey.io"
     - talentos.darey.io
     - "*.projectlabs-api.talentos.darey.io"
-    - projectlabs-api.talentos.darey.io
-    
+
