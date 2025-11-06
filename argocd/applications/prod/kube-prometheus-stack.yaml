@@ -60,6 +60,7 @@ spec:
                   type: loki
                   url: http://loki.monitoring.svc:3100
                   access: proxy
+                  isDefault: false
                   jsonData:
                     maxLines: 1000
   destination:
