@@ -7,6 +7,7 @@ spec:
   backoffLimit: 3
   template:
     spec:
+      serviceAccountName: dareyscore-sa
       restartPolicy: OnFailure
       containers:
         - name: migration

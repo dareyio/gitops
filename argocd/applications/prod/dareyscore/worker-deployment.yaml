@@ -13,6 +13,7 @@ spec:
       labels:
         app: dareyscore-worker
     spec:
+      serviceAccountName: dareyscore-sa
       containers:
         - name: worker
           image: 586794457112.dkr.ecr.eu-west-2.amazonaws.com/dareyscore/dareyscore-worker:latest

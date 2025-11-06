@@ -38,9 +38,12 @@ spec:
                 secretKeyRef:
                   name: postgres-secret
                   key: password
+            - name: PGDATA
+              value: /var/lib/postgresql/data/pgdata
           volumeMounts:
             - name: postgres-data
               mountPath: /var/lib/postgresql/data
+              subPath: pgdata
             - name: postgres-config
               mountPath: /etc/postgresql/postgresql.conf
               subPath: postgresql.conf
