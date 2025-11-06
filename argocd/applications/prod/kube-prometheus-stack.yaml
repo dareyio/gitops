@@ -26,7 +26,7 @@ spec:
           adminPassword: "admin"
           ingress:
             enabled: false
-          
+
           # Dashboard provisioning via sidecar
           sidecar:
             dashboards:
@@ -37,13 +37,13 @@ spec:
               folder: /tmp/dashboards
               provider:
                 foldersFromFilesStructure: true
-          
+
           # Persistence for Grafana data
           persistence:
             enabled: true
             storageClassName: "gp2-eks-csi"
             size: 10Gi
-          
+
           # Data sources configuration
           datasources:
             datasources.yaml:
