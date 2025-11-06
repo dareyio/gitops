@@ -1,0 +1,16 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: dareyscore-api
+  namespace: dareyscore
+  labels:
+    app: dareyscore-api
+spec:
+  selector:
+    matchLabels:
+      app: dareyscore-api
+  endpoints:
+    - port: http
+      path: /metrics
+      interval: 30s
+      scrapeTimeout: 10s
