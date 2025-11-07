@@ -48,23 +48,22 @@ spec:
               mountPath: /etc/postgresql/postgresql.conf
               subPath: postgresql.conf
           livenessProbe:
-            exec:
-              command:
-                - /bin/sh
-                - -c
-                - pg_isready -U dareyscore -d darey_score
+            tcpSocket:
+              port: 5432
             initialDelaySeconds: 30
             periodSeconds: 10
             timeoutSeconds: 5
+            failureThreshold: 3
           readinessProbe:
             exec:
               command:
                 - /bin/sh
                 - -c
-                - pg_isready -U dareyscore -d darey_score
-            initialDelaySeconds: 10
+                - pg_isready -U dareyscore
+            initialDelaySeconds: 15
             periodSeconds: 5
-            timeoutSeconds: 3
+            timeoutSeconds: 5
+            failureThreshold: 3
           resources:
             requests:
               cpu: 500m
