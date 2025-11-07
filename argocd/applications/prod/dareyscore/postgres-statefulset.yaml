@@ -59,10 +59,10 @@ spec:
               command:
                 - /bin/sh
                 - -c
-                - pg_isready -U dareyscore
-            initialDelaySeconds: 15
+                - pg_isready -U dareyscore -d darey_score
+            initialDelaySeconds: 30
             periodSeconds: 5
-            timeoutSeconds: 5
+            timeoutSeconds: 10
             failureThreshold: 3
           resources:
             requests:
