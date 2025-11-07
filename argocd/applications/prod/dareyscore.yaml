@@ -8,8 +8,8 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: https://github.com/dareyio/gitops.git
-    targetRevision: main
+    repoURL: git@github.com:dareyio/gitops.git
+    targetRevision: HEAD
     path: argocd/applications/prod/dareyscore
   destination:
     server: https://kubernetes.default.svc
