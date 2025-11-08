@@ -14,6 +14,13 @@ spec:
         prometheus:
           prometheusSpec:
             retention: 30d
+            resources:
+              requests:
+                cpu: 500m
+                memory: 1Gi
+              limits:
+                cpu: 1500m
+                memory: 3Gi
             storageSpec:
               volumeClaimTemplate:
                 spec:
@@ -22,6 +29,15 @@ spec:
                   resources:
                     requests:
                       storage: 50Gi
+        alertmanager:
+          alertmanagerSpec:
+            resources:
+              requests:
+                cpu: 200m
+                memory: 256Mi
+              limits:
+                cpu: 500m
+                memory: 512Mi
         grafana:
           adminPassword: "admin"
           ingress:
@@ -44,7 +60,13 @@ spec:
             storageClassName: "gp2-eks-csi"
             size: 10Gi
 
-          # Data sources configuration
+          resources:
+            requests:
+              cpu: 200m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
           datasources:
             datasources.yaml:
               apiVersion: 1
@@ -63,6 +85,52 @@ spec:
                   isDefault: false
                   jsonData:
                     maxLines: 1000
+
+        prometheusOperator:
+          resources:
+            requests:
+              cpu: 200m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+
+        kubeStateMetrics:
+          resources:
+            requests:
+              cpu: 150m
+              memory: 256Mi
+            limits:
+              cpu: 400m
+              memory: 384Mi
+          livenessProbe:
+            enabled: true
+            initialDelaySeconds: 30
+            periodSeconds: 15
+            timeoutSeconds: 5
+            failureThreshold: 5
+          readinessProbe:
+            enabled: true
+            initialDelaySeconds: 15
+            periodSeconds: 15
+            timeoutSeconds: 5
+            failureThreshold: 5
+
+        nodeExporter:
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 300m
+              memory: 256Mi
+
+        prometheus-node-exporter:
+          extraArgs:
+            - --web.listen-address=:9100
+            - --collector.filesystem.mount-points-exclude=^/(dev|proc|sys|var/lib/docker/.+|var/lib/kubelet/.+)($|/)
+            - --collector.filesystem.fs-types-exclude=^(autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|iso9660|mqueue|nsfs|overlay|proc|procfs|pstore|rpc_pipefs|securityfs|selinuxfs|squashfs|sysfs|tracefs)$
+
   destination:
     server: https://kubernetes.default.svc
     namespace: monitoring
