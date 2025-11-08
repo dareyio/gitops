@@ -4,7 +4,7 @@ metadata:
   name: dareyscore-api
   namespace: dareyscore
 spec:
-  replicas: 2
+  replicas: 5
   selector:
     matchLabels:
       app: dareyscore-api
