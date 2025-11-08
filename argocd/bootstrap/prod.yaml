@@ -11,6 +11,7 @@ spec:
     path: argocd/applications/prod
     directory:
       recurse: true
+      exclude: dareyscore/**
   destination:
     server: https://kubernetes.default.svc
     namespace: argocd
