@@ -22,11 +22,11 @@ spec:
                 path: /var/tempo/wal
           resources:
             requests:
-              cpu: 200m
-              memory: 256Mi
+              cpu: 50m
+              memory: 128Mi
             limits:
-              cpu: 500m
-              memory: 1Gi
+              cpu: 300m
+              memory: 512Mi
         persistence:
           enabled: true
           storageClassName: gp2-eks-csi
