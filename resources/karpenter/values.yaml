@@ -15,13 +15,13 @@ controller:
     value: eu-west-2
   - name: AWS_DEFAULT_REGION
     value: eu-west-2
-  affinity:
-    nodeAffinity:
-      requiredDuringSchedulingIgnoredDuringExecution:
-        nodeSelectorTerms:
-        - matchExpressions:
-          - key: karpenter.sh/nodepool
-            operator: In
-            values:
-            - general-purpose
-  tolerations: []
+affinity:
+  nodeAffinity:
+    requiredDuringSchedulingIgnoredDuringExecution:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: karpenter.sh/nodepool
+          operator: In
+          values:
+          - general-purpose
+tolerations: []
