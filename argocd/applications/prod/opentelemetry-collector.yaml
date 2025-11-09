@@ -48,8 +48,8 @@ spec:
             release: kube-prometheus-stack
         config:
           exporters:
-            logging:
-              loglevel: warn
+            debug:
+              verbosity: basic
             otlp/tempo:
               endpoint: tempo.observability.svc.cluster.local:4317
               tls:
@@ -89,11 +89,11 @@ spec:
               metrics:
                 receivers: [otlp]
                 processors: [memory_limiter, batch]
-                exporters: [logging]
+                exporters: [debug]
               logs:
                 receivers: [otlp]
                 processors: [memory_limiter, batch]
-                exporters: [logging]
+                exporters: [debug]
   destination:
     server: https://kubernetes.default.svc
     namespace: observability
