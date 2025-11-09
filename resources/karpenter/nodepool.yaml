@@ -17,6 +17,12 @@ spec:
         values:
         - on-demand
         - spot
+      - key: node.kubernetes.io/instance-type
+        operator: In
+        values:
+        - m6i.xlarge
+        - m6i.2xlarge
+        - r6i.xlarge
       - key: kubernetes.io/arch
         operator: In
         values:
@@ -25,6 +31,11 @@ spec:
         operator: In
         values:
         - linux
+      resources:
+        requests:
+          cpu: "1500m"
+          memory: "3Gi"
+          pods: "20"
   disruption:
     consolidationPolicy: WhenEmptyOrUnderutilized
     consolidateAfter: 30s
