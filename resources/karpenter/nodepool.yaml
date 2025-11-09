@@ -5,9 +5,7 @@ metadata:
   namespace: karpenter
 spec:
   template:
-    metadata:
-      labels:
-        karpenter.sh/discovery: darey-io-v2-lab-prod
+    metadata: {}
     spec:
       nodeClassRef:
         group: karpenter.k8s.aws
