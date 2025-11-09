@@ -4,18 +4,21 @@ metadata:
   name: default
   namespace: karpenter
 spec:
-  amiFamily: AL2
-  role: darey-io-v2-lab-prod-karpenter-instance-profile
+  amiFamily: AL2023
+  role: darey-io-v2-lab-prod-karpenter-node
   subnetSelectorTerms:
-    - id: subnet-071727569182dc738
-    - id: subnet-0962da11cb794b5ee
+  - tags:
+      kubernetes.io/cluster/darey-io-v2-lab-prod: shared
   securityGroupSelectorTerms:
-    - id: sg-0a6711f4fe162b935
+  - tags:
+      kubernetes.io/cluster/darey-io-v2-lab-prod: owned
   tags:
     Environment: production
     Project: darey-io-v2-lab
-    Terraform: "true"
+    Terraform: 'true'
     Owner: dare@darey.io
     CostCenter: engineering
     Compliance: required
     Backup: required
+  amiSelectorTerms:
+  - alias: al2023@latest

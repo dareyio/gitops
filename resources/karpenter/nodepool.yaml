@@ -10,21 +10,23 @@ spec:
         karpenter.sh/discovery: darey-io-v2-lab-prod
     spec:
       nodeClassRef:
+        group: karpenter.k8s.aws
+        kind: EC2NodeClass
         name: default
       requirements:
-        - key: karpenter.sh/capacity-type
-          operator: In
-          values:
-            - on-demand
-            - spot
-        - key: kubernetes.io/arch
-          operator: In
-          values:
-            - amd64
-        - key: kubernetes.io/os
-          operator: In
-          values:
-            - linux
+      - key: karpenter.sh/capacity-type
+        operator: In
+        values:
+        - on-demand
+        - spot
+      - key: kubernetes.io/arch
+        operator: In
+        values:
+        - amd64
+      - key: kubernetes.io/os
+        operator: In
+        values:
+        - linux
   disruption:
-    consolidationPolicy: WhenUnderutilized
+    consolidationPolicy: WhenEmptyOrUnderutilized
     consolidateAfter: 30s
