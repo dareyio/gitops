@@ -31,11 +31,6 @@ spec:
         operator: In
         values:
         - linux
-      resources:
-        requests:
-          cpu: "1500m"
-          memory: "3Gi"
-          pods: "20"
   disruption:
     consolidationPolicy: WhenEmptyOrUnderutilized
     consolidateAfter: 30s
