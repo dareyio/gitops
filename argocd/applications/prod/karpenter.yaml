@@ -30,7 +30,7 @@ spec:
                 value: eu-west-2
     - repoURL: https://github.com/dareyio/gitops.git
       targetRevision: main
-      path: argocd/applications/prod/karpenter
+      path: resources/karpenter
   destination:
     server: https://kubernetes.default.svc
     namespace: karpenter
