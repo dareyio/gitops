@@ -6,9 +6,9 @@ metadata:
 spec:
   project: default
   sources:
-    - repoURL: oci://public.ecr.aws/karpenter
-      chart: karpenter
-      targetRevision: 0.36.1
+    - repoURL: https://github.com/aws/karpenter-provider-aws.git
+      targetRevision: v1.8.2
+      path: charts/karpenter
       helm:
         valuesObject:
           settings:
