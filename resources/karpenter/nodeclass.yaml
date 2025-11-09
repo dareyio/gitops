@@ -5,7 +5,6 @@ metadata:
   namespace: karpenter
 spec:
   amiFamily: AL2023
-  role: darey-io-v2-lab-prod-karpenter-node
   subnetSelectorTerms:
   - tags:
       kubernetes.io/cluster/darey-io-v2-lab-prod: shared
@@ -22,3 +21,4 @@ spec:
     Backup: required
   amiSelectorTerms:
   - alias: al2023@latest
+  instanceProfile: darey-io-v2-lab-prod-karpenter-instance-profile
