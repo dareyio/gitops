@@ -33,3 +33,7 @@ data:
   DECAY_JOB_ENABLED: "false"
   DECAY_JOB_HOUR: "2"
   DECAY_BATCH_SIZE: "100"
+  TRACING_ENABLED: "true"
+  OTLP_ENDPOINT: "http://opentelemetry-collector.observability.svc:4317"
+  OTLP_INSECURE: "true"
+  TELEMETRY_ENVIRONMENT: "prod"

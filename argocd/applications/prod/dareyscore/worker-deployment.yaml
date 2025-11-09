@@ -29,6 +29,10 @@ spec:
                 secretKeyRef:
                   name: postgres-secret
                   key: password
+            - name: SERVICE_NAME
+              value: dareyscore-worker
+            - name: SERVICE_NAMESPACE
+              value: dareyscore
           resources:
             requests:
               cpu: 250m

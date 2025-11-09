@@ -38,6 +38,32 @@ spec:
               limits:
                 cpu: 500m
                 memory: 512Mi
+            secrets:
+              - slack-webhook
+            config:
+              global:
+                resolve_timeout: 5m
+              route:
+                group_by: ["alertname", "namespace"]
+                group_wait: 30s
+                group_interval: 5m
+                repeat_interval: 4h
+                receiver: slack-notifications
+                routes:
+                  - matchers:
+                      - severity="critical"
+                    receiver: slack-critical
+              receivers:
+                - name: slack-notifications
+                  slack_configs:
+                    - channel: "#observability"
+                      send_resolved: true
+                      api_url_file: /etc/alertmanager/secrets/slack-webhook/slack_api_url
+                - name: slack-critical
+                  slack_configs:
+                    - channel: "#observability-critical"
+                      send_resolved: true
+                      api_url_file: /etc/alertmanager/secrets/slack-webhook/slack_api_url
         grafana:
           adminPassword: "admin"
           ingress:
@@ -76,6 +102,7 @@ spec:
                   url: http://kube-prometheus-stack-prometheus.monitoring.svc:9090
                   access: proxy
                   isDefault: true
+                  uid: prometheus
                   jsonData:
                     timeInterval: 30s
                 - name: Loki
@@ -83,8 +110,26 @@ spec:
                   url: http://loki.monitoring.svc:3100
                   access: proxy
                   isDefault: false
+                  uid: loki
                   jsonData:
                     maxLines: 1000
+                - name: Tempo
+                  type: tempo
+                  url: http://tempo.observability.svc:3200
+                  access: proxy
+                  isDefault: false
+                  uid: tempo
+                  jsonData:
+                    httpMethod: GET
+                    serviceMap:
+                      datasourceUid: prometheus
+                    tracesToLogs:
+                      datasourceUid: loki
+                      mapTagNamesEnabled: true
+                      filterByTraceID: true
+                      filterBySpanID: true
+                    tracesToMetrics:
+                      datasourceUid: prometheus
 
         prometheusOperator:
           resources:

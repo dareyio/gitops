@@ -32,6 +32,10 @@ spec:
                 secretKeyRef:
                   name: postgres-secret
                   key: password
+            - name: SERVICE_NAME
+              value: dareyscore-api
+            - name: SERVICE_NAMESPACE
+              value: dareyscore
           livenessProbe:
             httpGet:
               path: /v1/health

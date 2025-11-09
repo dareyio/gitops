@@ -71,6 +71,33 @@ spec:
             limits:
               cpu: 1000m
               memory: 2Gi
+        - name: postgres-exporter
+          image: quay.io/prometheuscommunity/postgres-exporter:v0.12.0
+          env:
+            - name: DATA_SOURCE_URI
+              value: "localhost:5432/darey_score?sslmode=disable"
+            - name: DATA_SOURCE_USER
+              valueFrom:
+                configMapKeyRef:
+                  name: postgres-config
+                  key: POSTGRES_USER
+            - name: DATA_SOURCE_PASS
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: password
+            - name: DATA_SOURCE_PARAMETERS
+              value: "application_name=postgres_exporter"
+          ports:
+            - containerPort: 9187
+              name: metrics
+          resources:
+            requests:
+              cpu: 50m
+              memory: 128Mi
+            limits:
+              cpu: 200m
+              memory: 256Mi
       volumes:
         - name: postgres-config
           configMap:
