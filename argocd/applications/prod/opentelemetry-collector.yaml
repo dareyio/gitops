@@ -12,6 +12,11 @@ spec:
     helm:
       valuesObject:
         mode: deployment
+        image:
+          repository: otel/opentelemetry-collector-contrib
+          tag: 0.139.0
+        command:
+          name: otelcol-contrib
         resources:
           requests:
             cpu: 200m
