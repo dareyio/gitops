@@ -1,0 +1,43 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: karpenter
+  namespace: argocd
+spec:
+  project: default
+  sources:
+    - repoURL: https://charts.karpenter.sh
+      chart: karpenter
+      targetRevision: v0.36.1
+      helm:
+        valuesObject:
+          settings:
+            aws:
+              clusterName: darey-io-v2-lab-prod
+              defaultInstanceProfile: darey-io-v2-lab-prod-karpenter-instance-profile
+              interruptionQueueName: darey-io-v2-lab-prod-karpenter-interruptions
+            clusterName: darey-io-v2-lab-prod
+          serviceAccount:
+            create: true
+            name: karpenter
+            annotations:
+              eks.amazonaws.com/role-arn: arn:aws:iam::586794457112:role/darey-io-v2-lab-prod-karpenter-controller
+          controller:
+            env:
+              - name: AWS_REGION
+                value: eu-west-2
+              - name: AWS_DEFAULT_REGION
+                value: eu-west-2
+    - repoURL: https://github.com/dareyio/gitops.git
+      targetRevision: main
+      path: argocd/applications/prod/karpenter
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: karpenter
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true

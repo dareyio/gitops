@@ -1,0 +1,30 @@
+apiVersion: karpenter.sh/v1beta1
+kind: NodePool
+metadata:
+  name: default
+  namespace: karpenter
+spec:
+  template:
+    metadata:
+      labels:
+        karpenter.sh/discovery: darey-io-v2-lab-prod
+    spec:
+      nodeClassRef:
+        name: default
+      requirements:
+        - key: karpenter.sh/capacity-type
+          operator: In
+          values:
+            - on-demand
+            - spot
+        - key: kubernetes.io/arch
+          operator: In
+          values:
+            - amd64
+        - key: kubernetes.io/os
+          operator: In
+          values:
+            - linux
+  disruption:
+    consolidationPolicy: WhenUnderutilized
+    consolidateAfter: 30s
