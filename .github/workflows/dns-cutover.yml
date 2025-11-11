@@ -1,0 +1,146 @@
+name: DNS Cutover
+
+on:
+  workflow_dispatch:
+    inputs:
+      target_cluster:
+        description: "Cluster colour to route production traffic (blue or green)"
+        required: true
+        type: choice
+        options:
+          - blue
+          - green
+      dry_run:
+        description: "If true, only print the Route53 change batch without applying"
+        required: false
+        default: "false"
+
+env:
+  AWS_REGION: eu-west-2
+
+permissions:
+  contents: write
+
+jobs:
+  switch-dns:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Validate target cluster
+        id: validate
+        run: |
+          set -euo pipefail
+          TARGET="${{ github.event.inputs.target_cluster }}"
+          if [[ -z "$TARGET" ]]; then
+            echo "Target cluster input is required" >&2
+            exit 1
+          fi
+          if [[ "$TARGET" != "blue" && "$TARGET" != "green" ]]; then
+            echo "Target cluster must be blue or green" >&2
+            exit 1
+          fi
+          ACTIVE=$(grep '^cluster:' ops/active-cluster.yaml | awk '{print $2}')
+          echo "Current active cluster: ${ACTIVE}"
+          if [[ "$TARGET" == "$ACTIVE" ]]; then
+            echo "Target cluster matches current active cluster; nothing to do." >&2
+            exit 1
+          fi
+          echo "active=${ACTIVE}" >> $GITHUB_OUTPUT
+
+      - name: Read DNS configuration
+        id: dns
+        run: |
+          set -euo pipefail
+          pip install --quiet pyyaml
+          python - <<'PY'
+import sys, yaml, json
+from datetime import datetime, timezone
+repo_root = 'ops/dns-targets.yaml'
+with open(repo_root, 'r', encoding='utf-8') as f:
+    config = yaml.safe_load(f)
+if not config or 'records' not in config:
+    raise SystemExit('dns-targets.yaml missing "records" section')
+target = '${{ github.event.inputs.target_cluster }}'
+change_batch = {"Changes": []}
+for record in config['records']:
+    try:
+        name = record['name']
+        zone_id = record['hosted_zone_id']
+        ttl = record.get('ttl', 60)
+        blue = record['blue_dns_name']
+        green = record['green_dns_name']
+    except KeyError as exc:
+        raise SystemExit(f"Missing required key {exc} in record {record}")
+    alias = blue if target == 'blue' else green
+    if alias in ('<blue-alb-dns>', '<green-alb-dns>'):
+        raise SystemExit(f"DNS target for {target} cluster still placeholder for record {name}")
+    action = record.get('action', 'UPSERT')
+    change_batch['Changes'].append({
+        "Action": action,
+        "ResourceRecordSet": {
+            "Name": name,
+            "Type": record.get('type', 'CNAME'),
+            "TTL": ttl,
+            "ResourceRecords": [{"Value": alias}]
+        }
+    })
+with open('ops/.dns-change-batch.json', 'w', encoding='utf-8') as f:
+    json.dump(change_batch, f, indent=2)
+print(json.dumps(change_batch, indent=2))
+with open('ops/.dns-zone-ids.txt', 'w', encoding='utf-8') as f:
+    for record in config['records']:
+        f.write(f"{record['hosted_zone_id']}\n")
+PY
+
+      - name: Configure AWS credentials
+        if: ${{ github.event.inputs.dry_run != 'true' }}
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Apply DNS changes
+        if: ${{ github.event.inputs.dry_run != 'true' }}
+        run: |
+          set -euo pipefail
+          while read -r ZONE_ID; do
+            if [[ -z "$ZONE_ID" ]]; then
+              continue
+            fi
+            aws route53 change-resource-record-sets \
+              --hosted-zone-id "$ZONE_ID" \
+              --change-batch file://ops/.dns-change-batch.json
+          done < ops/.dns-zone-ids.txt
+
+      - name: Update active cluster marker
+        if: ${{ github.event.inputs.dry_run != 'true' }}
+        run: |
+          set -euo pipefail
+          TARGET="${{ github.event.inputs.target_cluster }}"
+          TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+          cat <<EOF > ops/active-cluster.yaml
+# Active production cluster marker
+# Updated automatically by the DNS cutover workflow.
+cluster: ${TARGET}
+last_updated: "${TIMESTAMP}"
+EOF
+
+      - name: Commit and push marker update
+        if: ${{ github.event.inputs.dry_run != 'true' }}
+        run: |
+          set -euo pipefail
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          git add ops/active-cluster.yaml
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "chore: switch active cluster to ${{ github.event.inputs.target_cluster }}"
+            git push origin main
+          fi
+
+      - name: Cleanup
+        run: |
+          rm -f ops/.dns-change-batch.json ops/.dns-zone-ids.txt

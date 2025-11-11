@@ -1,0 +1,22 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: prod-blue-applications
+  namespace: argocd
+  labels:
+    cluster.darey.io/colour: blue
+spec:
+  project: default
+  source:
+    repoURL: git@github.com:dareyio/gitops.git
+    targetRevision: HEAD
+    path: argocd/applications/prod-blue
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: argocd
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

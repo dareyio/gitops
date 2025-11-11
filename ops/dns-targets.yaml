@@ -1,0 +1,10 @@
+# Route53 DNS targets for blue/green cutover automation
+# TODO: replace placeholder hosted zone IDs and ALB DNS names with real values
+records:
+  - name: talentos.darey.io
+    hosted_zone_id: ZZZZZPLACEHOLDER
+    type: CNAME
+    ttl: 60
+    action: UPSERT
+    blue_dns_name: <blue-alb-dns>
+    green_dns_name: <green-alb-dns>

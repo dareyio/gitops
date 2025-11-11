@@ -1,0 +1,26 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: dareyscore
+  namespace: argocd
+  labels:
+    cluster.darey.io/colour: blue
+spec:
+  project: default
+  source:
+    repoURL: git@github.com:dareyio/gitops.git
+    targetRevision: HEAD
+    path: argocd/applications/prod-blue/dareyscore
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: dareyscore
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - PrunePropagationPolicy=foreground
+      - PruneLast=true
+  revisionHistoryLimit: 3
+
