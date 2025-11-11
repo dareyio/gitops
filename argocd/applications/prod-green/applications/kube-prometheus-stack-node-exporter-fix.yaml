@@ -1,0 +1,14 @@
+# Patch to disable node exporter if it's causing issues on Bottlerocket
+# This can be applied if node exporter continues to fail
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: kube-prometheus-stack
+  namespace: argocd
+spec:
+  source:
+    helm:
+      valuesObject:
+        prometheus-node-exporter:
+          enabled: false  # Disable if causing issues on Bottlerocket
+
