@@ -25,10 +25,10 @@ spec:
             limits:
               cpu: 1000m
               memory: 2Gi
-          persistence:
-            enabled: true
-            size: 10Gi
-            storageClass: "gp2"
+                persistence:
+                  enabled: true
+                  size: 10Gi
+                  storageClassName: "gp2"
         promtail:
           enabled: true
           resources:
