@@ -25,12 +25,12 @@ spec:
                 memory: 3Gi
             storageSpec:
               volumeClaimTemplate:
-                spec:
-                  accessModes: ["ReadWriteOnce"]
-                  storageClassName: "gp2-eks-csi"
-                  resources:
-                    requests:
-                      storage: 50Gi
+                    spec:
+                      accessModes: ["ReadWriteOnce"]
+                      storageClassName: "gp2"
+                      resources:
+                        requests:
+                          storage: 50Gi
         alertmanager:
           alertmanagerSpec:
             resources:
@@ -83,10 +83,10 @@ spec:
                 foldersFromFilesStructure: true
 
           # Persistence for Grafana data
-          persistence:
-            enabled: true
-            storageClassName: "gp2-eks-csi"
-            size: 10Gi
+                  persistence:
+                    enabled: true
+                    storageClassName: "gp2"
+                    size: 10Gi
 
           resources:
             requests:

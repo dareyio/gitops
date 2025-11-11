@@ -21,7 +21,7 @@ spec:
             memory: 256Mi
         serviceAccount:
           annotations:
-            eks.amazonaws.com/role-arn: arn:aws:iam::586794457112:role/prod-external-dns-role
+            eks.amazonaws.com/role-arn: arn:aws:iam::586794457112:role/darey-io-v2-lab-prod-green-external-dns-role
         provider: aws
         aws:
           region: eu-west-2
