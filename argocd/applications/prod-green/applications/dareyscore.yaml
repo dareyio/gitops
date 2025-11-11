@@ -12,7 +12,7 @@ spec:
   source:
     repoURL: git@github.com:dareyio/gitops.git
     targetRevision: HEAD
-    path: argocd/applications/prod-blue/dareyscore
+    path: argocd/applications/prod-green/dareyscore
   destination:
     server: https://kubernetes.default.svc
     namespace: dareyscore
