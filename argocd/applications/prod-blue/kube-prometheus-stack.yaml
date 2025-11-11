@@ -188,6 +188,3 @@ spec:
     syncOptions:
       - CreateNamespace=true
       - ServerSideApply=true
-  metadata:
-    annotations:
-      argocd.argoproj.io/sync-wave: "0"
