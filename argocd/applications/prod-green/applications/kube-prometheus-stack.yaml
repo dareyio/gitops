@@ -83,10 +83,10 @@ spec:
                 foldersFromFilesStructure: true
 
           # Persistence for Grafana data
-                  persistence:
-                    enabled: true
-                    storageClassName: "gp2"
-                    size: 10Gi
+          persistence:
+            enabled: true
+            storageClassName: "gp2"
+            size: 10Gi
 
           resources:
             requests:
