@@ -10,7 +10,7 @@ spec:
   source:
     repoURL: git@github.com:dareyio/gitops.git
     targetRevision: HEAD
-    path: argocd/applications/prod-blue/cluster-resources
+    path: argocd/applications/prod-green/cluster-resources
     directory:
       recurse: true
   destination:
