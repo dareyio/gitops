@@ -28,7 +28,7 @@ spec:
           persistence:
             enabled: true
             size: 10Gi
-            storageClass: "gp2-eks-csi"
+            storageClass: "gp2"
         promtail:
           enabled: true
           resources:
