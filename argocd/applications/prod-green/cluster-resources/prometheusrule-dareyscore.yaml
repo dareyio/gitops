@@ -1,0 +1,87 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+  name: dareyscore-observability
+  namespace: monitoring
+  labels:
+    release: kube-prometheus-stack
+spec:
+  groups:
+    - name: dareyscore-api
+      rules:
+        - alert: DareyScoreHighErrorRate
+          expr: sum(rate(http_requests_total{namespace="dareyscore", status=~"5.."}[5m])) > 0.5
+          for: 10m
+          labels:
+            severity: warning
+            service: dareyscore-api
+          annotations:
+            summary: "Elevated 5xx responses for DareyScore API"
+            description: "HTTP 5xx rate is above 0.5 req/s for more than 10 minutes."
+        - alert: DareyScoreCriticalErrorRate
+          expr: sum(rate(http_requests_total{namespace="dareyscore", status=~"5.."}[5m])) > 2
+          for: 5m
+          labels:
+            severity: critical
+            service: dareyscore-api
+          annotations:
+            summary: "Critical 5xx rate for DareyScore API"
+            description: "HTTP 5xx rate is above 2 req/s for more than 5 minutes."
+        - alert: DareyScoreSlowRequests
+          expr: histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket{namespace="dareyscore", handler!="/metrics"}[5m])) by (le)) > 0.75
+          for: 10m
+          labels:
+            severity: warning
+            service: dareyscore-api
+          annotations:
+            summary: "High p95 latency for DareyScore API"
+            description: "95th percentile latency is above 750ms for 10 minutes."
+    - name: dareyscore-infra
+      rules:
+        - alert: DareyScoreQueueBacklog
+          expr: max(redis_key_size{key="rq:queue:score_events"}) > 200
+          for: 10m
+          labels:
+            severity: warning
+            component: redis
+          annotations:
+            summary: "Score events backlog growing"
+            description: "More than 200 pending events detected in the score_events queue."
+        - alert: DareyScorePostgresConnectionsHigh
+          expr: sum(pg_stat_activity_count{datname="darey_score"}) > 45
+          for: 5m
+          labels:
+            severity: warning
+            component: postgres
+          annotations:
+            summary: "PostgreSQL connections approaching limit"
+            description: "Active PostgreSQL connections exceed 45 for 5 minutes."
+        - alert: IngressHighLatency
+          expr: histogram_quantile(0.95, sum(rate(nginx_ingress_controller_request_duration_seconds_bucket{namespace="ingress-nginx"}[5m])) by (le, ingress)) > 0.8
+          for: 10m
+          labels:
+            severity: warning
+            component: ingress
+          annotations:
+            summary: "Ingress latency elevated"
+            description: "Ingress controller p95 latency exceeds 800ms."
+        - alert: LiveclassesDeploymentUnavailable
+          expr: sum(kube_deployment_status_replicas_unavailable{namespace="liveclasses"}) > 0
+          for: 5m
+          labels:
+            severity: critical
+            component: liveclasses
+          annotations:
+            summary: "Liveclasses deployment has unavailable replicas"
+            description: "One or more Liveclasses deployments have unavailable replicas for more than 5 minutes."
+        - alert: DareyScorePodCrashLooping
+          expr: increase(kube_pod_container_status_restarts_total{namespace="dareyscore"}[10m]) > 3
+          for: 10m
+          labels:
+            severity: warning
+            component: dareyscore
+          annotations:
+            summary: "DareyScore containers restarting frequently"
+            description: "Containers in namespace dareyscore have restarted more than 3 times in the last 10 minutes."

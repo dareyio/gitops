@@ -1,0 +1,190 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: kube-prometheus-stack
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "0"
+spec:
+  project: default
+  source:
+    repoURL: https://prometheus-community.github.io/helm-charts
+    chart: kube-prometheus-stack
+    targetRevision: 56.0.0
+    helm:
+      valuesObject:
+        prometheus:
+          prometheusSpec:
+            retention: 30d
+            resources:
+              requests:
+                cpu: 500m
+                memory: 1Gi
+              limits:
+                cpu: 1500m
+                memory: 3Gi
+            storageSpec:
+              volumeClaimTemplate:
+                spec:
+                  accessModes: ["ReadWriteOnce"]
+                  storageClassName: "gp2-eks-csi"
+                  resources:
+                    requests:
+                      storage: 50Gi
+        alertmanager:
+          alertmanagerSpec:
+            resources:
+              requests:
+                cpu: 200m
+                memory: 256Mi
+              limits:
+                cpu: 500m
+                memory: 512Mi
+            secrets:
+              - slack-webhook
+            config:
+              global:
+                resolve_timeout: 5m
+              route:
+                group_by: ["alertname", "namespace"]
+                group_wait: 30s
+                group_interval: 5m
+                repeat_interval: 4h
+                receiver: slack-notifications
+                routes:
+                  - matchers:
+                      - severity="critical"
+                    receiver: slack-critical
+              receivers:
+                - name: slack-notifications
+                  slack_configs:
+                    - channel: "#observability"
+                      send_resolved: true
+                      api_url_file: /etc/alertmanager/secrets/slack-webhook/slack_api_url
+                - name: slack-critical
+                  slack_configs:
+                    - channel: "#observability-critical"
+                      send_resolved: true
+                      api_url_file: /etc/alertmanager/secrets/slack-webhook/slack_api_url
+        grafana:
+          adminPassword: "admin"
+          ingress:
+            enabled: false
+
+          # Dashboard provisioning via sidecar
+          sidecar:
+            dashboards:
+              enabled: true
+              label: grafana_dashboard
+              labelValue: "1"
+              searchNamespace: monitoring
+              folder: /tmp/dashboards
+              provider:
+                foldersFromFilesStructure: true
+
+          # Persistence for Grafana data
+          persistence:
+            enabled: true
+            storageClassName: "gp2-eks-csi"
+            size: 10Gi
+
+          resources:
+            requests:
+              cpu: 200m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+          datasources:
+            datasources.yaml:
+              apiVersion: 1
+              datasources:
+                - name: Prometheus
+                  type: prometheus
+                  url: http://kube-prometheus-stack-prometheus.monitoring.svc:9090
+                  access: proxy
+                  isDefault: true
+                  uid: prometheus
+                  jsonData:
+                    timeInterval: 30s
+                - name: Loki
+                  type: loki
+                  url: http://loki.monitoring.svc:3100
+                  access: proxy
+                  isDefault: false
+                  uid: loki
+                  jsonData:
+                    maxLines: 1000
+                - name: Tempo
+                  type: tempo
+                  url: http://tempo.observability.svc:3200
+                  access: proxy
+                  isDefault: false
+                  uid: tempo
+                  jsonData:
+                    httpMethod: GET
+                    serviceMap:
+                      datasourceUid: prometheus
+                    tracesToLogs:
+                      datasourceUid: loki
+                      mapTagNamesEnabled: true
+                      filterByTraceID: true
+                      filterBySpanID: true
+                    tracesToMetrics:
+                      datasourceUid: prometheus
+
+        prometheusOperator:
+          resources:
+            requests:
+              cpu: 200m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+
+        kubeStateMetrics:
+          resources:
+            requests:
+              cpu: 150m
+              memory: 256Mi
+            limits:
+              cpu: 400m
+              memory: 384Mi
+          livenessProbe:
+            enabled: true
+            initialDelaySeconds: 30
+            periodSeconds: 15
+            timeoutSeconds: 5
+            failureThreshold: 5
+          readinessProbe:
+            enabled: true
+            initialDelaySeconds: 15
+            periodSeconds: 15
+            timeoutSeconds: 5
+            failureThreshold: 5
+
+        nodeExporter:
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 300m
+              memory: 256Mi
+
+        prometheus-node-exporter:
+          extraArgs:
+            - --web.listen-address=:9100
+            - --collector.filesystem.mount-points-exclude=^/(dev|proc|sys|var/lib/docker/.+|var/lib/kubelet/.+)($|/)
+            - --collector.filesystem.fs-types-exclude=^(autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|iso9660|mqueue|nsfs|overlay|proc|procfs|pstore|rpc_pipefs|securityfs|selinuxfs|squashfs|sysfs|tracefs)$
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: monitoring
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true
