@@ -13,7 +13,7 @@ spec:
       restartPolicy: OnFailure
       containers:
         - name: migration
-          image: 586794457112.dkr.ecr.eu-west-2.amazonaws.com/dareyscore/dareyscore-api:e4254b8793a3d9316472c5638616f4bb56800cee
+          image: 586794457112.dkr.ecr.eu-west-2.amazonaws.com/dareyscore/dareyscore-api:0a8c7ab5de40e42986439651db01448e9fdd8270
           imagePullPolicy: Always
           command:
             - alembic
