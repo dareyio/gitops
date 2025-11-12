@@ -29,6 +29,8 @@ spec:
             enabled: true
             size: 10Gi
             storageClassName: "gp2"
+            accessModes:
+              - ReadWriteOnce
         promtail:
           enabled: true
           resources:

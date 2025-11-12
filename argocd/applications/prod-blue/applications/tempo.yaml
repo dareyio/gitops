@@ -29,7 +29,7 @@ spec:
               memory: 512Mi
         persistence:
           enabled: true
-          storageClassName: gp2-eks-csi
+          storageClassName: gp2
           size: 50Gi
         serviceMonitor:
           enabled: true

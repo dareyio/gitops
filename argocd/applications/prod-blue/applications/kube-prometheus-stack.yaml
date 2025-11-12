@@ -27,7 +27,7 @@ spec:
               volumeClaimTemplate:
                 spec:
                   accessModes: ["ReadWriteOnce"]
-                  storageClassName: "gp2"
+                  storageClassName: gp2
                   resources:
                     requests:
                       storage: 50Gi
@@ -85,7 +85,7 @@ spec:
           # Persistence for Grafana data
           persistence:
             enabled: true
-            storageClassName: "gp2"
+            storageClassName: gp2
             size: 10Gi
 
           resources:
