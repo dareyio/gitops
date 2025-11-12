@@ -18,7 +18,6 @@ spec:
             - name: AWS ECR
               prefix: 586794457112.dkr.ecr.eu-west-2.amazonaws.com
               api_url: https://586794457112.dkr.ecr.eu-west-2.amazonaws.com
-              credentials: ext:/scripts/ecr-login.sh
               ping: no
               default: true
           git:
@@ -34,6 +33,10 @@ spec:
           create: true
           annotations:
             eks.amazonaws.com/role-arn: arn:aws:iam::586794457112:role/darey-io-v2-lab-prod-green-external-secrets-operator-role
+        gitSecret:
+          create: false
+          name: argocd-repo-ssh
+          key: sshPrivateKey
         resources:
           requests:
             cpu: 100m
@@ -50,4 +53,3 @@ spec:
       selfHeal: true
     syncOptions:
       - CreateNamespace=true
-
