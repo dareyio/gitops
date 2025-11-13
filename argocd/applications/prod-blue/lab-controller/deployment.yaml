@@ -78,13 +78,25 @@ spec:
             - name: LAB_CONTROLLER_ECR_ROLE_ARN
               value: "arn:aws:iam::586794457112:role/darey-io-v2-lab-prod-blue-lab-controller-ecr-role"
             - name: REDIS_HOST
-              value: "redis.lab-controller.svc.cluster.local"
+              valueFrom:
+                secretKeyRef:
+                  name: lab-controller-redis-secrets
+                  key: REDIS_HOST
+                  optional: true
             - name: REDIS_PORT
-              value: "6379"
+              valueFrom:
+                secretKeyRef:
+                  name: lab-controller-redis-secrets
+                  key: REDIS_PORT
+                  optional: true
             - name: REDIS_DB
-              value: "0"
+              value: "1"
             - name: REDIS_PASSWORD
-              value: ""
+              valueFrom:
+                secretKeyRef:
+                  name: lab-controller-redis-secrets
+                  key: REDIS_PASSWORD
+                  optional: true
             - name: ENABLE_LAB_PASSWORD
               value: "true"
             - name: LAB_TYPES_PATH

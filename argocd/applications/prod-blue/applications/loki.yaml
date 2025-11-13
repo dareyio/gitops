@@ -20,14 +20,14 @@ spec:
         loki:
           resources:
             requests:
-              cpu: 400m
-              memory: 1Gi
+              cpu: 100m
+              memory: 256Mi
             limits:
-              cpu: 1000m
-              memory: 2Gi
+              cpu: 500m
+              memory: 1Gi
           persistence:
             enabled: true
-            size: 10Gi
+            size: 5Gi
             storageClassName: gp2
             accessModes:
               - ReadWriteOnce

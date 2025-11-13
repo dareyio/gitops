@@ -30,7 +30,7 @@ spec:
         persistence:
           enabled: true
           storageClassName: gp2
-          size: 50Gi
+          size: 20Gi
           accessModes:
             - ReadWriteOnce
         volumeClaimTemplate:
@@ -40,7 +40,7 @@ spec:
             storageClassName: gp2
             resources:
               requests:
-                storage: 50Gi
+                storage: 20Gi
         serviceMonitor:
           enabled: true
           extraLabels:

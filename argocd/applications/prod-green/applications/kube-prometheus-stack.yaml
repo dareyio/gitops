@@ -18,19 +18,19 @@ spec:
             retention: 30d
             resources:
               requests:
-                cpu: 200m
-                memory: 512Mi
+                cpu: 100m
+                memory: 256Mi
               limits:
-                cpu: 1500m
-                memory: 3Gi
+                cpu: 1000m
+                memory: 2Gi
             storageSpec:
               volumeClaimTemplate:
                 spec:
                   accessModes: ["ReadWriteOnce"]
-                  storageClassName: gp2
+                  storageClassName: gp2-csi
                   resources:
                     requests:
-                      storage: 50Gi
+                      storage: 20Gi
         alertmanager:
           alertmanagerSpec:
             resources:
@@ -42,6 +42,7 @@ spec:
                 memory: 512Mi
             secrets:
               - slack-webhook
+              - whatsapp-webhook
             config:
               global:
                 resolve_timeout: 5m
@@ -54,22 +55,58 @@ spec:
                 routes:
                   - matchers:
                       - severity="critical"
-                    receiver: slack-critical
+                    receiver: critical-alerts
+                    continue: true
               receivers:
                 - name: slack-notifications
                   slack_configs:
-                    - channel: "#observability"
+                    - channel: "#devops-observability"
                       send_resolved: true
                       api_url_file: /etc/alertmanager/secrets/slack-webhook/slack_api_url
                 - name: slack-critical
                   slack_configs:
-                    - channel: "#observability-critical"
+                    - channel: "#devops-observability"
                       send_resolved: true
                       api_url_file: /etc/alertmanager/secrets/slack-webhook/slack_api_url
+                - name: critical-alerts
+                  slack_configs:
+                    - channel: "#devops-observability"
+                      send_resolved: true
+                      api_url_file: /etc/alertmanager/secrets/slack-webhook/slack_api_url
+                  webhook_configs:
+                    - url: 'https://api.example.com/whatsapp/webhook'
+                      http_config:
+                        basic_auth:
+                          username: placeholder_username
+                          password_file: /etc/alertmanager/secrets/whatsapp-webhook/whatsapp_api_token
+                      send_resolved: true
+                - name: whatsapp-critical
+                  webhook_configs:
+                    - url: 'https://api.example.com/whatsapp/webhook'
+                      http_config:
+                        basic_auth:
+                          username: placeholder_username
+                          password_file: /etc/alertmanager/secrets/whatsapp-webhook/whatsapp_api_token
+                      send_resolved: true
         grafana:
           adminPassword: "admin"
           ingress:
-            enabled: false
+            enabled: true
+            ingressClassName: nginx
+            annotations:
+              nginx.ingress.kubernetes.io/ssl-redirect: "true"
+              nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+              cert-manager.io/cluster-issuer: letsencrypt-prod
+              external-dns.alpha.kubernetes.io/hostname: grafana-green.talentos.darey.io
+              external-dns.alpha.kubernetes.io/manage: "true"
+            hosts:
+              - grafana-green.talentos.darey.io
+              - grafana.talentos.darey.io
+            tls:
+              - secretName: grafana-tls
+                hosts:
+                  - grafana-green.talentos.darey.io
+                  - grafana.talentos.darey.io
 
           # Dashboard provisioning via sidecar
           sidecar:
@@ -85,16 +122,16 @@ spec:
           # Persistence for Grafana data
           persistence:
             enabled: true
-            storageClassName: gp2
-            size: 10Gi
+            storageClassName: gp2-csi
+            size: 5Gi
 
           resources:
             requests:
-              cpu: 100m
-              memory: 128Mi
+              cpu: 50m
+              memory: 64Mi
             limits:
-              cpu: 500m
-              memory: 512Mi
+              cpu: 300m
+              memory: 256Mi
           datasources:
             datasources.yaml:
               apiVersion: 1
