@@ -78,6 +78,8 @@ spec:
                   optional: true
             - name: LAB_BASE_URL
               value: "https://labcontroller.talentos.darey.io"
+            - name: LAB_CONTROLLER_ECR_ROLE_ARN
+              value: "arn:aws:iam::586794457112:role/darey-io-v2-lab-prod-green-lab-controller-ecr-role"
             - name: REDIS_HOST
               value: "redis.lab-controller.svc.cluster.local"
             - name: REDIS_PORT
