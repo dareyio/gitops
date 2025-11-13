@@ -52,6 +52,7 @@ spec:
                 secretKeyRef:
                   name: supabase-jwt-secret
                   key: SUPABASE_JWT_SECRET
+                  optional: true
             - name: AWS_ACCOUNT_ID
               valueFrom:
                 secretKeyRef:
@@ -59,11 +60,7 @@ spec:
                   key: AWS_ACCOUNT_ID
                   optional: true
             - name: AWS_REGION
-              valueFrom:
-                secretKeyRef:
-                  name: lab-controller-secrets
-                  key: AWS_REGION
-                  optional: true
+              value: "eu-west-2"
             - name: AWS_ACCESS_KEY_ID
               valueFrom:
                 secretKeyRef:
