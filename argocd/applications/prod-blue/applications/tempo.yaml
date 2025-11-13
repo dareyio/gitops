@@ -31,6 +31,16 @@ spec:
           enabled: true
           storageClassName: gp2
           size: 50Gi
+          accessModes:
+            - ReadWriteOnce
+        volumeClaimTemplate:
+          spec:
+            accessModes:
+              - ReadWriteOnce
+            storageClassName: gp2
+            resources:
+              requests:
+                storage: 50Gi
         serviceMonitor:
           enabled: true
           extraLabels:
