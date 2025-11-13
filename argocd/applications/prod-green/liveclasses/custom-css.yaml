@@ -1,0 +1,240 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: jitsi-custom-css
+  namespace: liveclasses
+data:
+  custom.css: |
+    /* Darey.io Jitsi Custom Styling - Hide Sidebar */
+
+    /* JAVASCRIPT WILL HANDLE POSITIONING - JUST STYLE THE SIDEBAR */
+    .premeeting-screen .left-column {
+        width: 140px !important;
+        max-width: 140px !important;
+        padding: 8px !important;
+        margin: 0 !important;
+        background: rgba(0, 0, 0, 0.85) !important;
+        backdrop-filter: blur(10px) !important;
+        border-radius: 8px !important;
+        z-index: 1000 !important;
+    }
+
+    /* JAVASCRIPT INJECTION TO MOVE SIDEBAR */
+    body::before {
+        content: '';
+        display: none;
+    }
+
+    /* MAKE VIDEO PREVIEW TAKE FULL WIDTH */
+    .premeeting-screen .right-column {
+        width: 100% !important;
+        margin: 0 !important;
+        background: transparent !important;
+        padding: 0 !important;
+    }
+
+    /* FORCE LAYOUT TO PUT VIDEO ON LEFT */
+    .premeeting-screen .content {
+        flex-direction: row-reverse !important;
+        align-items: stretch !important;
+        justify-content: flex-start !important;
+    }
+
+    /* COMPACT JOIN BUTTON IN SIDEBAR */
+    .premeeting-screen .join-button {
+        width: 100% !important;
+        padding: 8px 12px !important;
+        font-size: 12px !important;
+        font-weight: 600 !important;
+        background: #4CAF50 !important;
+        color: white !important;
+        border: none !important;
+        border-radius: 6px !important;
+        margin-top: 8px !important;
+    }
+
+    /* MAKE VIDEO PREVIEW FULL SCREEN */
+    .premeeting-screen .preview {
+        width: 100vw !important;
+        height: 100vh !important;
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        z-index: 1 !important;
+    }
+
+    /* VERY COMPACT JOIN BUTTON */
+    .premeeting-screen .join-button {
+        width: 100% !important;
+        padding: 8px 12px !important;
+        font-size: 12px !important;
+        font-weight: 600 !important;
+        background: #4CAF50 !important;
+        color: white !important;
+        border: none !important;
+        border-radius: 6px !important;
+        margin-top: 8px !important;
+    }
+
+    /* VERY COMPACT PREJOIN ELEMENTS */
+    .premeeting-screen .room-name {
+        font-size: 10px !important;
+        color: rgba(255, 255, 255, 0.8) !important;
+        margin-bottom: 6px !important;
+        text-align: center !important;
+        line-height: 1.2 !important;
+    }
+
+    .premeeting-screen .display-name {
+        font-size: 11px !important;
+        margin-bottom: 6px !important;
+        text-align: center !important;
+    }
+
+    .premeeting-screen .device-status {
+        font-size: 9px !important;
+        color: rgba(255, 255, 255, 0.7) !important;
+        margin-top: 6px !important;
+        text-align: center !important;
+    }
+
+    .premeeting-screen .device-controls {
+        display: flex !important;
+        justify-content: center !important;
+        gap: 4px !important;
+        margin: 6px 0 !important;
+    }
+
+    .premeeting-screen .device-controls button {
+        width: 24px !important;
+        height: 24px !important;
+        padding: 0 !important;
+        font-size: 10px !important;
+    }
+
+    .premeeting-screen .extra-join-buttons {
+        display: none !important;
+    }
+
+    /* ENSURE BODY IS FULL SCREEN */
+    body {
+        margin: 0 !important;
+        padding: 0 !important;
+        overflow: hidden !important;
+    }
+
+    /* HIDE JITSI BRANDING */
+    .leftwatermark,
+    .rightwatermark,
+    .poweredby {
+        display: none !important;
+    }
+
+    /* AUTO-ENABLE TILE VIEW AND HIDE SMALL CAMERA PREVIEW */
+    .videocontainer {
+        display: block !important;
+    }
+
+    /* Hide the small camera preview in top-right */
+    .videocontainer .videocontent {
+        display: none !important;
+    }
+
+    /* Force tile view layout */
+    .videocontainer[data-video-type="camera"] {
+        display: none !important;
+    }
+
+    /* Show main video area */
+    #largeVideoContainer {
+        display: block !important;
+    }
+
+    /* Auto-enable tile view with JavaScript */
+    .videocontainer::after {
+        content: '';
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 9999;
+        background: transparent;
+        pointer-events: none;
+    }
+
+    /* Force full-screen video layout */
+    #largeVideoContainer {
+        width: 100vw !important;
+        height: 100vh !important;
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        z-index: 1 !important;
+    }
+
+    /* Hide small video thumbnails */
+    .videocontainer[data-video-type="camera"] {
+        display: none !important;
+    }
+
+    /* Auto-enable tile view with JavaScript injection */
+    body::before {
+        content: '';
+        display: block;
+        position: fixed;
+        top: -9999px;
+        left: -9999px;
+        width: 0;
+        height: 0;
+        overflow: hidden;
+    }
+
+    /* Inject JavaScript to auto-click tile view */
+    body::after {
+        content: '';
+        display: none;
+    }
+
+    /* Keep camera container for initialization but hide it visually */
+    .videocontainer[data-video-type="camera"] {
+        position: absolute !important;
+        top: -9999px !important;
+        left: -9999px !important;
+        width: 1px !important;
+        height: 1px !important;
+        opacity: 0 !important;
+        pointer-events: none !important;
+        z-index: -1 !important;
+    }
+
+    /* Make main video full screen */
+    #largeVideoContainer,
+    #largeVideoContainer video {
+        width: 100vw !important;
+        height: 100vh !important;
+        object-fit: cover !important;
+    }
+
+    /* Force tile view layout by default */
+    .filmstrip {
+        display: block !important;
+    }
+
+    .videocontainer[data-video-type="camera"] {
+        display: block !important;
+        position: relative !important;
+        top: auto !important;
+        left: auto !important;
+        width: auto !important;
+        height: auto !important;
+        opacity: 1 !important;
+        pointer-events: auto !important;
+        z-index: auto !important;
+    }
+
+    /* Ensure tile view is active */
+    .filmstrip .videocontainer {
+        display: inline-block !important;
+        margin: 4px !important;
+    }

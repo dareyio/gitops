@@ -1,0 +1,48 @@
+---
+# Jicofo Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: jicofo
+  namespace: liveclasses
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: jicofo
+  template:
+    metadata:
+      labels:
+        app: jicofo
+    spec:
+      containers:
+        - name: jicofo
+          image: jitsi/jicofo:jicofo-1.0-1148-1
+          resources:
+            requests:
+              cpu: "500m"
+              memory: "512Mi"
+            limits:
+              cpu: "1000m"
+              memory: "1Gi"
+          env:
+            - name: JICOFO_AUTH_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: jitsi-auth-secrets
+                  key: JICOFO_AUTH_PASSWORD
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: jicofo
+  namespace: liveclasses
+spec:
+  selector:
+    app: jicofo
+  ports:
+    - protocol: TCP
+      port: 8888
+      targetPort: 8888
+  type: ClusterIP

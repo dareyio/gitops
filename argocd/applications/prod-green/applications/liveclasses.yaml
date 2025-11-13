@@ -1,0 +1,28 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: liveclasses
+  namespace: argocd
+  labels:
+    cluster.darey.io/colour: green
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+spec:
+  project: default
+  source:
+    repoURL: git@github.com:dareyio/gitops.git
+    targetRevision: HEAD
+    path: argocd/applications/prod-green/liveclasses
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: liveclasses
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - PrunePropagationPolicy=foreground
+      - PruneLast=true
+  revisionHistoryLimit: 3
+

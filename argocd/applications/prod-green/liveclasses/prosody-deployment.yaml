@@ -1,0 +1,58 @@
+# Prosody Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: prosody
+  namespace: liveclasses
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: prosody
+  template:
+    metadata:
+      labels:
+        app: prosody
+    spec:
+      containers:
+        - name: prosody
+          image: jitsi/prosody:prosody-13.0.2
+          resources:
+            requests:
+              cpu: "300m"
+              memory: "512Mi"
+            limits:
+              cpu: "600m"
+              memory: "1Gi"
+          ports:
+            - containerPort: 5222
+            - containerPort: 5280
+          env:
+            - name: JICOFO_AUTH_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: jitsi-auth-secrets
+                  key: JICOFO_AUTH_PASSWORD
+            - name: JVB_AUTH_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: jitsi-auth-secrets
+                  key: JVB_AUTH_PASSWORD
+            - name: JIBRI_XMPP_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: jitsi-auth-secrets
+                  key: JIBRI_XMPP_PASSWORD
+            - name: JIBRI_RECORDER_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: jitsi-auth-secrets
+                  key: JIBRI_RECORDER_PASSWORD
+          volumeMounts:
+            - name: prosody-config
+              mountPath: /config/conf.d/streaming.talentos.darey.io.cfg.lua
+              subPath: streaming.talentos.darey.io.cfg.lua
+      volumes:
+        - name: prosody-config
+          configMap:
+            name: prosody-custom-config

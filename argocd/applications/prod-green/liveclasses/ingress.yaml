@@ -1,0 +1,55 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: jitsi-streaming-ingress
+  namespace: liveclasses
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    external-dns.alpha.kubernetes.io/hostname: streaming-green.talentos.darey.io
+    external-dns.alpha.kubernetes.io/manage: "true"
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: streaming-green.talentos.darey.io
+      http:
+        paths:
+          - path: /http-bind
+            pathType: Prefix
+            backend:
+              service:
+                name: prosody
+                port:
+                  number: 5280
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: jitsi-web
+                port:
+                  number: 80
+    - host: streaming.talentos.darey.io
+      http:
+        paths:
+          - path: /http-bind
+            pathType: Prefix
+            backend:
+              service:
+                name: prosody
+                port:
+                  number: 5280
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: jitsi-web
+                port:
+                  number: 80
+  tls:
+    - hosts:
+        - streaming-green.talentos.darey.io
+        - streaming.talentos.darey.io
+      secretName: jitsi-tls-cert

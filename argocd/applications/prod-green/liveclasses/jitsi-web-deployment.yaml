@@ -1,0 +1,154 @@
+# Namespace
+# apiVersion: v1
+# kind: Namespace
+# metadata:
+#   name: liveclasses
+
+---
+# Secret containing shared passwords
+# apiVersion: v1
+# kind: Secret
+# metadata:
+#   name: jitsi-auth-secrets
+#   namespace: liveclasses
+# type: Opaque
+# data:
+#   JICOFO_AUTH_PASSWORD: c2VjdXJlamljb2Zv
+#   JVB_AUTH_PASSWORD: c2VjdXJlanZi
+#   JIBRI_XMPP_PASSWORD: c2VjdXJlamlicmk=
+#   JIBRI_RECORDER_PASSWORD: c2VjdXJlcmVjb3JkZXI
+
+---
+# Jitsi Web Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: jitsi-web
+  namespace: liveclasses
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: jitsi-web
+  template:
+    metadata:
+      labels:
+        app: jitsi-web
+    spec:
+      containers:
+        - name: web
+          image: jitsi/web:web-1.0.8714-1
+          resources:
+            requests:
+              cpu: "200m"
+              memory: "256Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+          ports:
+            - containerPort: 80
+          env:
+            # - name: XMPP_DOMAIN
+            #   value: prosody.liveclasses.svc.cluster.local
+            - name: XMPP_AUTH_DOMAIN
+              value: auth.liveclasses.svc.cluster.local
+            - name: XMPP_BOSH_URL_BASE
+              value: http://prosody.liveclasses.svc.cluster.local:5280
+            - name: PUBLIC_URL
+              value: https://streaming.talentos.darey.io
+            - name: XMPP_DOMAIN
+              value: streaming.talentos.darey.io
+            - name: ENABLE_AUTH
+              value: "1"
+            - name: ENABLE_GUESTS
+              value: "1"
+            - name: ENABLE_RECORDING
+              value: "1"
+            - name: ENABLE_TRANSCRIPTIONS
+              value: "0"
+            - name: ENABLE_LIVESTREAMING
+              value: "1"
+            - name: ENABLE_PREJOIN_PAGE
+              value: "0"
+            - name: DISABLE_BRAND_WATERMARK
+              value: "1"
+            - name: DISABLE_WELCOME_PAGE
+              value: "1"
+            - name: SHOW_JITSI_WATERMARK
+              value: "false"
+            - name: RESOLUTION
+              value: "1080"
+            - name: START_WITH_AUDIO_MUTED
+              value: "0"
+            - name: START_WITH_VIDEO_MUTED
+              value: "0"
+            - name: START_AUDIO_ONLY
+              value: "0"
+            - name: START_VIDEO_MUTED
+              value: "0"
+            - name: START_AUDIO_MUTED
+              value: "0"
+            - name: START_SILENT
+              value: "0"
+            # - name: BRAND_WATERMARK_LINK
+            #   value: "https://yourdomain.com/images/your-logo.svg"
+            # - name: SHOW_BRAND_WATERMARK
+            #   value: "1"
+          volumeMounts:
+            - name: config-volume
+              mountPath: /usr/share/jitsi-meet/config.js
+              subPath: config.js
+            - name: config-volume
+              mountPath: /usr/share/jitsi-meet/interface_config.js
+              subPath: interface_config.js
+            - name: custom-css
+              mountPath: /usr/share/jitsi-meet/css/custom.css
+              subPath: custom.css
+            - name: auto-tileview
+              mountPath: /usr/share/jitsi-meet/scripts/auto-tileview.js
+              subPath: auto-tileview.js
+            - name: move-sidebar
+              mountPath: /usr/share/jitsi-meet/libs/move-sidebar.js
+              subPath: move-sidebar.js
+            - name: head-injection
+              mountPath: /usr/share/jitsi-meet/head.html
+              subPath: head.html
+            - name: nginx-config
+              mountPath: /config/nginx/meet.conf
+              subPath: meet.conf
+      volumes:
+        - name: config-volume
+          configMap:
+            name: jitsi-web-config
+        - name: custom-css
+          configMap:
+            name: jitsi-custom-css
+        - name: auto-tileview
+          configMap:
+            name: jitsi-auto-tileview
+        - name: move-sidebar
+          configMap:
+            name: jitsi-move-sidebar
+        - name: head-injection
+          configMap:
+            name: jitsi-head-injection
+        - name: nginx-config
+          configMap:
+            name: jitsi-meet-nginx-config
+            items:
+              - key: meet.conf
+                path: meet.conf
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: jitsi-web
+  namespace: liveclasses
+spec:
+  selector:
+    app: jitsi-web
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+  type: ClusterIP
