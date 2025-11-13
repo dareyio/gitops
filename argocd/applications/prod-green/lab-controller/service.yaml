@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: lab-controller
+  namespace: lab-controller
+  labels:
+    app: lab-controller
+spec:
+  selector:
+    app: lab-controller
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+  type: ClusterIP
+

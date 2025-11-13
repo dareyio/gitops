@@ -1,0 +1,110 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: lab-controller
+  namespace: lab-controller
+  labels:
+    app: lab-controller
+  annotations:
+    argocd-image-updater.argoproj.io/image-list: api=586794457112.dkr.ecr.eu-west-2.amazonaws.com/lab-controller/labcontroller-api
+    argocd-image-updater.argoproj.io/write-back-method: git
+    argocd-image-updater.argoproj.io/git-branch: main
+    argocd-image-updater.argoproj.io/match-tag: "^[0-9a-f]{40}$"
+    argocd-image-updater.argoproj.io/update-strategy: latest
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: lab-controller
+  template:
+    metadata:
+      labels:
+        app: lab-controller
+    spec:
+      serviceAccountName: lab-controller-sa
+      containers:
+        - name: lab-controller
+          image: 586794457112.dkr.ecr.eu-west-2.amazonaws.com/lab-controller/labcontroller-api:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 80
+          livenessProbe:
+            httpGet:
+              path: /health/live
+              port: 80
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /health/ready
+              port: 80
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            timeoutSeconds: 3
+            failureThreshold: 3
+          env:
+            - name: K8S_MODE
+              value: "cluster"
+            - name: SUPABASE_JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: supabase-jwt-secret
+                  key: SUPABASE_JWT_SECRET
+            - name: AWS_ACCOUNT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: lab-controller-secrets
+                  key: AWS_ACCOUNT_ID
+                  optional: true
+            - name: AWS_REGION
+              valueFrom:
+                secretKeyRef:
+                  name: lab-controller-secrets
+                  key: AWS_REGION
+                  optional: true
+            - name: AWS_ACCESS_KEY_ID
+              valueFrom:
+                secretKeyRef:
+                  name: lab-controller-secrets
+                  key: AWS_ACCESS_KEY_ID
+                  optional: true
+            - name: AWS_SECRET_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: lab-controller-secrets
+                  key: AWS_SECRET_ACCESS_KEY
+                  optional: true
+            - name: LAB_BASE_URL
+              value: "https://labcontroller.talentos.darey.io"
+            - name: REDIS_HOST
+              value: "redis.lab-controller.svc.cluster.local"
+            - name: REDIS_PORT
+              value: "6379"
+            - name: REDIS_DB
+              value: "0"
+            - name: REDIS_PASSWORD
+              value: ""
+            - name: ENABLE_LAB_PASSWORD
+              value: "true"
+            - name: LAB_TYPES_PATH
+              value: "/app/lab-types"
+            - name: WILDCARD_TLS_SECRET_NAME
+              value: "labcontroller-tls"
+            - name: TRACING_ENABLED
+              value: "true"
+            - name: OTLP_ENDPOINT
+              value: "http://tempo.observability.svc:4317"
+            - name: OTLP_INSECURE
+              value: "true"
+            - name: TELEMETRY_ENVIRONMENT
+              value: "prod"
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+      restartPolicy: Always
