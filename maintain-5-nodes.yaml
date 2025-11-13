@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: keep-node-5
+  namespace: default
+spec:
+  containers:
+  - name: test
+    image: busybox:latest
+    command: ["sleep", "86400"]
+    resources:
+      requests:
+        cpu: "1.5"
+        memory: "3Gi"
+      limits:
+        cpu: "1.5"
+        memory: "3Gi"
+
