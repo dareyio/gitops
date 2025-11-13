@@ -28,7 +28,7 @@ spec:
           zoneType: public
         domainFilters:
           - talentos.darey.io
-        policy: upsert-only
+        policy: sync
         txtOwnerId: external-dns
         logFormat: json
         logLevel: info
