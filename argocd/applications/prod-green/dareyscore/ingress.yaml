@@ -15,9 +15,20 @@ spec:
   tls:
     - hosts:
         - dareyscore-green.talentos.darey.io
+        - dareyscore.talentos.darey.io
       secretName: dareyscore-tls
   rules:
     - host: dareyscore-green.talentos.darey.io
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: dareyscore-api
+                port:
+                  number: 80
+    - host: dareyscore.talentos.darey.io
       http:
         paths:
           - path: /
