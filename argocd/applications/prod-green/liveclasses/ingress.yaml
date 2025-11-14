@@ -9,7 +9,7 @@ metadata:
     nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
     nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
     cert-manager.io/cluster-issuer: letsencrypt-prod
-    external-dns.alpha.kubernetes.io/hostname: streaming-green.talentos.darey.io
+    external-dns.alpha.kubernetes.io/hostname: streaming-green.talentos.darey.io,streaming.talentos.darey.io
     external-dns.alpha.kubernetes.io/manage: "true"
 spec:
   ingressClassName: nginx
