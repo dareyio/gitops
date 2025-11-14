@@ -28,7 +28,7 @@ spec:
           persistence:
             enabled: true
             size: 5Gi
-            storageClassName: gp2-csi
+            storageClassName: gp2-eks-csi
             accessModes:
               - ReadWriteOnce
         promtail:

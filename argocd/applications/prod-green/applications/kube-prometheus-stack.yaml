@@ -27,7 +27,7 @@ spec:
               volumeClaimTemplate:
                 spec:
                   accessModes: ["ReadWriteOnce"]
-                  storageClassName: gp2-csi
+                  storageClassName: gp2-eks-csi
                   resources:
                     requests:
                       storage: 20Gi
@@ -122,7 +122,7 @@ spec:
           # Persistence for Grafana data
           persistence:
             enabled: true
-            storageClassName: gp2-csi
+            storageClassName: gp2-eks-csi
             size: 5Gi
 
           resources:
