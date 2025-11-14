@@ -6,7 +6,7 @@ metadata:
     argocd.argoproj.io/sync-wave: "0"
 spec:
   limits:
-    min: 5
+    min: 3  # Reduced from 5 since we're using larger instances
     # max: 20  # Optional: Set maximum nodes to prevent over-scaling
   disruption:
     budgets:
@@ -36,6 +36,12 @@ spec:
           operator: Gt
           values:
             - "4"
+        - key: eks.amazonaws.com/instance-size
+          operator: In
+          values:
+            - 2xlarge
+            - 4xlarge
+            - 8xlarge
         - key: kubernetes.io/arch
           operator: In
           values:
