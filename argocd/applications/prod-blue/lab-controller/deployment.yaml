@@ -102,7 +102,7 @@ spec:
             - name: LAB_TYPES_PATH
               value: "/app/lab-types"
             - name: WILDCARD_TLS_SECRET_NAME
-              value: "labcontroller-tls"
+              value: "wildcard-projectlabs-api-talentos-darey-io"
             - name: TRACING_ENABLED
               value: "true"
             - name: OTLP_ENDPOINT
