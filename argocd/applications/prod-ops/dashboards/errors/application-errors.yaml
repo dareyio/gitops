@@ -380,7 +380,7 @@ data:
               "type": "prometheus",
               "uid": "prometheus"
             },
-            "definition": "label_values(up, cluster)",
+            "definition": "label_values(up{cluster=~\".+\"}, cluster)",
             "hide": 0,
             "includeAll": true,
             "label": "Cluster",
@@ -388,7 +388,7 @@ data:
             "name": "cluster",
             "options": [],
             "query": {
-              "query": "label_values(up, cluster)",
+              "query": "label_values(up{cluster=~\".+\"}, cluster)",
               "refId": "StandardVariableQuery"
             },
             "refresh": 1,
