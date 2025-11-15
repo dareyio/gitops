@@ -371,8 +371,9 @@ data:
             "type": "query"
           },
           {
+            "allValue": null,
             "current": {
-              "selected": false,
+              "selected": true,
               "text": ["All"],
               "value": ["$__all"]
             },
@@ -380,13 +381,34 @@ data:
               "type": "prometheus",
               "uid": "prometheus"
             },
-            "definition": "label_values(up{cluster=~\".+\"}, cluster)",
+            "definition": "",
             "hide": 0,
             "includeAll": true,
             "label": "Cluster",
             "multi": true,
             "name": "cluster",
-            "options": [],
+            "options": [
+              {
+                "selected": false,
+                "text": "All",
+                "value": "$__all"
+              },
+              {
+                "selected": false,
+                "text": "ops",
+                "value": "ops"
+              },
+              {
+                "selected": false,
+                "text": "blue",
+                "value": "blue"
+              },
+              {
+                "selected": false,
+                "text": "green",
+                "value": "green"
+              }
+            ],
             "query": {
               "query": "label_values(up{cluster=~\".+\"}, cluster)",
               "refId": "StandardVariableQuery"
@@ -394,8 +416,8 @@ data:
             "refresh": 1,
             "regex": "",
             "skipUrlSync": false,
-            "sort": 1,
-            "type": "query"
+            "sort": 0,
+            "type": "custom"
           }
         ]
       },
