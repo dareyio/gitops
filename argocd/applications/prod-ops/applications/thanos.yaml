@@ -29,7 +29,9 @@ spec:
             enabled: true
           # Store configuration - Thanos Query will query Thanos Receive
           # Receive aggregates metrics from all Prometheus instances via remoteWrite
-          storeEndpoints: []
+          # Using gRPC endpoint for store API
+          storeEndpoints:
+            - thanos-receive.monitoring.svc.cluster.local:10901
         store:
           enabled: true
           replicaCount: 2
