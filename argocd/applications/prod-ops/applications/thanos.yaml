@@ -46,7 +46,14 @@ spec:
             type: ClusterIP
           serviceMonitor:
             enabled: true
-          existingObjstoreSecret: thanos-objstore-config
+          objstoreConfig: |
+            type: S3
+            config:
+              bucket: darey-io-v2-lab-prod-thanos-storage
+              endpoint: s3.eu-west-2.amazonaws.com
+              region: eu-west-2
+              sse_config:
+                type: SSE-S3
           serviceAccount:
             annotations:
               eks.amazonaws.com/role-arn: arn:aws:iam::586794457112:role/darey-io-v2-lab-prod-ops-thanos-role
@@ -62,7 +69,14 @@ spec:
               memory: 4Gi
           serviceMonitor:
             enabled: true
-          existingObjstoreSecret: thanos-objstore-config
+          objstoreConfig: |
+            type: S3
+            config:
+              bucket: darey-io-v2-lab-prod-thanos-storage
+              endpoint: s3.eu-west-2.amazonaws.com
+              region: eu-west-2
+              sse_config:
+                type: SSE-S3
           serviceAccount:
             annotations:
               eks.amazonaws.com/role-arn: arn:aws:iam::586794457112:role/darey-io-v2-lab-prod-ops-thanos-role
