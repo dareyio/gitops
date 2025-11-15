@@ -78,6 +78,14 @@ spec:
                     filterBySpanID: true
                   tracesToMetrics:
                     datasourceUid: prometheus
+        sidecar:
+          dashboards:
+            enabled: true
+            label: grafana_dashboard
+            labelValue: "1"
+            searchNamespace: monitoring
+            provider:
+              foldersFromFilesStructure: true
   destination:
     server: https://kubernetes.default.svc
     namespace: monitoring
