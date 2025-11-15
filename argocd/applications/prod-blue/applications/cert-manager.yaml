@@ -38,8 +38,12 @@ spec:
             limits:
               cpu: 100m
               memory: 128Mi
+        serviceAccount:
+          annotations:
+            eks.amazonaws.com/role-arn: arn:aws:iam::586794457112:role/darey-io-v2-lab-prod-blue-cert-manager-role
   destination:
-    server: https://kubernetes.default.svc
+    # NOTE: Update this to prod-blue cluster endpoint after cluster is created
+    server: https://DA6D72227F1F84B2237A1AB7DF222FD1.gr7.eu-west-2.eks.amazonaws.com
     namespace: cert-manager
   syncPolicy:
     automated:

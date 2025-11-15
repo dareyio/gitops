@@ -1,0 +1,24 @@
+# Thanos Query Store Configuration
+# This ConfigMap configures Thanos Query to discover Prometheus instances from prod clusters
+# The stores are the Thanos Sidecar endpoints in prod-blue and prod-green clusters
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: thanos-query-stores
+  namespace: monitoring
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+data:
+  stores.yaml: |
+    # Static store configuration for Prometheus instances in prod clusters
+    # These will be discovered via Kubernetes service discovery or static configuration
+    # Format: <cluster>-prometheus-<namespace>.svc.cluster.local:10901
+    # Note: Update these after clusters are created and Prometheus is deployed
+    stores:
+      - "prod-blue-prometheus.monitoring.svc.cluster.local:10901"
+      - "prod-green-prometheus.monitoring.svc.cluster.local:10901"
+    # Alternative: Use DNS names if cross-cluster DNS is configured
+    # stores:
+    #   - "thanos-sidecar-blue.internal.talentos.darey.io:10901"
+    #   - "thanos-sidecar-green.internal.talentos.darey.io:10901"
+

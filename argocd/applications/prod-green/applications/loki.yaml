@@ -40,7 +40,14 @@ spec:
             limits:
               cpu: 400m
               memory: 384Mi
+          config:
+            clients:
+              - url: https://loki-ops.internal.talentos.darey.io/loki/api/v1/push
+                tenant_id: "1"
+                tls_config:
+                  insecure_skip_verify: true
   destination:
+    # NOTE: Update this to prod-green cluster endpoint after cluster is created
     server: https://kubernetes.default.svc
     namespace: monitoring
   syncPolicy:

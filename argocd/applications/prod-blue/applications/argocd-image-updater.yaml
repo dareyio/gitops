@@ -45,7 +45,8 @@ spec:
             cpu: 500m
             memory: 256Mi
   destination:
-    server: https://kubernetes.default.svc
+    # NOTE: Update this to prod-blue cluster endpoint after cluster is created
+    server: https://05EAD20A36B7EEE44B5F80407DFE359B.sk1.eu-west-2.eks.amazonaws.com
     namespace: argocd
   syncPolicy:
     automated:

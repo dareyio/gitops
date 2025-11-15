@@ -39,6 +39,7 @@ spec:
               cpu: 100m
               memory: 128Mi
   destination:
+    # NOTE: Update this to prod-green cluster endpoint after cluster is created
     server: https://kubernetes.default.svc
     namespace: cert-manager
   syncPolicy:

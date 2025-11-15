@@ -10,11 +10,12 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: git@github.com:dareyio/gitops.git
+    repoURL: https://github.com/dareyio/gitops.git
     targetRevision: HEAD
     path: argocd/applications/prod-blue/dareyscore
   destination:
-    server: https://kubernetes.default.svc
+    # NOTE: Update this to prod-blue cluster endpoint after cluster is created
+    server: https://DA6D72227F1F84B2237A1AB7DF222FD1.gr7.eu-west-2.eks.amazonaws.com
     namespace: dareyscore
   syncPolicy:
     automated:
@@ -25,4 +26,3 @@ spec:
       - PrunePropagationPolicy=foreground
       - PruneLast=true
   revisionHistoryLimit: 3
-

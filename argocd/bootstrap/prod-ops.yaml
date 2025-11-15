@@ -3,18 +3,17 @@ kind: Application
 metadata:
   name: cluster-resources
   namespace: argocd
-  annotations:
-    argocd.argoproj.io/sync-wave: "1"
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
 spec:
   project: default
   source:
     repoURL: git@github.com:dareyio/gitops.git
     targetRevision: HEAD
-    path: argocd/applications/prod-green/cluster-resources
+    path: argocd/applications/prod-ops/applications
     directory:
       recurse: true
   destination:
-    # NOTE: Update this to prod-green cluster endpoint after cluster is created
     server: https://kubernetes.default.svc
     namespace: argocd
   syncPolicy:
@@ -23,5 +22,4 @@ spec:
       selfHeal: true
     syncOptions:
       - CreateNamespace=true
-      - RespectIgnoreDifferences=true
 

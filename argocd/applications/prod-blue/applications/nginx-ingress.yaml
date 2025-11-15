@@ -37,7 +37,7 @@ spec:
           metrics:
             enabled: true
             serviceMonitor:
-              enabled: true
+              enabled: false
           podSecurityContext:
             runAsUser: 101
             runAsNonRoot: true
@@ -52,7 +52,8 @@ spec:
                 - NET_BIND_SERVICE
             readOnlyRootFilesystem: false
   destination:
-    server: https://kubernetes.default.svc
+    # NOTE: Update this to prod-blue cluster endpoint after cluster is created
+    server: https://DA6D72227F1F84B2237A1AB7DF222FD1.gr7.eu-west-2.eks.amazonaws.com
     namespace: ingress-nginx
   syncPolicy:
     automated:

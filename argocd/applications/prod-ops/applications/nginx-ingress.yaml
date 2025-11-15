@@ -27,8 +27,8 @@ spec:
             annotations:
               service.beta.kubernetes.io/aws-load-balancer-type: "nlb"
               service.beta.kubernetes.io/aws-load-balancer-scheme: "internet-facing"
-              service.beta.kubernetes.io/aws-load-balancer-subnets: "subnet-05954e842c19a4de0,subnet-0e0014f930a69b70b"
-              external-dns.alpha.kubernetes.io/hostname: "ingress-green.talentos.darey.io"
+              service.beta.kubernetes.io/aws-load-balancer-subnets: "subnet-0e0014f930a69b70b,subnet-05954e842c19a4de0"
+              external-dns.alpha.kubernetes.io/hostname: "ingress-ops.talentos.darey.io"
               external-dns.alpha.kubernetes.io/manage: "true"
           ingressClass: nginx
           ingressClassByName: true
@@ -52,7 +52,6 @@ spec:
                 - NET_BIND_SERVICE
             readOnlyRootFilesystem: false
   destination:
-    # NOTE: Update this to prod-green cluster endpoint after cluster is created
     server: https://kubernetes.default.svc
     namespace: ingress-nginx
   syncPolicy:

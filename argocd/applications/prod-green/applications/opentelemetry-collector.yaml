@@ -52,7 +52,7 @@ spec:
             debug:
               verbosity: basic
             otlp/tempo:
-              endpoint: tempo.observability.svc.cluster.local:4317
+              endpoint: tempo-ops.internal.talentos.darey.io:4317
               tls:
                 insecure: true
           extensions:
@@ -96,6 +96,7 @@ spec:
                 processors: [memory_limiter, batch]
                 exporters: [debug]
   destination:
+    # NOTE: Update this to prod-green cluster endpoint after cluster is created
     server: https://kubernetes.default.svc
     namespace: observability
   syncPolicy:

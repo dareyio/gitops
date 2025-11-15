@@ -1,0 +1,91 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: grafana
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+spec:
+  project: default
+  source:
+    repoURL: https://grafana.github.io/helm-charts
+    chart: grafana
+    targetRevision: 7.3.7
+    helm:
+      valuesObject:
+        adminUser: admin
+        adminPassword: admin
+        persistence:
+          enabled: true
+          storageClassName: gp2-eks-csi
+          size: 10Gi
+        resources:
+          requests:
+            cpu: 200m
+            memory: 256Mi
+          limits:
+            cpu: 500m
+            memory: 512Mi
+        ingress:
+          enabled: true
+          ingressClassName: nginx
+          annotations:
+            nginx.ingress.kubernetes.io/ssl-redirect: "true"
+            nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+            cert-manager.io/cluster-issuer: letsencrypt-prod
+            external-dns.alpha.kubernetes.io/hostname: grafana-ops.talentos.darey.io
+            external-dns.alpha.kubernetes.io/manage: "true"
+          hosts:
+            - grafana-ops.talentos.darey.io
+          tls:
+            - secretName: grafana-ops-tls
+              hosts:
+                - grafana-ops.talentos.darey.io
+        datasources:
+          datasources.yaml:
+            apiVersion: 1
+            datasources:
+              - name: Prometheus
+                type: prometheus
+                url: http://thanos-query.monitoring.svc:10902
+                access: proxy
+                isDefault: true
+                uid: prometheus
+                jsonData:
+                  timeInterval: 30s
+              - name: Loki
+                type: loki
+                url: http://loki.monitoring.svc:3100
+                access: proxy
+                isDefault: false
+                uid: loki
+                jsonData:
+                  maxLines: 1000
+              - name: Tempo
+                type: tempo
+                url: http://tempo.observability.svc:3200
+                access: proxy
+                isDefault: false
+                uid: tempo
+                jsonData:
+                  httpMethod: GET
+                  serviceMap:
+                    datasourceUid: prometheus
+                  tracesToLogs:
+                    datasourceUid: loki
+                    mapTagNamesEnabled: true
+                    filterByTraceID: true
+                    filterBySpanID: true
+                  tracesToMetrics:
+                    datasourceUid: prometheus
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: monitoring
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true
+

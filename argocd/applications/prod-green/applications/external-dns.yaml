@@ -52,6 +52,7 @@ spec:
               - ALL
           readOnlyRootFilesystem: true
   destination:
+    # NOTE: Update this to prod-green cluster endpoint after cluster is created
     server: https://kubernetes.default.svc
     namespace: external-dns-system
   syncPolicy:

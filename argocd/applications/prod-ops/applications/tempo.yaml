@@ -3,6 +3,8 @@ kind: Application
 metadata:
   name: tempo
   namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
 spec:
   project: default
   source:
@@ -22,15 +24,25 @@ spec:
                 path: /var/tempo/wal
           resources:
             requests:
-              cpu: 50m
-              memory: 128Mi
+              cpu: 500m
+              memory: 1Gi
             limits:
-              cpu: 300m
-              memory: 512Mi
+              cpu: 2000m
+              memory: 2Gi
         persistence:
           enabled: true
           storageClassName: gp2-eks-csi
           size: 50Gi
+          accessModes:
+            - ReadWriteOnce
+        volumeClaimTemplate:
+          spec:
+            accessModes:
+              - ReadWriteOnce
+            storageClassName: gp2-eks-csi
+            resources:
+              requests:
+                storage: 50Gi
         serviceMonitor:
           enabled: true
           extraLabels:
@@ -44,4 +56,5 @@ spec:
       selfHeal: true
     syncOptions:
       - CreateNamespace=true
+      - ServerSideApply=true
 

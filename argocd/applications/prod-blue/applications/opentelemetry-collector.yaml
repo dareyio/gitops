@@ -43,18 +43,17 @@ spec:
         service:
           type: ClusterIP
         serviceMonitor:
-          enabled: true
-          extraLabels:
-            release: kube-prometheus-stack
-        config: null
-        alternateConfig: |
+          enabled: false
+        config:
           exporters:
             debug:
               verbosity: basic
             otlp/tempo:
-              endpoint: tempo.observability.svc.cluster.local:4317
+              endpoint: https://tempo-ops.internal.talentos.darey.io:443
               tls:
                 insecure: true
+              headers:
+                x-scope-orgid: "1"
           extensions:
             health_check:
               endpoint: ${env:MY_POD_IP}:13133
@@ -96,7 +95,8 @@ spec:
                 processors: [memory_limiter, batch]
                 exporters: [debug]
   destination:
-    server: https://kubernetes.default.svc
+    # NOTE: Update this to prod-blue cluster endpoint after cluster is created
+    server: https://DA6D72227F1F84B2237A1AB7DF222FD1.gr7.eu-west-2.eks.amazonaws.com
     namespace: observability
   syncPolicy:
     automated:
@@ -104,4 +104,3 @@ spec:
       selfHeal: true
     syncOptions:
       - CreateNamespace=true
-

@@ -1,0 +1,29 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: tempo-internal
+  namespace: observability
+  annotations:
+    nginx.ingress.kubernetes.io/backend-protocol: "GRPC"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    external-dns.alpha.kubernetes.io/hostname: tempo-ops.internal.talentos.darey.io
+    external-dns.alpha.kubernetes.io/manage: "true"
+spec:
+  ingressClassName: nginx
+  tls:
+    - hosts:
+        - tempo-ops.internal.talentos.darey.io
+      secretName: tempo-internal-tls
+  rules:
+    - host: tempo-ops.internal.talentos.darey.io
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: tempo
+                port:
+                  number: 4317
+
