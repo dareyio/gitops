@@ -27,10 +27,10 @@ spec:
             type: ClusterIP
           serviceMonitor:
             enabled: true
-          # Store configuration - will discover Prometheus instances from prod clusters
-          # The stores are configured via static service discovery or DNS
-          # Update storeEndpoints after clusters are created
-          storeEndpoints: []
+          # Store configuration - Thanos Query will query Thanos Receive
+          # Receive aggregates metrics from all Prometheus instances via remoteWrite
+          storeEndpoints:
+            - http://thanos-receive.monitoring.svc.cluster.local:10902
         store:
           enabled: true
           replicaCount: 2
@@ -86,7 +86,30 @@ spec:
         ruler:
           enabled: false
         receive:
-          enabled: false
+          enabled: true
+          replicaCount: 2
+          resources:
+            requests:
+              cpu: 500m
+              memory: 1Gi
+            limits:
+              cpu: 2000m
+              memory: 4Gi
+          service:
+            type: ClusterIP
+          serviceMonitor:
+            enabled: true
+          objstoreConfig: |
+            type: S3
+            config:
+              bucket: darey-io-v2-lab-prod-thanos-storage
+              endpoint: s3.eu-west-2.amazonaws.com
+              region: eu-west-2
+              sse_config:
+                type: SSE-S3
+          serviceAccount:
+            annotations:
+              eks.amazonaws.com/role-arn: arn:aws:iam::586794457112:role/darey-io-v2-lab-prod-ops-thanos-role
   destination:
     server: https://kubernetes.default.svc
     namespace: monitoring
