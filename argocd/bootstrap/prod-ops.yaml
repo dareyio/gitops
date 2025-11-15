@@ -8,7 +8,7 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: git@github.com:dareyio/gitops.git
+    repoURL: https://github.com/dareyio/gitops.git
     targetRevision: HEAD
     path: argocd/applications/prod-ops/applications
     directory:

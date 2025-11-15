@@ -33,6 +33,14 @@ spec:
                       storage: 20Gi
             externalLabels:
               cluster: green
+            remoteWrite:
+              - url: http://thanos-receive.monitoring.svc.cluster.local:10902/api/v1/receive
+                queueConfig:
+                  maxSamplesPerSend: 1000
+                  batchSendDeadline: 5s
+                  maxRetries: 3
+                  minBackoff: 30ms
+                  maxBackoff: 100ms
             thanos:
               objectStorageConfig:
                 key: thanos.yaml
