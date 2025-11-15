@@ -35,7 +35,7 @@ spec:
               cluster: ops
               prometheus_replica: $(POD_NAME)
             remoteWrite:
-              - url: http://thanos-query.monitoring.svc:10902/api/v1/receive
+              - url: http://thanos-receive.monitoring.svc:10902/api/v1/receive
                 queueConfig:
                   maxSamplesPerSend: 1000
                   batchSendDeadline: 5s
