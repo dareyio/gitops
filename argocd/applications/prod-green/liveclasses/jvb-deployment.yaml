@@ -28,6 +28,9 @@ spec:
           ports:
             - containerPort: 10000
               protocol: UDP
+            - containerPort: 8080
+              protocol: TCP
+              name: stats
           env:
             - name: JVB_AUTH_PASSWORD
               valueFrom:
@@ -48,4 +51,8 @@ spec:
     - protocol: UDP
       port: 10000
       targetPort: 10000
+    - protocol: TCP
+      port: 8080
+      targetPort: 8080
+      name: stats
   type: ClusterIP
