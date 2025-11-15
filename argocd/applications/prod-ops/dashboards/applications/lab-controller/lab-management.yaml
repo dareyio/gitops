@@ -395,7 +395,7 @@ data:
               "type": "prometheus",
               "uid": "prometheus"
             },
-            "definition": "label_values(cloud_labs_active{namespace=\"lab-controller\"}, cluster)",
+            "definition": "label_values(up{namespace=\"lab-controller\"}, cluster)",
             "hide": 0,
             "includeAll": true,
             "label": "Cluster",
@@ -403,7 +403,7 @@ data:
             "name": "cluster",
             "options": [],
             "query": {
-              "query": "label_values(cloud_labs_active{namespace=\"lab-controller\"}, cluster)",
+              "query": "label_values(up{namespace=\"lab-controller\"}, cluster)",
               "refId": "StandardVariableQuery"
             },
             "refresh": 1,

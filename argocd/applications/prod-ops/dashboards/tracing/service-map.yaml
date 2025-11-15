@@ -259,7 +259,7 @@ data:
               "type": "prometheus",
               "uid": "prometheus"
             },
-            "definition": "label_values(tempo_spanmetrics_calls_total, cluster)",
+            "definition": "label_values(up, cluster)",
             "hide": 0,
             "includeAll": true,
             "label": "Cluster",
@@ -267,7 +267,7 @@ data:
             "name": "cluster",
             "options": [],
             "query": {
-              "query": "label_values(tempo_spanmetrics_calls_total, cluster)",
+              "query": "label_values(up, cluster)",
               "refId": "StandardVariableQuery"
             },
             "refresh": 1,
