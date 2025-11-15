@@ -10,7 +10,7 @@ spec:
   source:
     repoURL: https://charts.bitnami.com/bitnami
     chart: thanos
-    targetRevision: 12.6.1
+    targetRevision: "12.6.1"
     helm:
       valuesObject:
         query:
