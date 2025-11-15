@@ -19,6 +19,16 @@ spec:
           enabled: true
           storageClassName: gp2-eks-csi
           size: 10Gi
+        securityContext:
+          runAsNonRoot: false
+          runAsUser: 0
+          fsGroup: 0
+        containerSecurityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+              - ALL
+          readOnlyRootFilesystem: false
         resources:
           requests:
             cpu: 200m
