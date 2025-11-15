@@ -400,7 +400,7 @@ data:
               "type": "prometheus",
               "uid": "prometheus"
             },
-            "definition": "label_values(http_requests_total{namespace=\"dareyscore\"}, cluster)",
+            "definition": "label_values(up{namespace=\"dareyscore\"}, cluster)",
             "hide": 0,
             "includeAll": true,
             "label": "Cluster",
@@ -408,7 +408,7 @@ data:
             "name": "cluster",
             "options": [],
             "query": {
-              "query": "label_values(http_requests_total{namespace=\"dareyscore\"}, cluster)",
+              "query": "label_values(up{namespace=\"dareyscore\"}, cluster)",
               "refId": "StandardVariableQuery"
             },
             "refresh": 1,

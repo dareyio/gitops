@@ -353,7 +353,7 @@ data:
               "type": "prometheus",
               "uid": "prometheus"
             },
-            "definition": "label_values(http_requests_total, namespace)",
+            "definition": "label_values(kube_pod_info, namespace)",
             "hide": 0,
             "includeAll": true,
             "label": "Namespace",
@@ -361,7 +361,7 @@ data:
             "name": "namespace",
             "options": [],
             "query": {
-              "query": "label_values(http_requests_total, namespace)",
+              "query": "label_values(kube_pod_info, namespace)",
               "refId": "StandardVariableQuery"
             },
             "refresh": 1,
@@ -380,7 +380,7 @@ data:
               "type": "prometheus",
               "uid": "prometheus"
             },
-            "definition": "label_values(http_requests_total, cluster)",
+            "definition": "label_values(up, cluster)",
             "hide": 0,
             "includeAll": true,
             "label": "Cluster",
@@ -388,7 +388,7 @@ data:
             "name": "cluster",
             "options": [],
             "query": {
-              "query": "label_values(http_requests_total, cluster)",
+              "query": "label_values(up, cluster)",
               "refId": "StandardVariableQuery"
             },
             "refresh": 1,
