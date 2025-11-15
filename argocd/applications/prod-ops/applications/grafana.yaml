@@ -96,6 +96,42 @@ spec:
             searchNamespace: monitoring
             provider:
               foldersFromFilesStructure: true
+        dashboardProviders:
+          dashboardproviders.yaml:
+            apiVersion: 1
+            providers:
+            - name: 'default'
+              orgId: 1
+              folder: ''
+              type: file
+              disableDeletion: false
+              updateIntervalSeconds: 10
+              allowUiUpdates: true
+              options:
+                path: /var/lib/grafana/dashboards/default
+                foldersFromFilesStructure: true
+        dashboards:
+          default:
+            multi-cluster-overview:
+              gnetId: null
+              revision: null
+              datasource: prometheus
+            application-errors:
+              gnetId: null
+              revision: null
+              datasource: prometheus
+            dareyscore-api-performance:
+              gnetId: null
+              revision: null
+              datasource: prometheus
+            lab-controller-lab-management:
+              gnetId: null
+              revision: null
+              datasource: prometheus
+            service-map:
+              gnetId: null
+              revision: null
+              datasource: prometheus
   destination:
     server: https://kubernetes.default.svc
     namespace: monitoring
