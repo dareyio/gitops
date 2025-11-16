@@ -13,6 +13,11 @@ spec:
     targetRevision: "12.6.1"
     helm:
       valuesObject:
+        image:
+          registry: quay.io
+          repository: thanos/thanos
+          tag: v0.31.0
+          pullPolicy: IfNotPresent
         query:
           enabled: true
           replicaCount: 2
@@ -32,6 +37,14 @@ spec:
           # Using gRPC endpoint for store API
           storeEndpoints:
             - thanos-receive.monitoring.svc.cluster.local:10901
+        objstoreConfig: |
+          type: S3
+          config:
+            bucket: darey-io-v2-lab-prod-thanos-storage
+            endpoint: s3.eu-west-2.amazonaws.com
+            region: eu-west-2
+            sse_config:
+              type: SSE-S3
         store:
           enabled: true
           replicaCount: 2
@@ -46,14 +59,6 @@ spec:
             type: ClusterIP
           serviceMonitor:
             enabled: true
-          objstoreConfig: |
-            type: S3
-            config:
-              bucket: darey-io-v2-lab-prod-thanos-storage
-              endpoint: s3.eu-west-2.amazonaws.com
-              region: eu-west-2
-              sse_config:
-                type: SSE-S3
           serviceAccount:
             annotations:
               eks.amazonaws.com/role-arn: arn:aws:iam::586794457112:role/darey-io-v2-lab-prod-ops-thanos-role
@@ -69,14 +74,6 @@ spec:
               memory: 4Gi
           serviceMonitor:
             enabled: true
-          objstoreConfig: |
-            type: S3
-            config:
-              bucket: darey-io-v2-lab-prod-thanos-storage
-              endpoint: s3.eu-west-2.amazonaws.com
-              region: eu-west-2
-              sse_config:
-                type: SSE-S3
           serviceAccount:
             annotations:
               eks.amazonaws.com/role-arn: arn:aws:iam::586794457112:role/darey-io-v2-lab-prod-ops-thanos-role
@@ -97,7 +94,11 @@ spec:
               cpu: 2000m
               memory: 4Gi
           service:
-            type: ClusterIP
+            type: LoadBalancer
+            annotations:
+              service.beta.kubernetes.io/aws-load-balancer-type: "nlb"
+          persistence:
+            enabled: false
           serviceMonitor:
             enabled: true
           serviceAccount:
