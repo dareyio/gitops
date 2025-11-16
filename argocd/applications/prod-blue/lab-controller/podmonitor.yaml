@@ -1,5 +1,5 @@
 apiVersion: monitoring.coreos.com/v1
-kind: ServiceMonitor
+kind: PodMonitor
 metadata:
   name: lab-controller
   namespace: lab-controller
@@ -12,10 +12,7 @@ spec:
   selector:
     matchLabels:
       app: lab-controller
-  namespaceSelector:
-    matchNames:
-      - lab-controller
-  endpoints:
+  podMetricsEndpoints:
     - port: http
       path: /metrics
       interval: 30s
