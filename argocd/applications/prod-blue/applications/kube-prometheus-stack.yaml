@@ -26,15 +26,20 @@ spec:
             storageSpec:
               volumeClaimTemplate:
                 spec:
-                  accessModes: ["ReadWriteOnce"]
-                  storageClassName: gp2-eks-csi
+                  accessModes: ["ReadWriteMany"]
+                  storageClassName: efs-sc
                   resources:
                     requests:
                       storage: 20Gi
             externalLabels:
               cluster: blue
+            enforcedTargetLimit: 5000
+            metricRelabelings:
+              - sourceLabels: [__name__]
+                targetLabel: cluster
+                replacement: blue
             remoteWrite:
-              - url: http://thanos-receive.monitoring.svc.cluster.local:10902/api/v1/receive
+              - url: http://thanos-receive.talentos.darey.io:19291/api/v1/receive
                 queueConfig:
                   maxSamplesPerSend: 1000
                   batchSendDeadline: 5s

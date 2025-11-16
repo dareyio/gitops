@@ -1,21 +1,18 @@
 apiVersion: monitoring.coreos.com/v1
-kind: ServiceMonitor
+kind: PodMonitor
 metadata:
-  name: lab-controller
-  namespace: lab-controller
+  name: dareyscore-api
+  namespace: dareyscore
   labels:
-    app: lab-controller
+    app: dareyscore-api
     release: kube-prometheus-stack
   annotations:
     argocd.argoproj.io/sync-wave: "3"
 spec:
   selector:
     matchLabels:
-      app: lab-controller
-  namespaceSelector:
-    matchNames:
-      - lab-controller
-  endpoints:
+      app: dareyscore-api
+  podMetricsEndpoints:
     - port: http
       path: /metrics
       interval: 30s
