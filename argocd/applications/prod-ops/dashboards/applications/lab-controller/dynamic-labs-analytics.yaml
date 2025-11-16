@@ -622,10 +622,7 @@ data:
                 "value": "green"
               }
             ],
-            "query": {
-              "query": "label_values(up{cluster=~\".+\"}, cluster)",
-              "refId": "StandardVariableQuery"
-            },
+            "query": "",
             "refresh": 1,
             "regex": "",
             "skipUrlSync": false,
