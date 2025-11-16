@@ -97,6 +97,12 @@ spec:
                   name: lab-controller-redis-secrets
                   key: REDIS_PASSWORD
                   optional: true
+            - name: REDIS_TLS
+              valueFrom:
+                secretKeyRef:
+                  name: lab-controller-redis-secrets
+                  key: REDIS_TLS
+                  optional: true
             - name: ENABLE_LAB_PASSWORD
               value: "true"
             - name: LAB_TYPES_PATH
