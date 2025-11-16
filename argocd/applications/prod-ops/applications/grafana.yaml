@@ -55,20 +55,20 @@ spec:
           datasources.yaml:
             apiVersion: 1
             datasources:
-              - name: Prometheus
+              - name: Prometheus (Ops)
                 type: prometheus
                 url: http://kube-prometheus-stack-prometheus.monitoring.svc:9090
                 access: proxy
-                isDefault: true
-                uid: prometheus
+                isDefault: false
+                uid: prometheus-ops
                 jsonData:
                   timeInterval: 30s
               - name: Thanos Query
                 type: prometheus
                 url: http://thanos-query.monitoring.svc:10902
                 access: proxy
-                isDefault: false
-                uid: thanos-query
+                isDefault: true
+                uid: prometheus
                 jsonData:
                   timeInterval: 30s
               - name: Loki
@@ -114,4 +114,3 @@ spec:
     syncOptions:
       - CreateNamespace=true
       - ServerSideApply=true
-
