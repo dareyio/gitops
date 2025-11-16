@@ -60,7 +60,7 @@ spec:
                   
                   # Get all namespaces ending with -lab
                   kubectl get namespaces -o jsonpath='{range .items[*]}{.metadata.name}{"\n"}{end}' | \
-                    grep -E "-lab$" | while read -r NS; do
+                    grep "lab$" | while read -r NS; do
                       if [ -n "$NS" ]; then
                         # Check if secret exists
                         if ! kubectl get secret "$SOURCE_SECRET" -n "$NS" >/dev/null 2>&1; then
