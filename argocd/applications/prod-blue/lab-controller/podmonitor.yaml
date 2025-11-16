@@ -13,7 +13,7 @@ spec:
     matchLabels:
       app: lab-controller
   podMetricsEndpoints:
-    - port: http
+    - port: "80"
       path: /metrics
       interval: 30s
       scrapeTimeout: 10s

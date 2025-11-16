@@ -34,10 +34,6 @@ spec:
             externalLabels:
               cluster: blue
             enforcedTargetLimit: 5000
-            metricRelabelings:
-              - sourceLabels: [__name__]
-                targetLabel: cluster
-                replacement: blue
             remoteWrite:
               - url: http://thanos-receive.talentos.darey.io:19291/api/v1/receive
                 queueConfig:

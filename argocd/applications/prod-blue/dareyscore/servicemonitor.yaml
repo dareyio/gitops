@@ -1,5 +1,5 @@
 apiVersion: monitoring.coreos.com/v1
-kind: ServiceMonitor
+kind: PodMonitor
 metadata:
   name: dareyscore-api
   namespace: dareyscore
@@ -12,10 +12,7 @@ spec:
   selector:
     matchLabels:
       app: dareyscore-api
-  namespaceSelector:
-    matchNames:
-      - dareyscore
-  endpoints:
+  podMetricsEndpoints:
     - port: http
       path: /metrics
       interval: 30s
