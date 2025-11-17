@@ -25,7 +25,7 @@ spec:
       serviceAccountName: lab-controller-sa
       containers:
         - name: lab-controller
-          image: lab-controller-api:5491974-amd64
+          image: lab-controller-api:latest
           imagePullPolicy: Always
           ports:
             - containerPort: 80
