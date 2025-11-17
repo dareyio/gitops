@@ -20,6 +20,7 @@ spec:
               api_url: https://586794457112.dkr.ecr.eu-west-2.amazonaws.com
               ping: no
               default: true
+              credentials: env:AWS_ACCESS_KEY_ID:AWS_SECRET_ACCESS_KEY
               credsexpiry: 12h
           git:
             writeBackMethod: git
@@ -34,6 +35,22 @@ spec:
           create: true
           annotations:
             eks.amazonaws.com/role-arn: arn:aws:iam::586794457112:role/darey-io-v2-lab-prod-ops-external-secrets-operator-role
+        authScripts:
+          enabled: true
+          scripts:
+            ecr-login.sh: |
+              #!/bin/sh
+              export AWS_REGION=${AWS_REGION:-eu-west-2}
+              export AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+              export AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+              TOKEN=$(aws ecr get-authorization-token --region $AWS_REGION --output text --query "authorizationData[0].authorizationToken" 2>/dev/null)
+              if [ -z "$TOKEN" ]; then
+                exit 1
+              fi
+              DECODED=$(echo $TOKEN | base64 -d)
+              USERNAME=$(echo $DECODED | cut -d: -f1)
+              PASSWORD=$(echo $DECODED | cut -d: -f2-)
+              echo "$USERNAME:$PASSWORD"
         extraEnv:
           - name: AWS_ACCESS_KEY_ID
             valueFrom:
