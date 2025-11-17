@@ -20,7 +20,7 @@ spec:
               api_url: https://586794457112.dkr.ecr.eu-west-2.amazonaws.com
               ping: no
               default: true
-              credentials: secret:argocd/argocd-image-updater-ecr#username
+              credentials: secret:argocd/argocd-image-updater-ecr#username:password
               credsexpiry: 1h
           git:
             writeBackMethod: git
