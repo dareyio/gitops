@@ -18,9 +18,7 @@ spec:
     repoURL: https://github.com/dareyio/gitops.git
     targetRevision: HEAD
     path: argocd/applications/prod-blue/lab-controller
-    kustomize:
-      images:
-        - 586794457112.dkr.ecr.eu-west-2.amazonaws.com/lab-controller/labcontroller-api
+    kustomize: {}
   destination:
     # NOTE: Update this to prod-blue cluster endpoint after cluster is created
     server: https://DA6D72227F1F84B2237A1AB7DF222FD1.gr7.eu-west-2.eks.amazonaws.com

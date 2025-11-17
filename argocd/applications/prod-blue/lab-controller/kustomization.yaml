@@ -11,3 +11,8 @@ resources:
   - ingress.yaml
   - podmonitor.yaml
 
+images:
+  - name: 586794457112.dkr.ecr.eu-west-2.amazonaws.com/lab-controller/labcontroller-api
+    newName: 586794457112.dkr.ecr.eu-west-2.amazonaws.com/lab-controller/labcontroller-api
+    newTag: 5491974-amd64
+
