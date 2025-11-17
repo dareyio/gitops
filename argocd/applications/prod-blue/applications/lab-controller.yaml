@@ -7,6 +7,11 @@ metadata:
     cluster.darey.io/colour: blue
   annotations:
     argocd.argoproj.io/sync-wave: "2"
+    argocd-image-updater.argoproj.io/image-list: api=586794457112.dkr.ecr.eu-west-2.amazonaws.com/lab-controller/labcontroller-api
+    argocd-image-updater.argoproj.io/write-back-method: git
+    argocd-image-updater.argoproj.io/git-branch: main
+    argocd-image-updater.argoproj.io/match-tag: "^[0-9a-f]{40}$"
+    argocd-image-updater.argoproj.io/update-strategy: latest
 spec:
   project: default
   source:
