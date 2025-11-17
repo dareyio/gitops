@@ -37,6 +37,11 @@ spec:
                 - pattern: "^latest$"
                   extract: ""
                   match: "any"
+            - name: dareyscore
+              allowTags:
+                - pattern: "^latest$"
+                  extract: ""
+                  match: "any"
         serviceAccount:
           create: true
           annotations:
@@ -75,4 +80,3 @@ spec:
       selfHeal: true
     syncOptions:
       - CreateNamespace=true
-
