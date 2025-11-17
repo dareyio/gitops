@@ -31,6 +31,12 @@ spec:
             pull:
               enabled: true
               interval: 1m
+          applications:
+            - name: lab-controller
+              allowTags:
+                - pattern: "^latest$"
+                  extract: ""
+                  match: "any"
         serviceAccount:
           create: true
           annotations:
