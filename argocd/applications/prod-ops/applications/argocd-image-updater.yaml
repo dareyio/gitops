@@ -35,6 +35,17 @@ spec:
           create: true
           annotations:
             eks.amazonaws.com/role-arn: arn:aws:iam::586794457112:role/darey-io-v2-lab-prod-ops-external-secrets-operator-role
+        env:
+          - name: AWS_ACCESS_KEY_ID
+            valueFrom:
+              secretKeyRef:
+                name: argocd-image-updater-ecr
+                key: aws_access_key_id
+          - name: AWS_SECRET_ACCESS_KEY
+            valueFrom:
+              secretKeyRef:
+                name: argocd-image-updater-ecr
+                key: aws_secret_access_key
         gitSecret:
           create: false
           name: argocd-repo-ssh
