@@ -32,7 +32,6 @@ spec:
             type: ClusterIP
             ports:
               http: 10902
-              grpc: 10901
           serviceMonitor:
             enabled: true
           # Store configuration - Thanos Query will query Thanos Receive
