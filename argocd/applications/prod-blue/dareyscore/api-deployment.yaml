@@ -16,14 +16,13 @@ spec:
         argocd-image-updater.argoproj.io/image-list: api=586794457112.dkr.ecr.eu-west-2.amazonaws.com/dareyscore/dareyscore-api
         argocd-image-updater.argoproj.io/write-back-method: git
         argocd-image-updater.argoproj.io/git-branch: main
-        argocd-image-updater.argoproj.io/match-tag: "^latest$"
+        argocd-image-updater.argoproj.io/match-tag: "^[0-9a-f]{40}$"
         argocd-image-updater.argoproj.io/update-strategy: latest
-        argocd-image-updater.argoproj.io/allow-tags: "regexp:^latest$"
     spec:
       serviceAccountName: dareyscore-sa
       containers:
         - name: api
-          image: 586794457112.dkr.ecr.eu-west-2.amazonaws.com/dareyscore/dareyscore-api:latest
+          image: 586794457112.dkr.ecr.eu-west-2.amazonaws.com/dareyscore/dareyscore-api:40a6b83f662dbc60acdef9ce50f5475d0237ef78
           imagePullPolicy: Always
           ports:
             - containerPort: 8080
