@@ -68,7 +68,7 @@ spec:
                 url: http://thanos-query.monitoring.svc:9090
                 access: proxy
                 isDefault: true
-                uid: prometheus
+                uid: thanos-query
                 jsonData:
                   timeInterval: 30s
               - name: Loki
