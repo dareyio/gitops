@@ -14,5 +14,5 @@ resources:
 images:
   - name: lab-controller-api
     newName: 586794457112.dkr.ecr.eu-west-2.amazonaws.com/lab-controller/labcontroller-api
-    newTag: fd36b3c1d045165bad2db4f771911531a397446c
+    newTag: latest
 
