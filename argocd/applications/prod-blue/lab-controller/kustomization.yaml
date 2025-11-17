@@ -12,7 +12,7 @@ resources:
   - podmonitor.yaml
 
 images:
-  - name: 586794457112.dkr.ecr.eu-west-2.amazonaws.com/lab-controller/labcontroller-api
+  - name: lab-controller-api
     newName: 586794457112.dkr.ecr.eu-west-2.amazonaws.com/lab-controller/labcontroller-api
-    newTag: 5491974-amd64
+    newTag: ef39763d41ed0b4f837de0768170c46c088ae47f
 
