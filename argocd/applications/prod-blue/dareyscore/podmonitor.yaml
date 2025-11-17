@@ -21,7 +21,4 @@ spec:
         - action: replace
           targetLabel: cluster
           replacement: blue
-      relabelings:
-        - targetLabel: cluster
-          replacement: blue
 
