@@ -15,4 +15,5 @@ spec:
     - "*.talentos.darey.io"
     - talentos.darey.io
     - "*.projectlabs-api.talentos.darey.io"
+    - "*.labcontroller.talentos.darey.io"
 
