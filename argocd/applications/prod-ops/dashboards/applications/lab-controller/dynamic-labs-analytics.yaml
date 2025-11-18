@@ -40,7 +40,7 @@ data:
           },
           "targets": [
             {
-              "expr": "sum(cloud_labs_active{namespace=\"lab-controller\",cluster=~\"$cluster\"})",
+              "expr": "sum(kube_pod_status_phase{namespace=~\".*-lab$\",phase=\"Running\",cluster=~\"$cluster\"})",
               "legendFormat": "Active Labs",
               "refId": "A"
             }
@@ -70,8 +70,8 @@ data:
           },
           "targets": [
             {
-              "expr": "sum(cloud_labs_active{namespace=\"lab-controller\",cluster=~\"$cluster\"}) by (lab_type)",
-              "legendFormat": "{{lab_type}}",
+              "expr": "sum(kube_pod_status_phase{namespace=~\".*-lab$\",phase=\"Running\",cluster=~\"$cluster\"}) by (namespace)",
+              "legendFormat": "{{namespace}}",
               "refId": "A"
             }
           ],
@@ -162,7 +162,7 @@ data:
           },
           "targets": [
             {
-              "expr": "count(kube_pod_info{namespace=~\".*-lab$\",cluster=~\"$cluster\"}) by (namespace)",
+              "expr": "count(kube_pod_status_phase{namespace=~\".*-lab$\",cluster=~\"$cluster\"}) by (namespace)",
               "format": "table",
               "instant": true,
               "refId": "A"
@@ -202,7 +202,7 @@ data:
           },
           "targets": [
             {
-              "expr": "sum(kube_pod_info{namespace=~\".*-lab$\",cluster=~\"$cluster\"}) by (namespace)",
+              "expr": "sum(kube_pod_status_phase{namespace=~\".*-lab$\",phase=\"Running\",cluster=~\"$cluster\"}) by (namespace)",
               "legendFormat": "{{namespace}}",
               "refId": "A"
             }
@@ -358,7 +358,7 @@ data:
           },
           "targets": [
             {
-              "expr": "kube_pod_info{namespace=~\".*-lab$\",cluster=~\"$cluster\"}",
+              "expr": "kube_pod_status_phase{namespace=~\".*-lab$\",cluster=~\"$cluster\"}",
               "format": "table",
               "instant": true,
               "refId": "A"
@@ -526,7 +526,7 @@ data:
         },
         {
           "type": "timeseries",
-          "title": "Lab HTTP Request Rate",
+          "title": "Lab Network Activity",
           "gridPos": { "h": 8, "w": 12, "x": 12, "y": 36 },
           "datasource": {
             "type": "prometheus",
@@ -534,7 +534,7 @@ data:
           },
           "targets": [
             {
-              "expr": "sum(rate(http_requests_total{namespace=~\".*-lab$\",cluster=~\"$cluster\"}[5m])) by (namespace)",
+              "expr": "sum(rate(container_network_receive_bytes_total{namespace=~\".*-lab$\",cluster=~\"$cluster\"}[5m]) + rate(container_network_transmit_bytes_total{namespace=~\".*-lab$\",cluster=~\"$cluster\"}[5m])) by (namespace)",
               "legendFormat": "{{namespace}}",
               "refId": "A"
             }
@@ -572,7 +572,7 @@ data:
                   { "color": "green", "value": null }
                 ]
               },
-              "unit": "reqps"
+              "unit": "Bps"
             }
           }
         }
@@ -653,7 +653,7 @@ data:
               "type": "prometheus",
               "uid": "thanos-query"
             },
-            "definition": "label_values(cloud_labs_active{namespace=\"lab-controller\",cluster=~\"$cluster\"}, lab_type)",
+            "definition": "label_values(kube_pod_status_phase{namespace=~\".*-lab$\",cluster=~\"$cluster\"}, namespace)",
             "hide": 0,
             "includeAll": true,
             "label": "Lab Namespace",
@@ -661,7 +661,7 @@ data:
             "name": "lab_namespace",
             "options": [],
             "query": {
-              "query": "label_values(cloud_labs_active{namespace=\"lab-controller\",cluster=~\"$cluster\"}, lab_type)",
+              "query": "label_values(kube_pod_status_phase{namespace=~\".*-lab$\",cluster=~\"$cluster\"}, namespace)",
               "refId": "StandardVariableQuery"
             },
             "refresh": 1,

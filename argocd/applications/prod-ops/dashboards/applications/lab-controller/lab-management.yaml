@@ -373,8 +373,8 @@ data:
           {
             "current": {
               "selected": false,
-              "text": "Prometheus",
-              "value": "Prometheus"
+              "text": "Thanos Query",
+              "value": "thanos-query"
             },
             "hide": 0,
             "includeAll": false,
@@ -382,7 +382,7 @@ data:
             "multi": false,
             "name": "datasource",
             "options": [],
-            "query": "prometheus",
+            "query": "thanos-query",
             "type": "datasource"
           },
           {
@@ -425,7 +425,7 @@ data:
               }
             ],
             "query": {
-              "query": "label_values(up{namespace=\"lab-controller\",cluster=~\".+\"}, cluster)",
+              "query": "label_values(up{namespace=\"lab-controller\"}, cluster)",
               "refId": "StandardVariableQuery"
             },
             "refresh": 1,
