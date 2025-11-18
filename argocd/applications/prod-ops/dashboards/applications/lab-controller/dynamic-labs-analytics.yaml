@@ -40,8 +40,8 @@ data:
           },
           "targets": [
             {
-              "expr": "count(count(kube_pod_info{namespace=~\".*-lab$\",cluster=~\"$cluster\"}) by (namespace))",
-              "legendFormat": "Lab Namespaces",
+              "expr": "sum(cloud_labs_active{namespace=\"lab-controller\",cluster=~\"$cluster\"})",
+              "legendFormat": "Active Labs",
               "refId": "A"
             }
           ],
@@ -70,8 +70,8 @@ data:
           },
           "targets": [
             {
-              "expr": "sum(kube_pod_info{namespace=~\".*-lab$\",cluster=~\"$cluster\"})",
-              "legendFormat": "Pods",
+              "expr": "sum(cloud_labs_active{namespace=\"lab-controller\",cluster=~\"$cluster\"}) by (lab_type)",
+              "legendFormat": "{{lab_type}}",
               "refId": "A"
             }
           ],
@@ -653,7 +653,7 @@ data:
               "type": "prometheus",
               "uid": "thanos-query"
             },
-            "definition": "label_values(kube_pod_info{namespace=~\".*-lab$\",cluster=~\"$cluster\"}, namespace)",
+            "definition": "label_values(cloud_labs_active{namespace=\"lab-controller\",cluster=~\"$cluster\"}, lab_type)",
             "hide": 0,
             "includeAll": true,
             "label": "Lab Namespace",
@@ -661,7 +661,7 @@ data:
             "name": "lab_namespace",
             "options": [],
             "query": {
-              "query": "label_values(kube_pod_info{namespace=~\".*-lab$\",cluster=~\"$cluster\"}, namespace)",
+              "query": "label_values(cloud_labs_active{namespace=\"lab-controller\",cluster=~\"$cluster\"}, lab_type)",
               "refId": "StandardVariableQuery"
             },
             "refresh": 1,
