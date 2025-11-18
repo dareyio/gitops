@@ -331,8 +331,8 @@ data:
           {
             "current": {
               "selected": false,
-              "text": "Prometheus",
-              "value": "Prometheus"
+              "text": "Thanos Query",
+              "value": "thanos-query"
             },
             "hide": 0,
             "includeAll": false,
@@ -340,7 +340,7 @@ data:
             "multi": false,
             "name": "datasource",
             "options": [],
-            "query": "prometheus",
+            "query": "thanos-query",
             "type": "datasource"
           },
           {
@@ -353,7 +353,7 @@ data:
               "type": "prometheus",
               "uid": "thanos-query"
             },
-            "definition": "label_values(kube_pod_info, namespace)",
+            "definition": "label_values(http_requests_total, namespace)",
             "hide": 0,
             "includeAll": true,
             "label": "Namespace",
@@ -361,7 +361,7 @@ data:
             "name": "namespace",
             "options": [],
             "query": {
-              "query": "label_values(kube_pod_info, namespace)",
+              "query": "label_values(http_requests_total, namespace)",
               "refId": "StandardVariableQuery"
             },
             "refresh": 1,
@@ -410,7 +410,7 @@ data:
               }
             ],
             "query": {
-              "query": "label_values(up{cluster=~\".+\"}, cluster)",
+              "query": "label_values(up, cluster)",
               "refId": "StandardVariableQuery"
             },
             "refresh": 1,

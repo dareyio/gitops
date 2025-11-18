@@ -223,7 +223,7 @@ data:
             "current": {
               "selected": false,
               "text": "Tempo",
-              "value": "Tempo"
+              "value": "tempo"
             },
             "hide": 0,
             "includeAll": false,
@@ -237,8 +237,8 @@ data:
           {
             "current": {
               "selected": false,
-              "text": "Prometheus",
-              "value": "Prometheus"
+              "text": "Thanos Query",
+              "value": "thanos-query"
             },
             "hide": 0,
             "includeAll": false,
@@ -246,7 +246,7 @@ data:
             "multi": false,
             "name": "prometheus_datasource",
             "options": [],
-            "query": "prometheus",
+            "query": "thanos-query",
             "type": "datasource"
           },
           {
@@ -289,7 +289,7 @@ data:
               }
             ],
             "query": {
-              "query": "label_values(up{cluster=~\".+\"}, cluster)",
+              "query": "label_values(up, cluster)",
               "refId": "StandardVariableQuery"
             },
             "refresh": 1,
