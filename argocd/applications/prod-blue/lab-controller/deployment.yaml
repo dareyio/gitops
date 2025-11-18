@@ -9,8 +9,9 @@ metadata:
     argocd-image-updater.argoproj.io/image-list: api=586794457112.dkr.ecr.eu-west-2.amazonaws.com/lab-controller/labcontroller-api
     argocd-image-updater.argoproj.io/write-back-method: git
     argocd-image-updater.argoproj.io/git-branch: main
-    argocd-image-updater.argoproj.io/match-tag: "^[0-9a-f]{40}$"
+    argocd-image-updater.argoproj.io/match-tag: "^latest$"
     argocd-image-updater.argoproj.io/update-strategy: latest
+    argocd-image-updater.argoproj.io/kustomize.image: api=lab-controller-api
 spec:
   replicas: 3
   selector:
@@ -24,7 +25,7 @@ spec:
       serviceAccountName: lab-controller-sa
       containers:
         - name: lab-controller
-          image: lab-controller-api:5491974-amd64
+          image: lab-controller-api:latest
           imagePullPolicy: Always
           ports:
             - containerPort: 80

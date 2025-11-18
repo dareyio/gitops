@@ -65,10 +65,10 @@ spec:
                   timeInterval: 30s
               - name: Thanos Query
                 type: prometheus
-                url: http://thanos-query.monitoring.svc:10902
+                url: http://thanos-query.monitoring.svc:9090
                 access: proxy
                 isDefault: true
-                uid: prometheus
+                uid: thanos-query
                 jsonData:
                   timeInterval: 30s
               - name: Loki
@@ -88,14 +88,14 @@ spec:
                 jsonData:
                   httpMethod: GET
                   serviceMap:
-                    datasourceUid: prometheus
+                    datasourceUid: thanos-query
                   tracesToLogs:
                     datasourceUid: loki
                     mapTagNamesEnabled: true
                     filterByTraceID: true
                     filterBySpanID: true
                   tracesToMetrics:
-                    datasourceUid: prometheus
+                    datasourceUid: thanos-query
         sidecar:
           dashboards:
             enabled: true

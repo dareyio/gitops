@@ -53,7 +53,7 @@ data:
           "gridPos": { "h": 8, "w": 12, "x": 0, "y": 12 },
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus"
+            "uid": "thanos-query"
           },
           "targets": [
             {
@@ -80,7 +80,7 @@ data:
           "gridPos": { "h": 8, "w": 12, "x": 12, "y": 12 },
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus"
+            "uid": "thanos-query"
           },
           "targets": [
             {
@@ -108,7 +108,7 @@ data:
           "gridPos": { "h": 8, "w": 12, "x": 0, "y": 20 },
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus"
+            "uid": "thanos-query"
           },
           "targets": [
             {
@@ -143,7 +143,7 @@ data:
           "gridPos": { "h": 8, "w": 12, "x": 12, "y": 20 },
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus"
+            "uid": "thanos-query"
           },
           "targets": [
             {
@@ -170,7 +170,7 @@ data:
           "gridPos": { "h": 8, "w": 24, "x": 0, "y": 28 },
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus"
+            "uid": "thanos-query"
           },
           "targets": [
             {
@@ -223,7 +223,7 @@ data:
             "current": {
               "selected": false,
               "text": "Tempo",
-              "value": "Tempo"
+              "value": "tempo"
             },
             "hide": 0,
             "includeAll": false,
@@ -237,8 +237,8 @@ data:
           {
             "current": {
               "selected": false,
-              "text": "Prometheus",
-              "value": "Prometheus"
+              "text": "Thanos Query",
+              "value": "thanos-query"
             },
             "hide": 0,
             "includeAll": false,
@@ -246,7 +246,7 @@ data:
             "multi": false,
             "name": "prometheus_datasource",
             "options": [],
-            "query": "prometheus",
+            "query": "thanos-query",
             "type": "datasource"
           },
           {
@@ -258,7 +258,7 @@ data:
             },
             "datasource": {
               "type": "prometheus",
-              "uid": "prometheus"
+              "uid": "thanos-query"
             },
             "definition": "",
             "hide": 0,
@@ -289,7 +289,7 @@ data:
               }
             ],
             "query": {
-              "query": "label_values(up{cluster=~\".+\"}, cluster)",
+              "query": "label_values(up, cluster)",
               "refId": "StandardVariableQuery"
             },
             "refresh": 1,

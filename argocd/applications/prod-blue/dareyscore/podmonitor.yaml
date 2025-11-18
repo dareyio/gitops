@@ -18,6 +18,7 @@ spec:
       interval: 30s
       scrapeTimeout: 10s
       relabelings:
-        - targetLabel: cluster
+        - action: replace
+          targetLabel: cluster
           replacement: blue
 

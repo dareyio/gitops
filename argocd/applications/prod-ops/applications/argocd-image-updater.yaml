@@ -20,7 +20,7 @@ spec:
               api_url: https://586794457112.dkr.ecr.eu-west-2.amazonaws.com
               ping: no
               default: true
-              credentials: env:AWS_ACCESS_KEY_ID:AWS_SECRET_ACCESS_KEY
+              credentials: ext:/scripts/ecr-login.sh
               credsexpiry: 12h
           git:
             writeBackMethod: git
@@ -31,21 +31,35 @@ spec:
             pull:
               enabled: true
               interval: 1m
+          applications:
+            - name: lab-controller
+              allowTags:
+                - pattern: "^latest$"
+                  extract: ""
+                  match: "any"
+            - name: dareyscore
+              allowTags:
+                - pattern: "^latest$"
+                  extract: ""
+                  match: "any"
         serviceAccount:
           create: true
           annotations:
             eks.amazonaws.com/role-arn: arn:aws:iam::586794457112:role/darey-io-v2-lab-prod-ops-external-secrets-operator-role
-        env:
-          - name: AWS_ACCESS_KEY_ID
-            valueFrom:
-              secretKeyRef:
-                name: argocd-image-updater-ecr
-                key: aws_access_key_id
-          - name: AWS_SECRET_ACCESS_KEY
-            valueFrom:
-              secretKeyRef:
-                name: argocd-image-updater-ecr
-                key: aws_secret_access_key
+        authScripts:
+          enabled: true
+          scripts:
+            ecr-login.sh: |
+              #!/bin/sh
+              AWS_REGION=${AWS_REGION:-eu-west-2}
+              TOKEN=$(aws ecr get-authorization-token --region $AWS_REGION --output text --query "authorizationData[0].authorizationToken" 2>/dev/null)
+              if [ -z "$TOKEN" ]; then
+                exit 1
+              fi
+              DECODED=$(echo $TOKEN | base64 -d)
+              USERNAME=$(echo $DECODED | cut -d: -f1)
+              PASSWORD=$(echo $DECODED | cut -d: -f2-)
+              echo "$USERNAME:$PASSWORD"
         gitSecret:
           create: false
           name: argocd-repo-ssh
@@ -66,4 +80,3 @@ spec:
       selfHeal: true
     syncOptions:
       - CreateNamespace=true
-

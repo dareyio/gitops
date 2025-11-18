@@ -36,12 +36,12 @@ data:
           "gridPos": { "h": 4, "w": 6, "x": 0, "y": 0 },
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus"
+            "uid": "thanos-query"
           },
           "targets": [
             {
-              "expr": "count(count(kube_pod_info{namespace=~\".*-lab$\",cluster=~\"$cluster\"}) by (namespace))",
-              "legendFormat": "Lab Namespaces",
+              "expr": "sum(kube_pod_status_phase{namespace=~\".*-lab$\",phase=\"Running\",cluster=~\"$cluster\"})",
+              "legendFormat": "Active Labs",
               "refId": "A"
             }
           ],
@@ -66,12 +66,12 @@ data:
           "gridPos": { "h": 4, "w": 6, "x": 6, "y": 0 },
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus"
+            "uid": "thanos-query"
           },
           "targets": [
             {
-              "expr": "sum(kube_pod_info{namespace=~\".*-lab$\",cluster=~\"$cluster\"})",
-              "legendFormat": "Pods",
+              "expr": "sum(kube_pod_status_phase{namespace=~\".*-lab$\",phase=\"Running\",cluster=~\"$cluster\"}) by (namespace)",
+              "legendFormat": "{{namespace}}",
               "refId": "A"
             }
           ],
@@ -96,7 +96,7 @@ data:
           "gridPos": { "h": 4, "w": 6, "x": 12, "y": 0 },
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus"
+            "uid": "thanos-query"
           },
           "targets": [
             {
@@ -126,7 +126,7 @@ data:
           "gridPos": { "h": 4, "w": 6, "x": 18, "y": 0 },
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus"
+            "uid": "thanos-query"
           },
           "targets": [
             {
@@ -158,11 +158,11 @@ data:
           "gridPos": { "h": 8, "w": 12, "x": 0, "y": 4 },
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus"
+            "uid": "thanos-query"
           },
           "targets": [
             {
-              "expr": "count(kube_pod_info{namespace=~\".*-lab$\",cluster=~\"$cluster\"}) by (namespace)",
+              "expr": "count(kube_pod_status_phase{namespace=~\".*-lab$\",cluster=~\"$cluster\"}) by (namespace)",
               "format": "table",
               "instant": true,
               "refId": "A"
@@ -198,11 +198,11 @@ data:
           "gridPos": { "h": 8, "w": 12, "x": 12, "y": 4 },
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus"
+            "uid": "thanos-query"
           },
           "targets": [
             {
-              "expr": "sum(kube_pod_info{namespace=~\".*-lab$\",cluster=~\"$cluster\"}) by (namespace)",
+              "expr": "sum(kube_pod_status_phase{namespace=~\".*-lab$\",phase=\"Running\",cluster=~\"$cluster\"}) by (namespace)",
               "legendFormat": "{{namespace}}",
               "refId": "A"
             }
@@ -250,7 +250,7 @@ data:
           "gridPos": { "h": 8, "w": 12, "x": 0, "y": 12 },
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus"
+            "uid": "thanos-query"
           },
           "targets": [
             {
@@ -302,7 +302,7 @@ data:
           "gridPos": { "h": 8, "w": 12, "x": 12, "y": 12 },
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus"
+            "uid": "thanos-query"
           },
           "targets": [
             {
@@ -354,11 +354,11 @@ data:
           "gridPos": { "h": 8, "w": 24, "x": 0, "y": 20 },
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus"
+            "uid": "thanos-query"
           },
           "targets": [
             {
-              "expr": "kube_pod_info{namespace=~\".*-lab$\",cluster=~\"$cluster\"}",
+              "expr": "kube_pod_status_phase{namespace=~\".*-lab$\",cluster=~\"$cluster\"}",
               "format": "table",
               "instant": true,
               "refId": "A"
@@ -393,7 +393,7 @@ data:
           "gridPos": { "h": 8, "w": 12, "x": 0, "y": 28 },
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus"
+            "uid": "thanos-query"
           },
           "targets": [
             {
@@ -445,7 +445,7 @@ data:
           "gridPos": { "h": 8, "w": 12, "x": 12, "y": 28 },
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus"
+            "uid": "thanos-query"
           },
           "targets": [
             {
@@ -497,7 +497,7 @@ data:
           "gridPos": { "h": 8, "w": 12, "x": 0, "y": 36 },
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus"
+            "uid": "thanos-query"
           },
           "targets": [
             {
@@ -526,15 +526,15 @@ data:
         },
         {
           "type": "timeseries",
-          "title": "Lab HTTP Request Rate",
+          "title": "Lab Network Activity",
           "gridPos": { "h": 8, "w": 12, "x": 12, "y": 36 },
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus"
+            "uid": "thanos-query"
           },
           "targets": [
             {
-              "expr": "sum(rate(http_requests_total{namespace=~\".*-lab$\",cluster=~\"$cluster\"}[5m])) by (namespace)",
+              "expr": "sum(rate(container_network_receive_bytes_total{namespace=~\".*-lab$\",cluster=~\"$cluster\"}[5m]) + rate(container_network_transmit_bytes_total{namespace=~\".*-lab$\",cluster=~\"$cluster\"}[5m])) by (namespace)",
               "legendFormat": "{{namespace}}",
               "refId": "A"
             }
@@ -572,7 +572,7 @@ data:
                   { "color": "green", "value": null }
                 ]
               },
-              "unit": "reqps"
+              "unit": "Bps"
             }
           }
         }
@@ -592,7 +592,7 @@ data:
             },
             "datasource": {
               "type": "prometheus",
-              "uid": "prometheus"
+              "uid": "thanos-query"
             },
             "definition": "",
             "hide": 0,
@@ -651,9 +651,9 @@ data:
             },
             "datasource": {
               "type": "prometheus",
-              "uid": "prometheus"
+              "uid": "thanos-query"
             },
-            "definition": "label_values(kube_pod_info{namespace=~\".*-lab$\",cluster=~\"$cluster\"}, namespace)",
+            "definition": "label_values(kube_pod_status_phase{namespace=~\".*-lab$\",cluster=~\"$cluster\"}, namespace)",
             "hide": 0,
             "includeAll": true,
             "label": "Lab Namespace",
@@ -661,7 +661,7 @@ data:
             "name": "lab_namespace",
             "options": [],
             "query": {
-              "query": "label_values(kube_pod_info{namespace=~\".*-lab$\",cluster=~\"$cluster\"}, namespace)",
+              "query": "label_values(kube_pod_status_phase{namespace=~\".*-lab$\",cluster=~\"$cluster\"}, namespace)",
               "refId": "StandardVariableQuery"
             },
             "refresh": 1,

@@ -36,7 +36,7 @@ data:
           "gridPos": { "h": 4, "w": 6, "x": 0, "y": 0 },
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus"
+            "uid": "thanos-query"
           },
           "targets": [
             {
@@ -68,7 +68,7 @@ data:
           "gridPos": { "h": 4, "w": 6, "x": 6, "y": 0 },
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus"
+            "uid": "thanos-query"
           },
           "targets": [
             {
@@ -100,7 +100,7 @@ data:
           "gridPos": { "h": 4, "w": 6, "x": 12, "y": 0 },
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus"
+            "uid": "thanos-query"
           },
           "targets": [
             {
@@ -132,7 +132,7 @@ data:
           "gridPos": { "h": 4, "w": 6, "x": 18, "y": 0 },
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus"
+            "uid": "thanos-query"
           },
           "targets": [
             {
@@ -165,7 +165,7 @@ data:
           "gridPos": { "h": 8, "w": 12, "x": 0, "y": 4 },
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus"
+            "uid": "thanos-query"
           },
           "targets": [
             {
@@ -200,7 +200,7 @@ data:
           "gridPos": { "h": 8, "w": 12, "x": 12, "y": 4 },
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus"
+            "uid": "thanos-query"
           },
           "targets": [
             {
@@ -227,7 +227,7 @@ data:
           "gridPos": { "h": 8, "w": 24, "x": 0, "y": 12 },
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus"
+            "uid": "thanos-query"
           },
           "targets": [
             {
@@ -278,7 +278,7 @@ data:
           "gridPos": { "h": 8, "w": 24, "x": 0, "y": 30 },
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus"
+            "uid": "thanos-query"
           },
           "targets": [
             {
@@ -331,8 +331,8 @@ data:
           {
             "current": {
               "selected": false,
-              "text": "Prometheus",
-              "value": "Prometheus"
+              "text": "Thanos Query",
+              "value": "thanos-query"
             },
             "hide": 0,
             "includeAll": false,
@@ -340,7 +340,7 @@ data:
             "multi": false,
             "name": "datasource",
             "options": [],
-            "query": "prometheus",
+            "query": "thanos-query",
             "type": "datasource"
           },
           {
@@ -351,9 +351,9 @@ data:
             },
             "datasource": {
               "type": "prometheus",
-              "uid": "prometheus"
+              "uid": "thanos-query"
             },
-            "definition": "label_values(kube_pod_info, namespace)",
+            "definition": "label_values(http_requests_total, namespace)",
             "hide": 0,
             "includeAll": true,
             "label": "Namespace",
@@ -361,7 +361,7 @@ data:
             "name": "namespace",
             "options": [],
             "query": {
-              "query": "label_values(kube_pod_info, namespace)",
+              "query": "label_values(http_requests_total, namespace)",
               "refId": "StandardVariableQuery"
             },
             "refresh": 1,
@@ -379,7 +379,7 @@ data:
             },
             "datasource": {
               "type": "prometheus",
-              "uid": "prometheus"
+              "uid": "thanos-query"
             },
             "definition": "",
             "hide": 0,
@@ -410,7 +410,7 @@ data:
               }
             ],
             "query": {
-              "query": "label_values(up{cluster=~\".+\"}, cluster)",
+              "query": "label_values(up, cluster)",
               "refId": "StandardVariableQuery"
             },
             "refresh": 1,

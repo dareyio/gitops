@@ -10,8 +10,10 @@ metadata:
     argocd-image-updater.argoproj.io/image-list: api=586794457112.dkr.ecr.eu-west-2.amazonaws.com/lab-controller/labcontroller-api
     argocd-image-updater.argoproj.io/write-back-method: git
     argocd-image-updater.argoproj.io/git-branch: main
-    argocd-image-updater.argoproj.io/match-tag: "^[0-9a-f]{40}$"
+    argocd-image-updater.argoproj.io/match-tag: "^latest$"
     argocd-image-updater.argoproj.io/update-strategy: latest
+    argocd-image-updater.argoproj.io/allow-tags: "regexp:^latest$"
+    argocd-image-updater.argoproj.io/kustomize.image: api=lab-controller-api
 spec:
   project: default
   source:
