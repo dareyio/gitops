@@ -11,7 +11,7 @@ data:
     set -e
     SOURCE_SECRET="wildcard-projectlabs-api-talentos-darey-io"
     SOURCE_NAMESPACE="default"
-    
+
     # Get all namespaces ending with -lab
     kubectl get namespaces -o jsonpath='{range .items[*]}{.metadata.name}{"\n"}{end}' | \
       grep -E "-lab$" | while read -r NS; do
@@ -40,7 +40,7 @@ metadata:
   annotations:
     argocd.argoproj.io/sync-wave: "3"
 spec:
-  schedule: "*/2 * * * *"  # Every 2 minutes
+  schedule: "*/5 * * * *" # Every 5 minutes
   successfulJobsHistoryLimit: 3
   failedJobsHistoryLimit: 3
   jobTemplate:
@@ -55,28 +55,79 @@ spec:
                 - /bin/bash
                 - -c
                 - |
+                  set -e
                   SOURCE_SECRET="wildcard-projectlabs-api-talentos-darey-io"
                   SOURCE_NAMESPACE="default"
-                  
+
+                  # Check if source secret exists
+                  if ! kubectl get secret "$SOURCE_SECRET" -n "$SOURCE_NAMESPACE" >/dev/null 2>&1; then
+                    echo "❌ Source secret $SOURCE_SECRET not found in namespace $SOURCE_NAMESPACE"
+                    exit 1
+                  fi
+
+                  # Get source secret's certificate fingerprint (SHA256)
+                  SOURCE_FINGERPRINT=$(kubectl get secret "$SOURCE_SECRET" -n "$SOURCE_NAMESPACE" -o jsonpath='{.data.tls\.crt}' | base64 -d | openssl x509 -noout -fingerprint -sha256 2>/dev/null | cut -d'=' -f2 | tr -d ':')
+
+                  if [ -z "$SOURCE_FINGERPRINT" ]; then
+                    echo "❌ Failed to extract certificate fingerprint from source secret"
+                    exit 1
+                  fi
+
+                  echo "🔍 Source certificate fingerprint: ${SOURCE_FINGERPRINT:0:16}..."
+
                   # Get all namespaces ending with -lab
-                  kubectl get namespaces -o jsonpath='{range .items[*]}{.metadata.name}{"\n"}{end}' | \
-                    grep "lab$" | while read -r NS; do
-                      if [ -n "$NS" ]; then
-                        # Check if secret exists
-                        if ! kubectl get secret "$SOURCE_SECRET" -n "$NS" >/dev/null 2>&1; then
-                          echo "Syncing secret to $NS..."
-                          # Copy secret
+                  UPDATED_COUNT=0
+                  CREATED_COUNT=0
+                  SKIPPED_COUNT=0
+
+                  while IFS= read -r NS; do
+                    if [ -n "$NS" ]; then
+                      # Check if secret exists
+                      if kubectl get secret "$SOURCE_SECRET" -n "$NS" >/dev/null 2>&1; then
+                        # Secret exists - check if it needs updating
+                        TARGET_FINGERPRINT=$(kubectl get secret "$SOURCE_SECRET" -n "$NS" -o jsonpath='{.data.tls\.crt}' | base64 -d | openssl x509 -noout -fingerprint -sha256 2>/dev/null | cut -d'=' -f2 | tr -d ':' || echo "")
+                        
+                        if [ -z "$TARGET_FINGERPRINT" ]; then
+                          echo "⚠️  Failed to read certificate from $NS, will update..."
+                          TARGET_FINGERPRINT=""
+                        fi
+                        
+                        if [ "$SOURCE_FINGERPRINT" != "$TARGET_FINGERPRINT" ]; then
+                          echo "🔄 Certificate changed in $NS (${TARGET_FINGERPRINT:0:16}... -> ${SOURCE_FINGERPRINT:0:16}...), updating..."
+                          kubectl delete secret "$SOURCE_SECRET" -n "$NS" --ignore-not-found=true
                           kubectl get secret "$SOURCE_SECRET" -n "$SOURCE_NAMESPACE" -o yaml | \
                             sed "s/namespace: $SOURCE_NAMESPACE/namespace: $NS/" | \
                             sed '/resourceVersion:/d' | \
                             sed '/uid:/d' | \
                             sed '/creationTimestamp:/d' | \
                             sed '/selfLink:/d' | \
-                            kubectl apply -f -
-                          echo "✅ Synced to $NS"
+                            kubectl apply -f - >/dev/null 2>&1
+                          echo "✅ Updated certificate in $NS"
+                          UPDATED_COUNT=$((UPDATED_COUNT + 1))
+                        else
+                          SKIPPED_COUNT=$((SKIPPED_COUNT + 1))
                         fi
+                      else
+                        # Secret doesn't exist - create it
+                        echo "📝 Creating secret in $NS..."
+                        kubectl get secret "$SOURCE_SECRET" -n "$SOURCE_NAMESPACE" -o yaml | \
+                          sed "s/namespace: $SOURCE_NAMESPACE/namespace: $NS/" | \
+                          sed '/resourceVersion:/d' | \
+                          sed '/uid:/d' | \
+                          sed '/creationTimestamp:/d' | \
+                          sed '/selfLink:/d' | \
+                          kubectl apply -f - >/dev/null 2>&1
+                        echo "✅ Created secret in $NS"
+                        CREATED_COUNT=$((CREATED_COUNT + 1))
                       fi
-                    done
+                    fi
+                  done < <(kubectl get namespaces -o jsonpath='{range .items[*]}{.metadata.name}{"\n"}{end}' | grep "-lab$")
+
+                  echo ""
+                  echo "📊 Sync Summary:"
+                  echo "   Created: $CREATED_COUNT"
+                  echo "   Updated: $UPDATED_COUNT"
+                  echo "   Skipped: $SKIPPED_COUNT"
               resources:
                 requests:
                   cpu: 50m
@@ -122,4 +173,3 @@ subjects:
   - kind: ServiceAccount
     name: wildcard-tls-sync
     namespace: default
-
