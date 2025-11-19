@@ -29,7 +29,7 @@ spec:
         domainFilters:
           - talentos.darey.io
         policy: sync
-        txtOwnerId: external-dns
+        txtOwnerId: external-dns-ops
         logFormat: json
         logLevel: info
         sources:

@@ -31,7 +31,7 @@ spec:
         domainFilters:
           - talentos.darey.io
         policy: sync
-        txtOwnerId: external-dns
+        txtOwnerId: external-dns-blue
         logFormat: json
         logLevel: debug
         interval: 2m
