@@ -25,6 +25,8 @@ spec:
           metricsGenerator:
             enabled: true
             remoteWriteUrl: "http://kube-prometheus-stack-prometheus.monitoring.svc:9090/api/v1/write"
+            storage:
+              path: /var/tempo/generator/wal
           overrides:
             defaults:
               metrics_generator:
@@ -66,4 +68,3 @@ spec:
     syncOptions:
       - CreateNamespace=true
       - ServerSideApply=true
-
