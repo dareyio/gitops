@@ -526,7 +526,7 @@ data:
           }
         },
         {
-          "type": "bargauge",
+          "type": "table",
           "title": "Lab Pod Status Distribution",
           "gridPos": { "h": 8, "w": 12, "x": 0, "y": 36 },
           "datasource": {
@@ -536,25 +536,162 @@ data:
           "targets": [
             {
               "expr": "count(kube_pod_status_phase{namespace=~\"$lab_namespace\",cluster=~\"$cluster\"}) by (namespace, phase)",
-              "legendFormat": "{{namespace}} - {{phase}}",
+              "format": "table",
+              "instant": true,
               "refId": "A"
             }
           ],
           "fieldConfig": {
             "defaults": {
-              "color": {
-                "mode": "thresholds"
+              "custom": {
+                "align": "auto",
+                "displayMode": "color-background",
+                "inspect": false
               },
               "mappings": [],
               "thresholds": {
                 "mode": "absolute",
                 "steps": [
-                  { "color": "green", "value": null, "label": "Running" },
-                  { "color": "yellow", "value": 1, "label": "Pending" },
-                  { "color": "red", "value": 2, "label": "Failed" }
+                  { "color": "green", "value": null }
                 ]
               },
               "unit": "short"
+            },
+            "overrides": [
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "namespace"
+                },
+                "properties": [
+                  {
+                    "id": "custom.width",
+                    "value": 150
+                  },
+                  {
+                    "id": "displayName",
+                    "value": "Namespace"
+                  },
+                  {
+                    "id": "custom.displayMode",
+                    "value": "list"
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "phase"
+                },
+                "properties": [
+                  {
+                    "id": "custom.width",
+                    "value": 120
+                  },
+                  {
+                    "id": "displayName",
+                    "value": "Status"
+                  },
+                  {
+                    "id": "custom.displayMode",
+                    "value": "color-background"
+                  },
+                  {
+                    "id": "mappings",
+                    "value": [
+                      {
+                        "options": {
+                          "match": "Running"
+                        },
+                        "type": "value",
+                        "result": {
+                          "text": "Running",
+                          "color": "green"
+                        }
+                      },
+                      {
+                        "options": {
+                          "match": "Pending"
+                        },
+                        "type": "value",
+                        "result": {
+                          "text": "Pending",
+                          "color": "yellow"
+                        }
+                      },
+                      {
+                        "options": {
+                          "match": "Failed"
+                        },
+                        "type": "value",
+                        "result": {
+                          "text": "Failed",
+                          "color": "red"
+                        }
+                      },
+                      {
+                        "options": {
+                          "match": "Succeeded"
+                        },
+                        "type": "value",
+                        "result": {
+                          "text": "Succeeded",
+                          "color": "blue"
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "id": "custom.cellOptions",
+                    "value": {
+                      "type": "color-background"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "Value"
+                },
+                "properties": [
+                  {
+                    "id": "displayName",
+                    "value": "Count"
+                  },
+                  {
+                    "id": "custom.width",
+                    "value": 100
+                  },
+                  {
+                    "id": "custom.align",
+                    "value": "center"
+                  },
+                  {
+                    "id": "custom.displayMode",
+                    "value": "color-background"
+                  }
+                ]
+              }
+            ]
+          },
+          "options": {
+            "showHeader": true,
+            "sortBy": [
+              {
+                "desc": false,
+                "displayName": "Namespace"
+              },
+              {
+                "desc": true,
+                "displayName": "Count"
+              }
+            ],
+            "cellHeight": "sm",
+            "footer": {
+              "show": false,
+              "reducer": ["sum"],
+              "countRows": false
             }
           }
         },
