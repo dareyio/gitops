@@ -91,33 +91,67 @@ data:
           }
         },
         {
-          "type": "stat",
+          "type": "table",
           "title": "Running Lab Pods",
-          "gridPos": { "h": 4, "w": 6, "x": 12, "y": 0 },
+          "gridPos": { "h": 8, "w": 6, "x": 12, "y": 0 },
           "datasource": {
             "type": "prometheus",
             "uid": "thanos-query"
           },
           "targets": [
             {
-              "expr": "sum(kube_pod_status_phase{namespace=~\".*-lab$\",phase=\"Running\",cluster=~\"$cluster\"})",
-              "legendFormat": "Running",
+              "expr": "kube_pod_status_phase{namespace=~\".*-lab$\",phase=\"Running\",cluster=~\"$cluster\",namespace=~\"$lab_namespace\"}",
+              "format": "table",
+              "instant": true,
               "refId": "A"
             }
           ],
           "fieldConfig": {
             "defaults": {
-              "color": {
-                "mode": "thresholds"
+              "custom": {
+                "align": "auto",
+                "displayMode": "list"
               },
-              "thresholds": {
-                "mode": "absolute",
-                "steps": [
-                  { "color": "green", "value": null }
+              "mappings": []
+            },
+            "overrides": [
+              {
+                "matcher": { "id": "byName", "options": "namespace" },
+                "properties": [
+                  { "id": "custom.width", "value": 120 },
+                  { "id": "displayName", "value": "Namespace" }
                 ]
               },
-              "unit": "short"
-            }
+              {
+                "matcher": { "id": "byName", "options": "pod" },
+                "properties": [
+                  { "id": "custom.width", "value": 200 },
+                  { "id": "displayName", "value": "Pod Name" }
+                ]
+              },
+              {
+                "matcher": { "id": "byName", "options": "phase" },
+                "properties": [
+                  { "id": "custom.width", "value": 80 },
+                  { "id": "displayName", "value": "Status" },
+                  { "id": "custom.displayMode", "value": "color-background" },
+                  { "id": "mappings", "value": [
+                    { "options": { "match": "Running" }, "type": "value", "value": "Running", "result": { "text": "Running", "color": "green" } },
+                    { "options": { "match": "Pending" }, "type": "value", "value": "Pending", "result": { "text": "Pending", "color": "yellow" } },
+                    { "options": { "match": "Failed" }, "type": "value", "value": "Failed", "result": { "text": "Failed", "color": "red" } }
+                  ]}
+                ]
+              }
+            ]
+          },
+          "options": {
+            "showHeader": true,
+            "sortBy": [
+              {
+                "desc": false,
+                "displayName": "Namespace"
+              }
+            ]
           }
         },
         {
@@ -202,7 +236,7 @@ data:
           },
           "targets": [
             {
-              "expr": "sum(kube_pod_status_phase{namespace=~\".*-lab$\",phase=\"Running\",cluster=~\"$cluster\"}) by (namespace)",
+              "expr": "sum(kube_pod_status_phase{namespace=~\".*-lab$\",phase=\"Running\",cluster=~\"$cluster\",namespace=~\"$lab_namespace\"}) by (namespace)",
               "legendFormat": "{{namespace}}",
               "refId": "A"
             }
@@ -254,7 +288,7 @@ data:
           },
           "targets": [
             {
-              "expr": "sum(rate(container_cpu_usage_seconds_total{namespace=~\".*-lab$\",cluster=~\"$cluster\",container!=\"POD\",container!=\"\"}[5m])) by (namespace)",
+              "expr": "sum(rate(container_cpu_usage_seconds_total{namespace=~\".*-lab$\",cluster=~\"$cluster\",namespace=~\"$lab_namespace\",container!=\"POD\",container!=\"\"}[5m])) by (namespace)",
               "legendFormat": "{{namespace}}",
               "refId": "A"
             }
@@ -306,7 +340,7 @@ data:
           },
           "targets": [
             {
-              "expr": "sum(container_memory_working_set_bytes{namespace=~\".*-lab$\",cluster=~\"$cluster\",container!=\"POD\",container!=\"\"}) by (namespace) / 1024 / 1024 / 1024",
+              "expr": "sum(container_memory_working_set_bytes{namespace=~\".*-lab$\",cluster=~\"$cluster\",namespace=~\"$lab_namespace\",container!=\"POD\",container!=\"\"}) by (namespace) / 1024 / 1024 / 1024",
               "legendFormat": "{{namespace}}",
               "refId": "A"
             }
@@ -358,7 +392,7 @@ data:
           },
           "targets": [
             {
-              "expr": "kube_pod_status_phase{namespace=~\".*-lab$\",cluster=~\"$cluster\"}",
+              "expr": "kube_pod_status_phase{namespace=~\".*-lab$\",cluster=~\"$cluster\",namespace=~\"$lab_namespace\"}",
               "format": "table",
               "instant": true,
               "refId": "A"
