@@ -1,0 +1,75 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: error-injector
+  namespace: default
+spec:
+  ttlSecondsAfterFinished: 300
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+      - name: error-injector
+        image: curlimages/curl:latest
+        command:
+        - /bin/sh
+        - -c
+        - |
+          set -e
+          API_URL="${DAREYSCORE_API_URL:-http://dareyscore-api.default.svc:8000}"
+          
+          echo "🔴 Injecting test errors for dashboard testing..."
+          echo ""
+          
+          # Function to make request
+          make_request() {
+            local method=$1
+            local endpoint=$2
+            local data=$3
+            local desc=$4
+            echo "📡 $desc"
+            if [ -n "$data" ]; then
+              curl -s -w "\n   Status: %{http_code}\n" -X "$method" "$API_URL$endpoint" \
+                -H "Content-Type: application/json" \
+                -d "$data" || true
+            else
+              curl -s -w "\n   Status: %{http_code}\n" -X "$method" "$API_URL$endpoint" || true
+            fi
+            echo ""
+            sleep 0.3
+          }
+          
+          # Generate 4xx errors
+          echo "=== Generating 4xx Errors ==="
+          
+          # 404 - Non-existent endpoints
+          for i in {1..20}; do
+            make_request "GET" "/api/v1/nonexistent-$i" "" "404: Non-existent endpoint"
+          done
+          
+          # 400 - Invalid JSON
+          for i in {1..10}; do
+            make_request "POST" "/api/v1/events" "invalid json {[" "400: Invalid JSON"
+          done
+          
+          # 400 - Missing required fields
+          for i in {1..5}; do
+            make_request "POST" "/api/v1/events" '{"event_type":"test"}' "400: Missing fields"
+          done
+          
+          # 405 - Method not allowed
+          make_request "DELETE" "/api/v1/health" "" "405: Method not allowed"
+          make_request "PATCH" "/api/v1/health" "" "405: Method not allowed"
+          
+          # 422 - Invalid data
+          make_request "POST" "/api/v1/events" '{"event_type":"","payload":null}' "422: Invalid data"
+          
+          # Try to trigger 5xx with invalid but valid JSON
+          echo "=== Attempting 5xx errors ==="
+          for i in {1..5}; do
+            make_request "POST" "/api/v1/events" '{"event_type":"assessment_completed","payload":{"proficiency_level":99999,"score_percentage":-100}}' "500: Invalid values"
+          done
+          
+          echo "✅ Error injection complete!"
+          echo "📊 Check dashboard in 30-60 seconds"
+
