@@ -1,0 +1,102 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: finops
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: aws-cost-exporter
+  namespace: finops
+  annotations:
+    eks.amazonaws.com/role-arn: arn:aws:iam::586794457112:role/darey-io-v2-lab-prod-ops-aws-cost-exporter-role
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: aws-cost-exporter
+  namespace: finops
+  labels:
+    app: aws-cost-exporter
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: aws-cost-exporter
+  template:
+    metadata:
+      labels:
+        app: aws-cost-exporter
+    spec:
+      serviceAccountName: aws-cost-exporter
+      containers:
+        - name: exporter
+          image: ghcr.io/ribbybibby/aws-cost-exporter:latest
+          ports:
+            - containerPort: 9090
+              name: metrics
+          env:
+            - name: AWS_REGION
+              value: "eu-west-2"
+            - name: AWS_COST_EXPLORER_GRANULARITY
+              value: "DAILY"
+            - name: AWS_COST_EXPLORER_METRICS
+              value: "BlendedCost,UnblendedCost,UsageQuantity"
+            - name: AWS_COST_EXPLORER_GROUP_BY
+              value: "SERVICE,USAGE_TYPE"
+            - name: PORT
+              value: "9090"
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 200m
+              memory: 256Mi
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 9090
+            initialDelaySeconds: 30
+            periodSeconds: 30
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: 9090
+            initialDelaySeconds: 10
+            periodSeconds: 10
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: aws-cost-exporter
+  namespace: finops
+  labels:
+    app: aws-cost-exporter
+spec:
+  type: ClusterIP
+  ports:
+    - port: 9090
+      targetPort: 9090
+      name: metrics
+  selector:
+    app: aws-cost-exporter
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: aws-cost-exporter
+  namespace: finops
+  labels:
+    app: aws-cost-exporter
+    release: kube-prometheus-stack
+spec:
+  selector:
+    matchLabels:
+      app: aws-cost-exporter
+  endpoints:
+    - port: metrics
+      interval: 1h
+      scrapeTimeout: 30s
+      path: /metrics
+

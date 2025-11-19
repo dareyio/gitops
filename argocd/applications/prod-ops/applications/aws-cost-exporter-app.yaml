@@ -10,7 +10,9 @@ spec:
   source:
     repoURL: https://github.com/dareyio/gitops.git
     targetRevision: main
-    path: argocd/applications/prod-ops/applications/aws-cost-exporter-custom.yaml
+    path: argocd/applications/prod-ops/applications/aws-cost-exporter
+    directory:
+      recurse: true
   destination:
     server: https://kubernetes.default.svc
     namespace: finops
