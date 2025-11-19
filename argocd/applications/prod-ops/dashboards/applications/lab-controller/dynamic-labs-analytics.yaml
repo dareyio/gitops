@@ -70,7 +70,7 @@ data:
           },
           "targets": [
             {
-              "expr": "sum(kube_pod_status_phase{namespace=~\"$lab_namespace\",phase=\"Running\",cluster=~\"$cluster\"}) by (namespace)",
+              "expr": "count(kube_pod_info{namespace=~\"$lab_namespace\",cluster=~\"$cluster\"}) by (namespace)",
               "legendFormat": "{{namespace}}",
               "refId": "A"
             }
