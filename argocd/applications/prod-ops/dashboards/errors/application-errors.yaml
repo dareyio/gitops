@@ -40,7 +40,7 @@ data:
           },
           "targets": [
             {
-              "expr": "sum(rate(http_requests_total{status=~\"5..\", namespace=~\"$namespace\", cluster=~\"$cluster\", service=~\"$application\"}[5m]))",
+              "expr": "sum(rate(http_requests_total{status=~\"5..\", namespace=~\"$namespace\", cluster=~\"$cluster\"}[5m]))",
               "legendFormat": "errors/sec",
               "refId": "A"
             }
@@ -72,7 +72,7 @@ data:
           },
           "targets": [
             {
-              "expr": "sum(rate(http_requests_total{status=~\"4..\", namespace=~\"$namespace\", cluster=~\"$cluster\", service=~\"$application\"}[5m]))",
+              "expr": "sum(rate(http_requests_total{status=~\"4..\", namespace=~\"$namespace\", cluster=~\"$cluster\"}[5m]))",
               "legendFormat": "4xx/sec",
               "refId": "A"
             }
@@ -104,7 +104,7 @@ data:
           },
           "targets": [
             {
-              "expr": "sum(rate(http_requests_total{status=~\"5..\", namespace=~\"$namespace\", cluster=~\"$cluster\", service=~\"$application\"}[5m]))",
+              "expr": "sum(rate(http_requests_total{status=~\"5..\", namespace=~\"$namespace\", cluster=~\"$cluster\"}[5m]))",
               "legendFormat": "5xx/sec",
               "refId": "A"
             }
@@ -136,7 +136,7 @@ data:
           },
           "targets": [
             {
-              "expr": "(sum(rate(http_requests_total{status=~\"5..\", namespace=~\"$namespace\", cluster=~\"$cluster\", service=~\"$application\"}[5m])) / sum(rate(http_requests_total{namespace=~\"$namespace\", cluster=~\"$cluster\", service=~\"$application\"}[5m]))) * 100",
+              "expr": "(sum(rate(http_requests_total{status=~\"5..\", namespace=~\"$namespace\", cluster=~\"$cluster\"}[5m])) / sum(rate(http_requests_total{namespace=~\"$namespace\", cluster=~\"$cluster\"}[5m]))) * 100",
               "legendFormat": "error %",
               "refId": "A"
             }
@@ -169,8 +169,8 @@ data:
           },
           "targets": [
             {
-              "expr": "sum(rate(http_requests_total{status=~\"5..\", namespace=~\"$namespace\", cluster=~\"$cluster\", service=~\"$application\"}[5m])) by (service, namespace, cluster)",
-              "legendFormat": "{{cluster}}/{{namespace}}/{{service}}",
+              "expr": "sum(rate(http_requests_total{status=~\"5..\", namespace=~\"$namespace\", cluster=~\"$cluster\"}[5m])) by (service, job, namespace, cluster)",
+              "legendFormat": "{{cluster}}/{{namespace}}/{{service}}{{job}}",
               "refId": "A"
             }
           ],
@@ -204,7 +204,7 @@ data:
           },
           "targets": [
             {
-              "expr": "sum(rate(http_requests_total{status=~\"[45]..\", namespace=~\"$namespace\", cluster=~\"$cluster\", service=~\"$application\"}[5m])) by (status)",
+              "expr": "sum(rate(http_requests_total{status=~\"[45]..\", namespace=~\"$namespace\", cluster=~\"$cluster\"}[5m])) by (status)",
               "legendFormat": "{{status}}",
               "refId": "A"
             }
@@ -231,8 +231,8 @@ data:
           },
           "targets": [
             {
-              "expr": "topk(10, sum(rate(http_requests_total{status=~\"5..\", namespace=~\"$namespace\", cluster=~\"$cluster\", service=~\"$application\"}[5m])) by (handler, service, namespace, cluster))",
-              "legendFormat": "{{cluster}}/{{namespace}}/{{service}}/{{handler}}",
+              "expr": "topk(10, sum(rate(http_requests_total{status=~\"5..\", namespace=~\"$namespace\", cluster=~\"$cluster\"}[5m])) by (handler, service, job, namespace, cluster))",
+              "legendFormat": "{{cluster}}/{{namespace}}/{{service}}{{job}}/{{handler}}",
               "refId": "A"
             }
           ],
@@ -282,7 +282,7 @@ data:
           },
           "targets": [
             {
-              "expr": "topk(10, sum(rate(http_requests_total{status=~\"5..\", namespace=~\"$namespace\", cluster=~\"$cluster\", service=~\"$application\"}[5m])) by (handler, service, namespace, cluster))",
+              "expr": "topk(10, sum(rate(http_requests_total{status=~\"5..\", namespace=~\"$namespace\", cluster=~\"$cluster\"}[5m])) by (handler, service, job, namespace, cluster))",
               "format": "table",
               "instant": true,
               "refId": "A"
@@ -314,6 +314,7 @@ data:
                 "renameByName": {
                   "handler": "Endpoint",
                   "service": "Application",
+                  "job": "Job",
                   "namespace": "Namespace",
                   "cluster": "Cluster",
                   "Value": "Error Rate (req/s)"
