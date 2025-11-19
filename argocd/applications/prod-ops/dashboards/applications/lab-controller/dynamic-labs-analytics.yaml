@@ -40,7 +40,7 @@ data:
           },
           "targets": [
             {
-              "expr": "sum(kube_pod_status_phase{namespace=~\".*-lab$\",phase=\"Running\",cluster=~\"$cluster\"})",
+              "expr": "sum(kube_pod_status_phase{namespace=~\"$lab_namespace\",phase=\"Running\",cluster=~\"$cluster\"})",
               "legendFormat": "Active Labs",
               "refId": "A"
             }
@@ -70,7 +70,7 @@ data:
           },
           "targets": [
             {
-              "expr": "sum(kube_pod_status_phase{namespace=~\".*-lab$\",phase=\"Running\",cluster=~\"$cluster\"}) by (namespace)",
+              "expr": "sum(kube_pod_status_phase{namespace=~\"$lab_namespace\",phase=\"Running\",cluster=~\"$cluster\"}) by (namespace)",
               "legendFormat": "{{namespace}}",
               "refId": "A"
             }
@@ -100,7 +100,7 @@ data:
           },
           "targets": [
             {
-              "expr": "kube_pod_status_phase{namespace=~\".*-lab$\",phase=\"Running\",cluster=~\"$cluster\",namespace=~\"$lab_namespace\"}",
+              "expr": "kube_pod_status_phase{namespace=~\"$lab_namespace\",phase=\"Running\",cluster=~\"$cluster\"}",
               "format": "table",
               "instant": true,
               "refId": "A"
@@ -164,7 +164,7 @@ data:
           },
           "targets": [
             {
-              "expr": "sum(rate(container_cpu_usage_seconds_total{namespace=~\".*-lab$\",cluster=~\"$cluster\",container!=\"POD\",container!=\"\"}[5m]))",
+              "expr": "sum(rate(container_cpu_usage_seconds_total{namespace=~\"$lab_namespace\",cluster=~\"$cluster\",container!=\"POD\",container!=\"\"}[5m]))",
               "legendFormat": "CPU Cores",
               "refId": "A"
             }
@@ -196,7 +196,7 @@ data:
           },
           "targets": [
             {
-              "expr": "count(kube_pod_status_phase{namespace=~\".*-lab$\",cluster=~\"$cluster\"}) by (namespace)",
+              "expr": "count(kube_pod_status_phase{namespace=~\"$lab_namespace\",cluster=~\"$cluster\"}) by (namespace)",
               "format": "table",
               "instant": true,
               "refId": "A"
@@ -236,7 +236,7 @@ data:
           },
           "targets": [
             {
-              "expr": "sum(kube_pod_status_phase{namespace=~\".*-lab$\",phase=\"Running\",cluster=~\"$cluster\",namespace=~\"$lab_namespace\"}) by (namespace)",
+              "expr": "sum(kube_pod_status_phase{namespace=~\"$lab_namespace\",phase=\"Running\",cluster=~\"$cluster\"}) by (namespace)",
               "legendFormat": "{{namespace}}",
               "refId": "A"
             }
@@ -288,7 +288,7 @@ data:
           },
           "targets": [
             {
-              "expr": "sum(rate(container_cpu_usage_seconds_total{namespace=~\".*-lab$\",cluster=~\"$cluster\",namespace=~\"$lab_namespace\",container!=\"POD\",container!=\"\"}[5m])) by (namespace)",
+              "expr": "sum(rate(container_cpu_usage_seconds_total{namespace=~\"$lab_namespace\",cluster=~\"$cluster\",container!=\"POD\",container!=\"\"}[5m])) by (namespace)",
               "legendFormat": "{{namespace}}",
               "refId": "A"
             }
@@ -340,7 +340,7 @@ data:
           },
           "targets": [
             {
-              "expr": "sum(container_memory_working_set_bytes{namespace=~\".*-lab$\",cluster=~\"$cluster\",namespace=~\"$lab_namespace\",container!=\"POD\",container!=\"\"}) by (namespace) / 1024 / 1024 / 1024",
+              "expr": "sum(container_memory_working_set_bytes{namespace=~\"$lab_namespace\",cluster=~\"$cluster\",container!=\"POD\",container!=\"\"}) by (namespace) / 1024 / 1024 / 1024",
               "legendFormat": "{{namespace}}",
               "refId": "A"
             }
@@ -392,7 +392,7 @@ data:
           },
           "targets": [
             {
-              "expr": "kube_pod_status_phase{namespace=~\".*-lab$\",cluster=~\"$cluster\",namespace=~\"$lab_namespace\"}",
+              "expr": "kube_pod_status_phase{namespace=~\"$lab_namespace\",cluster=~\"$cluster\"}",
               "format": "table",
               "instant": true,
               "refId": "A"
@@ -431,7 +431,7 @@ data:
           },
           "targets": [
             {
-              "expr": "sum(rate(container_network_receive_bytes_total{namespace=~\".*-lab$\",cluster=~\"$cluster\"}[5m])) by (namespace) / 1024 / 1024",
+              "expr": "sum(rate(container_network_receive_bytes_total{namespace=~\"$lab_namespace\",cluster=~\"$cluster\"}[5m])) by (namespace) / 1024 / 1024",
               "legendFormat": "{{namespace}}",
               "refId": "A"
             }
@@ -483,7 +483,7 @@ data:
           },
           "targets": [
             {
-              "expr": "sum(rate(container_network_transmit_bytes_total{namespace=~\".*-lab$\",cluster=~\"$cluster\"}[5m])) by (namespace) / 1024 / 1024",
+              "expr": "sum(rate(container_network_transmit_bytes_total{namespace=~\"$lab_namespace\",cluster=~\"$cluster\"}[5m])) by (namespace) / 1024 / 1024",
               "legendFormat": "{{namespace}}",
               "refId": "A"
             }
@@ -535,7 +535,7 @@ data:
           },
           "targets": [
             {
-              "expr": "count(kube_pod_status_phase{namespace=~\".*-lab$\",cluster=~\"$cluster\"}) by (namespace, phase)",
+              "expr": "count(kube_pod_status_phase{namespace=~\"$lab_namespace\",cluster=~\"$cluster\"}) by (namespace, phase)",
               "legendFormat": "{{namespace}} - {{phase}}",
               "refId": "A"
             }
@@ -568,7 +568,7 @@ data:
           },
           "targets": [
             {
-              "expr": "sum(rate(container_network_receive_bytes_total{namespace=~\".*-lab$\",cluster=~\"$cluster\"}[5m]) + rate(container_network_transmit_bytes_total{namespace=~\".*-lab$\",cluster=~\"$cluster\"}[5m])) by (namespace)",
+              "expr": "sum(rate(container_network_receive_bytes_total{namespace=~\"$lab_namespace\",cluster=~\"$cluster\"}[5m]) + rate(container_network_transmit_bytes_total{namespace=~\"$lab_namespace\",cluster=~\"$cluster\"}[5m])) by (namespace)",
               "legendFormat": "{{namespace}}",
               "refId": "A"
             }
@@ -677,7 +677,7 @@ data:
             "type": "textbox"
           },
           {
-            "allValue": ".*",
+            "allValue": ".*-lab$",
             "current": {
               "selected": true,
               "text": ["All"],
@@ -717,4 +717,3 @@ data:
       "version": 1,
       "weekStart": ""
     }
-
