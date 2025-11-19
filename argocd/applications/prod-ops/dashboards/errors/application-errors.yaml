@@ -40,7 +40,7 @@ data:
           },
           "targets": [
             {
-              "expr": "sum(rate(http_requests_total{status=~\"5..\"}[5m]))",
+              "expr": "sum(rate(http_requests_total{status=~\"5..\", namespace=~\"$namespace\", cluster=~\"$cluster\", service=~\"$application\"}[5m]))",
               "legendFormat": "errors/sec",
               "refId": "A"
             }
@@ -72,7 +72,7 @@ data:
           },
           "targets": [
             {
-              "expr": "sum(rate(http_requests_total{status=~\"4..\"}[5m]))",
+              "expr": "sum(rate(http_requests_total{status=~\"4..\", namespace=~\"$namespace\", cluster=~\"$cluster\", service=~\"$application\"}[5m]))",
               "legendFormat": "4xx/sec",
               "refId": "A"
             }
@@ -104,7 +104,7 @@ data:
           },
           "targets": [
             {
-              "expr": "sum(rate(http_requests_total{status=~\"5..\"}[5m]))",
+              "expr": "sum(rate(http_requests_total{status=~\"5..\", namespace=~\"$namespace\", cluster=~\"$cluster\", service=~\"$application\"}[5m]))",
               "legendFormat": "5xx/sec",
               "refId": "A"
             }
@@ -136,7 +136,7 @@ data:
           },
           "targets": [
             {
-              "expr": "(sum(rate(http_requests_total{status=~\"5..\"}[5m])) / sum(rate(http_requests_total[5m]))) * 100",
+              "expr": "(sum(rate(http_requests_total{status=~\"5..\", namespace=~\"$namespace\", cluster=~\"$cluster\", service=~\"$application\"}[5m])) / sum(rate(http_requests_total{namespace=~\"$namespace\", cluster=~\"$cluster\", service=~\"$application\"}[5m]))) * 100",
               "legendFormat": "error %",
               "refId": "A"
             }
@@ -169,8 +169,8 @@ data:
           },
           "targets": [
             {
-              "expr": "sum(rate(http_requests_total{status=~\"5..\"}[5m])) by (namespace, cluster)",
-              "legendFormat": "{{cluster}}/{{namespace}}",
+              "expr": "sum(rate(http_requests_total{status=~\"5..\", namespace=~\"$namespace\", cluster=~\"$cluster\", service=~\"$application\"}[5m])) by (service, namespace, cluster)",
+              "legendFormat": "{{cluster}}/{{namespace}}/{{service}}",
               "refId": "A"
             }
           ],
@@ -204,7 +204,7 @@ data:
           },
           "targets": [
             {
-              "expr": "sum(rate(http_requests_total{status=~\"[45]..\"}[5m])) by (status)",
+              "expr": "sum(rate(http_requests_total{status=~\"[45]..\", namespace=~\"$namespace\", cluster=~\"$cluster\", service=~\"$application\"}[5m])) by (status)",
               "legendFormat": "{{status}}",
               "refId": "A"
             }
@@ -231,8 +231,8 @@ data:
           },
           "targets": [
             {
-              "expr": "topk(10, sum(rate(http_requests_total{status=~\"5..\"}[5m])) by (handler, namespace, cluster))",
-              "legendFormat": "{{cluster}}/{{namespace}}/{{handler}}",
+              "expr": "topk(10, sum(rate(http_requests_total{status=~\"5..\", namespace=~\"$namespace\", cluster=~\"$cluster\", service=~\"$application\"}[5m])) by (handler, service, namespace, cluster))",
+              "legendFormat": "{{cluster}}/{{namespace}}/{{service}}/{{handler}}",
               "refId": "A"
             }
           ],
@@ -282,7 +282,7 @@ data:
           },
           "targets": [
             {
-              "expr": "topk(10, sum(rate(http_requests_total{status=~\"5..\"}[5m])) by (handler, namespace, cluster))",
+              "expr": "topk(10, sum(rate(http_requests_total{status=~\"5..\", namespace=~\"$namespace\", cluster=~\"$cluster\", service=~\"$application\"}[5m])) by (handler, service, namespace, cluster))",
               "format": "table",
               "instant": true,
               "refId": "A"
@@ -313,6 +313,7 @@ data:
                 },
                 "renameByName": {
                   "handler": "Endpoint",
+                  "service": "Application",
                   "namespace": "Namespace",
                   "cluster": "Cluster",
                   "Value": "Error Rate (req/s)"
@@ -330,7 +331,7 @@ data:
         "list": [
           {
             "current": {
-              "selected": false,
+              "selected": true,
               "text": "Thanos Query",
               "value": "thanos-query"
             },
@@ -339,13 +340,19 @@ data:
             "label": "Datasource",
             "multi": false,
             "name": "datasource",
-            "options": [],
-            "query": "thanos-query",
+            "options": [
+              {
+                "selected": true,
+                "text": "Thanos Query",
+                "value": "thanos-query"
+              }
+            ],
+            "query": "prometheus",
             "type": "datasource"
           },
           {
             "current": {
-              "selected": false,
+              "selected": true,
               "text": ["All"],
               "value": ["$__all"]
             },
@@ -368,10 +375,11 @@ data:
             "regex": "",
             "skipUrlSync": false,
             "sort": 1,
-            "type": "query"
+            "type": "query",
+            "allValue": ".*"
           },
           {
-            "allValue": null,
+            "allValue": ".*",
             "current": {
               "selected": true,
               "text": ["All"],
@@ -381,43 +389,49 @@ data:
               "type": "prometheus",
               "uid": "thanos-query"
             },
-            "definition": "",
+            "definition": "label_values(http_requests_total{namespace=~\"$namespace\"}, service)",
             "hide": 0,
             "includeAll": true,
-            "label": "Cluster",
+            "label": "Application",
             "multi": true,
-            "name": "cluster",
-            "options": [
-              {
-                "selected": false,
-                "text": "All",
-                "value": "$__all"
-              },
-              {
-                "selected": false,
-                "text": "ops",
-                "value": "ops"
-              },
-              {
-                "selected": false,
-                "text": "blue",
-                "value": "blue"
-              },
-              {
-                "selected": false,
-                "text": "green",
-                "value": "green"
-              }
-            ],
+            "name": "application",
+            "options": [],
             "query": {
-              "query": "label_values(up, cluster)",
+              "query": "label_values(http_requests_total{namespace=~\"$namespace\"}, service)",
               "refId": "StandardVariableQuery"
             },
             "refresh": 1,
             "regex": "",
             "skipUrlSync": false,
+            "sort": 1,
+            "type": "query"
+          },
+          {
+            "allValue": ".*",
+            "current": {
+              "selected": true,
+              "text": ["All"],
+              "value": ["$__all"]
+            },
+            "datasource": {
+              "type": "prometheus",
+              "uid": "thanos-query"
+            },
+            "query": {
+              "query": "label_values(up, cluster)",
+              "refId": "StandardVariableQuery"
+            },
+            "hide": 0,
+            "includeAll": true,
+            "label": "Cluster",
+            "multi": true,
+            "name": "cluster",
+            "options": [],
+            "refresh": 1,
+            "regex": "",
+            "skipUrlSync": false,
             "sort": 0,
-            "type": "custom"
+            "type": "query"
           }
         ]
       },
@@ -431,7 +445,6 @@ data:
       "timezone": "browser",
       "title": "Application Errors",
       "uid": "application-errors",
-      "version": 1,
+      "version": 2,
       "weekStart": ""
     }
-
