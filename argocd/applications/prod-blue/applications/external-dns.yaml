@@ -26,12 +26,15 @@ spec:
         aws:
           region: eu-west-2
           zoneType: public
+          batchChangeSize: 100
+          batchChangeInterval: 5s
         domainFilters:
           - talentos.darey.io
         policy: sync
         txtOwnerId: external-dns
         logFormat: json
-        logLevel: info
+        logLevel: debug
+        interval: 2m
         sources:
           - ingress
           - service
