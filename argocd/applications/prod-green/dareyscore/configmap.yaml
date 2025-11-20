@@ -32,3 +32,5 @@ data:
   OTLP_ENDPOINT: "http://opentelemetry-collector.observability.svc:4317"
   OTLP_INSECURE: "true"
   TELEMETRY_ENVIRONMENT: "prod"
+  XTERNS_SCORING_MODE: "batch"
+  DAREY_SCORING_MODE: "event-based"
