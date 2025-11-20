@@ -233,9 +233,44 @@ data:
           },
           "targets": [
             {
-              "expr": "topk(10, sum(rate(http_requests_total{namespace=\"dareyscore\", handler!=\"/metrics\"}[5m])) by (handler, cluster))",
-              "legendFormat": "{{cluster}} - {{handler}}",
+              "expr": "sum(rate(http_request_duration_seconds_count{namespace=\"dareyscore\", service=~\"dareyscore-api.*\", handler=\"/v1/events/ingest\"}[5m])) by (cluster)",
+              "legendFormat": "{{cluster}} - /v1/events/ingest",
               "refId": "A"
+            },
+            {
+              "expr": "sum(rate(http_request_duration_seconds_count{namespace=\"dareyscore\", service=~\"dareyscore-api.*\", handler=~\"/v1/score/[^/]+$\"}[5m])) by (cluster)",
+              "legendFormat": "{{cluster}} - /v1/score/{guid}",
+              "refId": "B"
+            },
+            {
+              "expr": "sum(rate(http_request_duration_seconds_count{namespace=\"dareyscore\", service=~\"dareyscore-api.*\", handler=~\"/v1/score/[^/]+/breakdown\"}[5m])) by (cluster)",
+              "legendFormat": "{{cluster}} - /v1/score/{guid}/breakdown",
+              "refId": "C"
+            },
+            {
+              "expr": "sum(rate(http_request_duration_seconds_count{namespace=\"dareyscore\", service=~\"dareyscore-api.*\", handler=~\"/v1/score/eligibility/.*\"}[5m])) by (cluster)",
+              "legendFormat": "{{cluster}} - /v1/score/eligibility/{guid}",
+              "refId": "D"
+            },
+            {
+              "expr": "sum(rate(http_request_duration_seconds_count{namespace=\"dareyscore\", service=~\"dareyscore-api.*\", handler=\"/v1/health\"}[5m])) by (cluster)",
+              "legendFormat": "{{cluster}} - /v1/health",
+              "refId": "E"
+            },
+            {
+              "expr": "sum(rate(http_request_duration_seconds_count{namespace=\"dareyscore\", service=~\"dareyscore-api.*\", handler=\"/v1/identities/link\"}[5m])) by (cluster)",
+              "legendFormat": "{{cluster}} - /v1/identities/link",
+              "refId": "F"
+            },
+            {
+              "expr": "sum(rate(http_request_duration_seconds_count{namespace=\"dareyscore\", service=~\"dareyscore-api.*\", handler=~\"/v1/admin/.*\"}[5m])) by (cluster)",
+              "legendFormat": "{{cluster}} - /v1/admin/*",
+              "refId": "G"
+            },
+            {
+              "expr": "sum(rate(http_request_duration_seconds_count{namespace=\"dareyscore\", service=~\"dareyscore-api.*\", handler!=\"/metrics\", handler!=\"/v1/events/ingest\", handler!~\"/v1/score/.*\", handler!=\"/v1/health\", handler!=\"/v1/identities/link\", handler!~\"/v1/admin/.*\"}[5m])) by (handler, cluster)",
+              "legendFormat": "{{cluster}} - {{handler}} (other)",
+              "refId": "H"
             }
           ],
           "fieldConfig": {
