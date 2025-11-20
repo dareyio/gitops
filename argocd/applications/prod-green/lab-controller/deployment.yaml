@@ -114,6 +114,14 @@ spec:
               value: "true"
             - name: TELEMETRY_ENVIRONMENT
               value: "prod"
+            - name: CORS_ALLOWED_ORIGINS
+              value: "https://v2-dev.darey.io,https://darey.io,https://*.darey.io"
+            - name: CORS_ALLOW_CREDENTIALS
+              value: "true"
+            - name: CORS_ALLOW_METHODS
+              value: "GET,POST,PUT,DELETE,OPTIONS,PATCH"
+            - name: CORS_ALLOW_HEADERS
+              value: "Authorization,Content-Type,X-Lab-Session-Id,X-Lab-Session-Token,X-Lab-Auth-Mode"
           resources:
             requests:
               cpu: "100m"
