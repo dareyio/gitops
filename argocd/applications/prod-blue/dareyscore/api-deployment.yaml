@@ -57,16 +57,18 @@ spec:
             httpGet:
               path: /v1/health
               port: 8080
-            initialDelaySeconds: 30
-            periodSeconds: 10
-            timeoutSeconds: 5
+            initialDelaySeconds: 60
+            periodSeconds: 15
+            timeoutSeconds: 10
+            failureThreshold: 3
           readinessProbe:
             httpGet:
               path: /v1/health
               port: 8080
-            initialDelaySeconds: 10
-            periodSeconds: 5
-            timeoutSeconds: 3
+            initialDelaySeconds: 20
+            periodSeconds: 10
+            timeoutSeconds: 8
+            failureThreshold: 3
           resources:
             requests:
               cpu: 250m
