@@ -31,21 +31,21 @@ spec:
       serviceAccountName: aws-cost-exporter
       containers:
         - name: exporter
-          image: ghcr.io/ribbybibby/aws-cost-exporter:latest
+          image: ghcr.io/electrolux-oss/aws-cost-exporter:latest
           ports:
-            - containerPort: 9090
+            - containerPort: 8080
               name: metrics
           env:
             - name: AWS_REGION
               value: "eu-west-2"
-            - name: AWS_COST_EXPLORER_GRANULARITY
-              value: "DAILY"
-            - name: AWS_COST_EXPLORER_METRICS
-              value: "BlendedCost,UnblendedCost,UsageQuantity"
-            - name: AWS_COST_EXPLORER_GROUP_BY
-              value: "SERVICE,USAGE_TYPE"
-            - name: PORT
-              value: "9090"
+            - name: EXPORTER_PORT
+              value: "8080"
+            - name: EXPORTER_CONFIG_PATH
+              value: "/app/exporter_config.yaml"
+          volumeMounts:
+            - name: config
+              mountPath: /app
+              readOnly: true
           resources:
             requests:
               cpu: 100m
@@ -56,13 +56,13 @@ spec:
           livenessProbe:
             httpGet:
               path: /health
-              port: 9090
+              port: 8080
             initialDelaySeconds: 30
             periodSeconds: 30
           readinessProbe:
             httpGet:
-              path: /ready
-              port: 9090
+              path: /metrics
+              port: 8080
             initialDelaySeconds: 10
             periodSeconds: 10
 ---
@@ -76,8 +76,8 @@ metadata:
 spec:
   type: ClusterIP
   ports:
-    - port: 9090
-      targetPort: 9090
+    - port: 8080
+      targetPort: 8080
       name: metrics
   selector:
     app: aws-cost-exporter
@@ -99,4 +99,25 @@ spec:
       interval: 1h
       scrapeTimeout: 30s
       path: /metrics
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: aws-cost-exporter-config
+  namespace: finops
+data:
+  exporter_config.yaml: |
+    accounts:
+      - account_id: "586794457112"
+        role_name: "darey-io-v2-lab-prod-ops-aws-cost-exporter-role"
+        external_id: ""
+    metrics:
+      - metric_name: aws_daily_cost_usd
+        metric_description: Daily AWS Usage Cost
+        granularity: DAILY
+        group_by:
+          - Type: DIMENSION
+            Key: SERVICE
+        merge_minor_cost: true
+        minor_cost_threshold: 0.01
 
