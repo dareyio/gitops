@@ -119,9 +119,9 @@ spec:
               memory: 256Mi
           livenessProbe:
             httpGet:
-              path: /health
+              path: /metrics
               port: 8080
-            initialDelaySeconds: 30
+            initialDelaySeconds: 60
             periodSeconds: 30
           readinessProbe:
             httpGet:
