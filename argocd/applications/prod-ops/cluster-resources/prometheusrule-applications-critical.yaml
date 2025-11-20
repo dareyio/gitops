@@ -16,15 +16,15 @@ spec:
       interval: 30s
       rules:
         - alert: LabControllerPodDown
-          expr: up{job=~"lab-controller.*", namespace="lab-controller"} == 0
+          expr: kube_deployment_status_replicas_available{namespace="lab-controller", deployment="lab-controller"} == 0
           for: 2m
           labels:
             severity: critical
             service: lab-controller
             application: lab-controller
           annotations:
-            summary: "Lab Controller pod is down"
-            description: "Lab Controller pod {{ $labels.pod }} in namespace {{ $labels.namespace }} (cluster: {{ $labels.cluster }}) has been down for more than 2 minutes."
+            summary: "Lab Controller deployment has no available replicas"
+            description: "Lab Controller deployment in namespace {{ $labels.namespace }} (cluster: {{ $labels.cluster }}) has 0 available replicas for more than 2 minutes."
 
         - alert: LabControllerHighErrorRate
           expr: sum(rate(http_request_duration_seconds_count{namespace="lab-controller", service="lab-controller", handler!="/metrics"}[5m])) > 10
