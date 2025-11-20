@@ -31,21 +31,85 @@ spec:
       serviceAccountName: aws-cost-exporter
       containers:
         - name: exporter
-          image: ghcr.io/electrolux-oss/aws-cost-exporter:latest
-          ports:
-            - containerPort: 8080
-              name: metrics
-          env:
-            - name: AWS_REGION
-              value: "eu-west-2"
-            - name: EXPORTER_PORT
-              value: "8080"
-            - name: EXPORTER_CONFIG_PATH
-              value: "/app/exporter_config.yaml"
-          volumeMounts:
-            - name: config
-              mountPath: /app
-              readOnly: true
+          image: python:3.11-slim
+          command: ["/bin/sh"]
+          args:
+            - -c
+            - |
+              pip install -q boto3 prometheus-client flask && \
+              python -c "
+              import os
+              import boto3
+              from datetime import datetime, timedelta
+              from prometheus_client import Gauge, start_http_server
+              import time
+              
+              # Initialize AWS clients
+              ce = boto3.client('ce', region_name=os.environ.get('AWS_REGION', 'eu-west-2'))
+              
+              # Prometheus metrics
+              current_month_cost = Gauge('aws_cost_exporter_current_month_cost', 'Current month cost', ['currency'])
+              daily_cost = Gauge('aws_cost_exporter_daily_cost', 'Daily cost', ['date', 'currency'])
+              forecasted_monthly = Gauge('aws_cost_exporter_forecasted_monthly_cost', 'Forecasted monthly cost', ['currency'])
+              service_cost = Gauge('aws_cost_exporter_service_cost', 'Cost by service', ['service_name', 'currency'])
+              remaining_credits = Gauge('aws_cost_exporter_remaining_credits', 'Remaining credits')
+              
+              def get_cost_and_usage(start, end, granularity='DAILY', group_by=None):
+                  params = {
+                      'TimePeriod': {'Start': start, 'End': end},
+                      'Granularity': granularity,
+                      'Metrics': ['BlendedCost']
+                  }
+                  if group_by:
+                      params['GroupBy'] = group_by
+                  return ce.get_cost_and_usage(**params)
+              
+              def update_metrics():
+                  today = datetime.now()
+                  month_start = today.replace(day=1).strftime('%Y-%m-%d')
+                  today_str = today.strftime('%Y-%m-%d')
+                  tomorrow_str = (today + timedelta(days=1)).strftime('%Y-%m-%d')
+                  
+                  # Current month cost
+                  try:
+                      result = get_cost_and_usage(month_start, today_str, 'MONTHLY')
+                      if result['ResultsByTime']:
+                          cost = float(result['ResultsByTime'][0]['Total']['BlendedCost']['Amount'])
+                          currency = result['ResultsByTime'][0]['Total']['BlendedCost']['Unit']
+                          current_month_cost.labels(currency=currency).set(cost)
+                  except Exception as e:
+                      print(f'Error getting current month cost: {e}')
+                  
+                  # Daily cost
+                  try:
+                      result = get_cost_and_usage((today - timedelta(days=1)).strftime('%Y-%m-%d'), today_str, 'DAILY')
+                      if result['ResultsByTime']:
+                          cost = float(result['ResultsByTime'][0]['Total']['BlendedCost']['Amount'])
+                          currency = result['ResultsByTime'][0]['Total']['BlendedCost']['Unit']
+                          daily_cost.labels(date=(today - timedelta(days=1)).strftime('%Y-%m-%d'), currency=currency).set(cost)
+                  except Exception as e:
+                      print(f'Error getting daily cost: {e}')
+                  
+                  # Cost by service
+                  try:
+                      result = get_cost_and_usage(month_start, today_str, 'MONTHLY', [{'Type': 'DIMENSION', 'Key': 'SERVICE'}])
+                      if result['ResultsByTime']:
+                          for group in result['ResultsByTime'][0]['Groups']:
+                              service = group['Keys'][0] if group['Keys'] else 'Unknown'
+                              cost = float(group['Metrics']['BlendedCost']['Amount'])
+                              currency = group['Metrics']['BlendedCost']['Unit']
+                              service_cost.labels(service_name=service, currency=currency).set(cost)
+                  except Exception as e:
+                      print(f'Error getting service cost: {e}')
+              
+              # Start Prometheus metrics server
+              start_http_server(8080)
+              
+              # Update metrics every hour
+              while True:
+                  update_metrics()
+                  time.sleep(3600)
+              "
           resources:
             requests:
               cpu: 100m
@@ -99,25 +163,3 @@ spec:
       interval: 1h
       scrapeTimeout: 30s
       path: /metrics
----
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: aws-cost-exporter-config
-  namespace: finops
-data:
-  exporter_config.yaml: |
-    accounts:
-      - account_id: "586794457112"
-        role_name: "darey-io-v2-lab-prod-ops-aws-cost-exporter-role"
-        external_id: ""
-    metrics:
-      - metric_name: aws_daily_cost_usd
-        metric_description: Daily AWS Usage Cost
-        granularity: DAILY
-        group_by:
-          - Type: DIMENSION
-            Key: SERVICE
-        merge_minor_cost: true
-        minor_cost_threshold: 0.01
-
