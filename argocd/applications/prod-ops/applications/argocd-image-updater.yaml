@@ -21,7 +21,6 @@ spec:
               ping: no
               default: true
               credentials: ext:/scripts/ecr-login.sh
-              credsexpiry: 12h
           git:
             writeBackMethod: git
             branch: main
