@@ -25,7 +25,7 @@ spec:
       serviceAccountName: lab-controller-sa
       containers:
         - name: lab-controller
-          image: lab-controller-api:latest
+          image: 586794457112.dkr.ecr.eu-west-2.amazonaws.com/lab-controller/labcontroller-api:latest
           imagePullPolicy: Always
           ports:
             - containerPort: 80
