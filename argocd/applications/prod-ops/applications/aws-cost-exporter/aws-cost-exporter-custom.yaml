@@ -104,14 +104,15 @@ spec:
                   
                   # Forecasted monthly cost (estimate based on current month average daily rate)
                   try:
-                      days_in_month = today.day
-                      days_elapsed = (today - today.replace(day=1)).days + 1
-                      if days_elapsed > 0 and result.get('ResultsByTime'):
-                          current_cost = float(result['ResultsByTime'][0]['Total']['BlendedCost']['Amount'])
-                          daily_avg = current_cost / days_elapsed
-                          forecasted = daily_avg * 30
-                          currency = result['ResultsByTime'][0]['Total']['BlendedCost']['Unit']
-                          forecasted_monthly.labels(currency=currency).set(forecasted)
+                      month_result = get_cost_and_usage(month_start, today_str, 'MONTHLY')
+                      if month_result.get('ResultsByTime'):
+                          days_elapsed = (today - today.replace(day=1)).days + 1
+                          if days_elapsed > 0:
+                              current_cost = float(month_result['ResultsByTime'][0]['Total']['BlendedCost']['Amount'])
+                              daily_avg = current_cost / days_elapsed
+                              forecasted = daily_avg * 30
+                              currency = month_result['ResultsByTime'][0]['Total']['BlendedCost']['Unit']
+                              forecasted_monthly.labels(currency=currency).set(forecasted)
                   except Exception as e:
                       print(f'Error calculating forecasted monthly cost: {e}')
                   
