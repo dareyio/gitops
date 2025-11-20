@@ -1,0 +1,269 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+  name: applications-critical-alerts
+  namespace: monitoring
+  labels:
+    release: kube-prometheus-stack
+spec:
+  groups:
+    # ============================================
+    # LAB CONTROLLER CRITICAL ALERTS
+    # ============================================
+    - name: lab-controller-critical
+      interval: 30s
+      rules:
+        - alert: LabControllerPodDown
+          expr: kube_deployment_status_replicas_available{namespace="lab-controller", deployment="lab-controller"} == 0
+          for: 2m
+          labels:
+            severity: critical
+            service: lab-controller
+            application: lab-controller
+            cluster: green
+          annotations:
+            summary: "Lab Controller deployment has no available replicas"
+            description: "Lab Controller deployment in namespace {{ $labels.namespace }} (cluster: green) has 0 available replicas for more than 2 minutes."
+
+        - alert: LabControllerHighRequestRate
+          expr: sum(rate(http_request_duration_seconds_count{namespace="lab-controller", service="lab-controller", handler!="/metrics"}[5m])) > 10
+          for: 5m
+          labels:
+            severity: critical
+            service: lab-controller
+            application: lab-controller
+            cluster: green
+          annotations:
+            summary: "Lab Controller high request rate (possible errors)"
+            description: "Lab Controller in namespace {{ $labels.namespace }} (cluster: green) has request rate above 10 req/s for 5 minutes. Check for errors."
+
+        - alert: LabControllerHighLatency
+          expr: histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket{namespace="lab-controller", service="lab-controller", handler!="/metrics"}[5m])) by (le)) > 2
+          for: 10m
+          labels:
+            severity: critical
+            service: lab-controller
+            application: lab-controller
+            cluster: green
+          annotations:
+            summary: "Lab Controller high latency"
+            description: "Lab Controller p95 latency exceeds 2s for 10 minutes in cluster green."
+
+        - alert: LabControllerPodCrashLooping
+          expr: increase(kube_pod_container_status_restarts_total{namespace="lab-controller", container="lab-controller"}[15m]) > 5
+          for: 10m
+          labels:
+            severity: critical
+            service: lab-controller
+            application: lab-controller
+            cluster: green
+          annotations:
+            summary: "Lab Controller pod crash looping"
+            description: "Lab Controller pod {{ $labels.pod }} in namespace {{ $labels.namespace }} (cluster: green) has restarted more than 5 times in 15 minutes."
+
+        - alert: LabControllerHighCPU
+          expr: sum(rate(container_cpu_usage_seconds_total{namespace="lab-controller", pod=~"lab-controller.*", container!="POD"}[5m])) by (pod) > 0.9
+          for: 10m
+          labels:
+            severity: critical
+            service: lab-controller
+            application: lab-controller
+            cluster: green
+          annotations:
+            summary: "Lab Controller high CPU usage"
+            description: "Lab Controller pod {{ $labels.pod }} in cluster green has CPU usage above 90% for 10 minutes."
+
+        - alert: LabControllerHighMemory
+          expr: sum(container_memory_working_set_bytes{namespace="lab-controller", pod=~"lab-controller.*", container!="POD"}) by (pod) / sum(kube_pod_container_resource_limits{namespace="lab-controller", pod=~"lab-controller.*", resource="memory"}) by (pod) > 0.9
+          for: 10m
+          labels:
+            severity: critical
+            service: lab-controller
+            application: lab-controller
+            cluster: green
+          annotations:
+            summary: "Lab Controller high memory usage"
+            description: "Lab Controller pod {{ $labels.pod }} in cluster green has memory usage above 90% for 10 minutes."
+
+    # ============================================
+    # DAREYSCORE CRITICAL ALERTS
+    # ============================================
+    - name: dareyscore-critical
+      interval: 30s
+      rules:
+        - alert: DareyScorePodDown
+          expr: up{job=~"dareyscore.*", namespace="dareyscore"} == 0
+          for: 2m
+          labels:
+            severity: critical
+            service: dareyscore-api
+            application: dareyscore
+            cluster: green
+          annotations:
+            summary: "DareyScore API pod is down"
+            description: "DareyScore API pod {{ $labels.pod }} in namespace {{ $labels.namespace }} (cluster: green) has been down for more than 2 minutes."
+
+        - alert: DareyScoreHighRequestRate
+          expr: sum(rate(http_request_duration_seconds_count{namespace="dareyscore", service="dareyscore-api", handler!="/metrics"}[5m])) > 50
+          for: 5m
+          labels:
+            severity: critical
+            service: dareyscore-api
+            application: dareyscore
+            cluster: green
+          annotations:
+            summary: "DareyScore high request rate"
+            description: "DareyScore API in namespace {{ $labels.namespace }} (cluster: green) has request rate above 50 req/s for 5 minutes. Check for errors or load issues."
+
+        - alert: DareyScoreHighLatency
+          expr: histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket{namespace="dareyscore", service="dareyscore-api", handler!="/metrics"}[5m])) by (le)) > 1
+          for: 10m
+          labels:
+            severity: critical
+            service: dareyscore-api
+            application: dareyscore
+            cluster: green
+          annotations:
+            summary: "DareyScore high latency"
+            description: "DareyScore API p95 latency exceeds 1s for 10 minutes in cluster green."
+
+        - alert: DareyScorePodCrashLooping
+          expr: increase(kube_pod_container_status_restarts_total{namespace="dareyscore", container=~"api|worker"}[15m]) > 5
+          for: 10m
+          labels:
+            severity: critical
+            service: dareyscore-api
+            application: dareyscore
+            cluster: green
+          annotations:
+            summary: "DareyScore pod crash looping"
+            description: "DareyScore pod {{ $labels.pod }} ({{ $labels.container }}) in namespace {{ $labels.namespace }} (cluster: green) has restarted more than 5 times in 15 minutes."
+
+        - alert: DareyScoreHighCPU
+          expr: sum(rate(container_cpu_usage_seconds_total{namespace="dareyscore", pod=~"dareyscore.*", container!="POD"}[5m])) by (pod) > 0.9
+          for: 10m
+          labels:
+            severity: critical
+            service: dareyscore-api
+            application: dareyscore
+            cluster: green
+          annotations:
+            summary: "DareyScore high CPU usage"
+            description: "DareyScore pod {{ $labels.pod }} in cluster green has CPU usage above 90% for 10 minutes."
+
+        - alert: DareyScoreHighMemory
+          expr: sum(container_memory_working_set_bytes{namespace="dareyscore", pod=~"dareyscore.*", container!="POD"}) by (pod) / sum(kube_pod_container_resource_limits{namespace="dareyscore", pod=~"dareyscore.*", resource="memory"}) by (pod) > 0.9
+          for: 10m
+          labels:
+            severity: critical
+            service: dareyscore-api
+            application: dareyscore
+            cluster: green
+          annotations:
+            summary: "DareyScore high memory usage"
+            description: "DareyScore pod {{ $labels.pod }} in cluster green has memory usage above 90% for 10 minutes."
+
+        - alert: DareyScoreDeploymentUnavailable
+          expr: kube_deployment_status_replicas_unavailable{namespace="dareyscore"} > 0
+          for: 5m
+          labels:
+            severity: critical
+            service: dareyscore-api
+            application: dareyscore
+            cluster: green
+          annotations:
+            summary: "DareyScore deployment has unavailable replicas"
+            description: "DareyScore deployment {{ $labels.deployment }} in namespace {{ $labels.namespace }} (cluster: green) has {{ $value }} unavailable replicas for more than 5 minutes."
+
+    # ============================================
+    # LIVECLASSES (JITSI) CRITICAL ALERTS
+    # ============================================
+    - name: liveclasses-critical
+      interval: 30s
+      rules:
+        - alert: LiveClassesJitsiWebDown
+          expr: up{job=~"jitsi-web.*", namespace="liveclasses"} == 0
+          for: 2m
+          labels:
+            severity: critical
+            service: jitsi-web
+            application: liveclasses
+            cluster: green
+          annotations:
+            summary: "Jitsi Web pod is down"
+            description: "Jitsi Web pod {{ $labels.pod }} in namespace {{ $labels.namespace }} (cluster: green) has been down for more than 2 minutes."
+
+        - alert: LiveClassesJVBDown
+          expr: up{job=~"jvb.*", namespace="liveclasses"} == 0
+          for: 2m
+          labels:
+            severity: critical
+            service: jvb
+            application: liveclasses
+            cluster: green
+          annotations:
+            summary: "Jitsi Video Bridge (JVB) pod is down"
+            description: "JVB pod {{ $labels.pod }} in namespace {{ $labels.namespace }} (cluster: green) has been down for more than 2 minutes. Video conferencing will be affected."
+
+        - alert: LiveClassesJicofoDown
+          expr: up{job=~"jicofo.*", namespace="liveclasses"} == 0
+          for: 2m
+          labels:
+            severity: critical
+            service: jicofo
+            application: liveclasses
+            cluster: green
+          annotations:
+            summary: "Jicofo (Conference Focus) pod is down"
+            description: "Jicofo pod {{ $labels.pod }} in namespace {{ $labels.namespace }} (cluster: green) has been down for more than 2 minutes. Conference management will be affected."
+
+        - alert: LiveClassesDeploymentUnavailable
+          expr: kube_deployment_status_replicas_unavailable{namespace="liveclasses"} > 0
+          for: 5m
+          labels:
+            severity: critical
+            service: liveclasses
+            application: liveclasses
+            cluster: green
+          annotations:
+            summary: "LiveClasses deployment has unavailable replicas"
+            description: "LiveClasses deployment {{ $labels.deployment }} in namespace {{ $labels.namespace }} (cluster: green) has {{ $value }} unavailable replicas for more than 5 minutes."
+
+        - alert: LiveClassesPodCrashLooping
+          expr: increase(kube_pod_container_status_restarts_total{namespace="liveclasses"}[15m]) > 5
+          for: 10m
+          labels:
+            severity: critical
+            service: liveclasses
+            application: liveclasses
+            cluster: green
+          annotations:
+            summary: "LiveClasses pod crash looping"
+            description: "LiveClasses pod {{ $labels.pod }} ({{ $labels.container }}) in namespace {{ $labels.namespace }} (cluster: green) has restarted more than 5 times in 15 minutes."
+
+        - alert: LiveClassesHighCPU
+          expr: sum(rate(container_cpu_usage_seconds_total{namespace="liveclasses", container!="POD"}[5m])) by (pod) > 0.9
+          for: 10m
+          labels:
+            severity: critical
+            service: liveclasses
+            application: liveclasses
+            cluster: green
+          annotations:
+            summary: "LiveClasses high CPU usage"
+            description: "LiveClasses pod {{ $labels.pod }} in cluster green has CPU usage above 90% for 10 minutes."
+
+        - alert: LiveClassesHighMemory
+          expr: sum(container_memory_working_set_bytes{namespace="liveclasses", container!="POD"}) by (pod) / sum(kube_pod_container_resource_limits{namespace="liveclasses", resource="memory"}) by (pod) > 0.9
+          for: 10m
+          labels:
+            severity: critical
+            service: liveclasses
+            application: liveclasses
+            cluster: green
+          annotations:
+            summary: "LiveClasses high memory usage"
+            description: "LiveClasses pod {{ $labels.pod }} in cluster green has memory usage above 90% for 10 minutes."
+
