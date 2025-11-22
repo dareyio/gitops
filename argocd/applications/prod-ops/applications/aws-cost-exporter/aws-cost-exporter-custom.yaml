@@ -158,7 +158,7 @@ spec:
                       if initial_credits == 0:
                           print('WARNING: INITIAL_CREDITS_AMOUNT not set. Remaining credits will be 0.')
                       else:
-                          print(f'Credits calculation: ${initial_credits:.2f} (initial) - ${credits_applied_this_month:.2f} (applied this month) = ${remaining:.2f} (remaining)')
+                          print('Credits calculation: ${:.2f} (initial) - ${:.2f} (applied this month) = ${:.2f} (remaining)'.format(initial_credits, credits_applied_this_month, remaining))
                   except Exception as e:
                       print(f'Error calculating remaining credits: {e}')
                       # Fallback to 0 if calculation fails
