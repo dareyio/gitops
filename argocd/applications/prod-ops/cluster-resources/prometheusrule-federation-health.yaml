@@ -1,0 +1,62 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: prometheus-federation-health
+  namespace: monitoring
+  labels:
+    app: prometheus
+    release: kube-prometheus-stack
+spec:
+  groups:
+    - name: prometheus-federation
+      interval: 30s
+      rules:
+        - alert: PrometheusFederationDown
+          expr: up{job=~"federate-.*"} == 0
+          for: 5m
+          labels:
+            severity: critical
+            component: prometheus
+            cluster: ops
+          annotations:
+            summary: "Prometheus federation target is down"
+            description: "Federation target {{ $labels.job }} has been down for more than 5 minutes. This prevents metrics from being federated to ops Prometheus."
+            
+        - alert: PrometheusFederationScrapeErrors
+          expr: |
+            rate(prometheus_target_scrapes_exceeded_sample_limit_total{job=~"federate-.*"}[5m]) > 0
+            or
+            rate(prometheus_target_scrape_example_errors_total{job=~"federate-.*"}[5m]) > 0
+          for: 5m
+          labels:
+            severity: warning
+            component: prometheus
+            cluster: ops
+          annotations:
+            summary: "Prometheus federation scrape errors detected"
+            description: "Federation target {{ $labels.job }} is experiencing scrape errors. Check federation configuration and network connectivity."
+            
+        - alert: PrometheusFederationNoMetrics
+          expr: |
+            count({__name__=~"http_request_duration_seconds_count|http_requests_total", source_cluster=~"blue|green"}) == 0
+          for: 10m
+          labels:
+            severity: warning
+            component: prometheus
+            cluster: ops
+          annotations:
+            summary: "No federated HTTP metrics received from blue/green clusters"
+            description: "No HTTP request metrics have been federated from blue/green clusters in the last 10 minutes. Verify applications are exposing metrics and federation is working."
+            
+        - alert: PrometheusFederationHighLatency
+          expr: |
+            prometheus_target_interval_length_seconds{job=~"federate-.*"} > 120
+          for: 5m
+          labels:
+            severity: warning
+            component: prometheus
+            cluster: ops
+          annotations:
+            summary: "Prometheus federation target has high scrape latency"
+            description: "Federation target {{ $labels.job }} is taking more than 120 seconds to scrape. This may indicate network or performance issues."
+
