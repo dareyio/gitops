@@ -118,12 +118,8 @@ spec:
               - name: remote-write
                 port: 19291
                 targetPort: remote-write
-          persistence:
-            enabled: true
-            storageClass: gp2-eks-csi
-            accessModes:
-              - ReadWriteOnce
-            size: 50Gi
+          # Persistence removed from Helm to avoid template conflict
+          # PVCs will be created manually and StatefulSet patched separately
           serviceMonitor:
             enabled: true
           serviceAccount:
