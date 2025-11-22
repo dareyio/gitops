@@ -40,7 +40,7 @@ data:
           },
           "targets": [
             {
-              "expr": "sum(rate((http_request_duration_seconds_count or http_requests_total){namespace=~\"$namespace\", cluster=~\"$cluster\", service=~\"$application\"}[5m]))",
+              "expr": "sum(rate({__name__=~\"http_request_duration_seconds_count|http_requests_total\", namespace=~\"$namespace\", cluster=~\"$cluster\", service=~\"$application\"}[5m]))",
               "legendFormat": "req/sec",
               "refId": "A"
             }
@@ -72,7 +72,7 @@ data:
           },
           "targets": [
             {
-              "expr": "sum(rate((http_request_duration_seconds_count or http_requests_total){namespace=~\"$namespace\", cluster=~\"$cluster\", service=~\"$application\"}[5m]))",
+              "expr": "sum(rate({__name__=~\"http_request_duration_seconds_count|http_requests_total\", namespace=~\"$namespace\", cluster=~\"$cluster\", service=~\"$application\"}[5m]))",
               "legendFormat": "req/sec",
               "refId": "A"
             }
@@ -104,7 +104,7 @@ data:
           },
           "targets": [
             {
-              "expr": "sum(rate((http_request_duration_seconds_count or http_requests_total){namespace=~\"$namespace\", cluster=~\"$cluster\", service=~\"$application\"}[5m]))",
+              "expr": "sum(rate({__name__=~\"http_request_duration_seconds_count|http_requests_total\", namespace=~\"$namespace\", cluster=~\"$cluster\", service=~\"$application\"}[5m]))",
               "legendFormat": "req/sec",
               "refId": "A"
             }
@@ -136,7 +136,7 @@ data:
           },
           "targets": [
             {
-              "expr": "sum(rate((http_request_duration_seconds_count or http_requests_total){namespace=~\"$namespace\", cluster=~\"$cluster\", service=~\"$application\"}[5m]))",
+              "expr": "sum(rate({__name__=~\"http_request_duration_seconds_count|http_requests_total\", namespace=~\"$namespace\", cluster=~\"$cluster\", service=~\"$application\"}[5m]))",
               "legendFormat": "req/sec",
               "refId": "A"
             }
@@ -361,7 +361,7 @@ data:
               "type": "prometheus",
               "uid": "prometheus-ops"
             },
-            "definition": "label_values(http_request_duration_seconds_count or http_requests_total or up, namespace)",
+            "definition": "label_values(up, namespace)",
             "hide": 0,
             "includeAll": true,
             "label": "Namespace",
@@ -369,7 +369,7 @@ data:
             "name": "namespace",
             "options": [],
             "query": {
-              "query": "label_values(http_request_duration_seconds_count or http_requests_total or up, namespace)",
+              "query": "label_values(up, namespace)",
               "refId": "StandardVariableQuery"
             },
             "refresh": 1,
@@ -390,7 +390,7 @@ data:
               "type": "prometheus",
               "uid": "prometheus-ops"
             },
-            "definition": "label_values((http_request_duration_seconds_count or http_requests_total){namespace=~\"$namespace\"}, service)",
+            "definition": "label_values({__name__=~\"http_request_duration_seconds_count|http_requests_total\", namespace=~\"$namespace\"}, service)",
             "hide": 0,
             "includeAll": true,
             "label": "Application",
@@ -398,7 +398,7 @@ data:
             "name": "application",
             "options": [],
             "query": {
-              "query": "label_values((http_request_duration_seconds_count or http_requests_total){namespace=~\"$namespace\"}, service)",
+              "query": "label_values({__name__=~\"http_request_duration_seconds_count|http_requests_total\", namespace=~\"$namespace\"}, service)",
               "refId": "StandardVariableQuery"
             },
             "refresh": 1,
