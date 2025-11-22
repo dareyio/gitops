@@ -81,17 +81,24 @@ spec:
                   today_str = today.strftime('%Y-%m-%d')
                   tomorrow_str = (today + timedelta(days=1)).strftime('%Y-%m-%d')
                   
-                  # Current month cost
-                  # Use DAILY granularity for partial months to get accurate sum
-                  # MONTHLY granularity with partial month periods can return incorrect values
+                  # Current month cost - show GROSS cost (usage before credits)
+                  # Use DAILY granularity with RECORD_TYPE to separate usage from credits
+                  # This shows actual spend before credits are applied
                   try:
-                      result = get_cost_and_usage(month_start, today_str, 'DAILY')
-                      if result['ResultsByTime']:
-                          # Sum all daily costs for accurate partial month total
-                          total_cost = sum(float(day['Total']['BlendedCost']['Amount']) 
-                                          for day in result['ResultsByTime'])
-                          currency = result['ResultsByTime'][0]['Total']['BlendedCost']['Unit']
-                          current_month_cost.labels(currency=currency).set(total_cost)
+                      result = get_cost_and_usage(month_start, today_str, 'DAILY', [{'Type': 'DIMENSION', 'Key': 'RECORD_TYPE'}])
+                      total_usage_cost = 0.0
+                      if result.get('ResultsByTime'):
+                          for day_result in result['ResultsByTime']:
+                              if day_result.get('Groups'):
+                                  for group in day_result['Groups']:
+                                      record_type = group['Keys'][0] if group['Keys'] else 'Unknown'
+                                      cost = float(group['Metrics']['BlendedCost']['Amount'])
+                                      # Only sum Usage costs (gross spend), exclude Credits
+                                      if 'Usage' in record_type:
+                                          total_usage_cost += cost
+                          if result['ResultsByTime']:
+                              currency = result['ResultsByTime'][0]['Groups'][0]['Metrics']['BlendedCost']['Unit']
+                              current_month_cost.labels(currency=currency).set(total_usage_cost)
                   except Exception as e:
                       print(f'Error getting current month cost: {e}')
                   
