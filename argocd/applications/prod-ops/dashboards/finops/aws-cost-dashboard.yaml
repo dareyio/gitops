@@ -339,42 +339,6 @@ data:
               }
             ]
           }
-        },
-        {
-          "type": "timeseries",
-          "title": "Cost by Cluster/Environment",
-          "gridPos": { "h": 8, "w": 24, "x": 0, "y": 20 },
-          "datasource": {
-            "type": "prometheus",
-            "uid": "thanos-query"
-          },
-          "targets": [
-            {
-              "expr": "sum(aws_cost_exporter_cluster_cost) by (cluster)",
-              "legendFormat": "{{cluster}}",
-              "refId": "A"
-            }
-          ],
-          "fieldConfig": {
-            "defaults": {
-              "color": {
-                "mode": "palette-classic"
-              },
-              "custom": {
-                "drawStyle": "line",
-                "lineInterpolation": "smooth",
-                "fillOpacity": 10,
-                "gradientMode": "none"
-              },
-              "unit": "currencyUSD"
-            }
-          },
-          "options": {
-            "legend": {
-              "displayMode": "table",
-              "placement": "bottom"
-            }
-          }
         }
       ],
       "refresh": "1h",
