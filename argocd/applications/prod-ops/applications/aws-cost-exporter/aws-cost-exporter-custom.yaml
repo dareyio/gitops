@@ -125,10 +125,10 @@ spec:
 
               # Start Prometheus metrics server
               start_http_server(8080)
-              
+
               # Update metrics immediately on startup
               update_metrics()
-              
+
               # Update metrics every hour
               while True:
                   time.sleep(3600)
@@ -184,6 +184,6 @@ spec:
       app: aws-cost-exporter
   endpoints:
     - port: metrics
-      interval: 1h
+      interval: 1m
       scrapeTimeout: 30s
       path: /metrics
