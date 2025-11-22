@@ -59,16 +59,8 @@ spec:
                 type: prometheus
                 url: http://kube-prometheus-stack-prometheus.monitoring.svc:9090
                 access: proxy
-                isDefault: false
-                uid: prometheus-ops
-                jsonData:
-                  timeInterval: 30s
-              - name: Thanos Query
-                type: prometheus
-                url: http://thanos-query.monitoring.svc:9090
-                access: proxy
                 isDefault: true
-                uid: thanos-query
+                uid: prometheus-ops
                 jsonData:
                   timeInterval: 30s
               - name: Loki
@@ -88,14 +80,14 @@ spec:
                 jsonData:
                   httpMethod: GET
                   serviceMap:
-                    datasourceUid: thanos-query
+                    datasourceUid: prometheus-ops
                   tracesToLogs:
                     datasourceUid: loki
                     mapTagNamesEnabled: true
                     filterByTraceID: true
                     filterBySpanID: true
                   tracesToMetrics:
-                    datasourceUid: thanos-query
+                    datasourceUid: prometheus-ops
         sidecar:
           dashboards:
             enabled: true

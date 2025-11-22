@@ -33,21 +33,6 @@ spec:
                       storage: 20Gi
             externalLabels:
               cluster: green
-            remoteWrite:
-              - url: http://thanos-receive.talentos.darey.io:19291/api/v1/receive
-                queueConfig:
-                  maxSamplesPerSend: 1000
-                  batchSendDeadline: 5s
-                  maxRetries: 3
-                  minBackoff: 30ms
-                  maxBackoff: 100ms
-            thanos:
-              objectStorageConfig:
-                key: thanos.yaml
-                name: thanos-objstore-config
-              serviceAccount: prometheus
-              serviceAccountAnnotations:
-                eks.amazonaws.com/role-arn: arn:aws:iam::586794457112:role/darey-io-v2-lab-prod-green-prometheus-thanos-role
         alertmanager:
           alertmanagerSpec:
             resources:

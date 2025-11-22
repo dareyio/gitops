@@ -36,7 +36,7 @@ data:
           "gridPos": { "h": 4, "w": 6, "x": 0, "y": 0 },
           "datasource": {
             "type": "prometheus",
-            "uid": "thanos-query"
+            "uid": "prometheus-ops"
           },
           "targets": [
             {
@@ -66,7 +66,7 @@ data:
           "gridPos": { "h": 4, "w": 6, "x": 6, "y": 0 },
           "datasource": {
             "type": "prometheus",
-            "uid": "thanos-query"
+            "uid": "prometheus-ops"
           },
           "targets": [
             {
@@ -96,7 +96,7 @@ data:
           "gridPos": { "h": 4, "w": 6, "x": 12, "y": 0 },
           "datasource": {
             "type": "prometheus",
-            "uid": "thanos-query"
+            "uid": "prometheus-ops"
           },
           "targets": [
             {
@@ -160,7 +160,7 @@ data:
           "gridPos": { "h": 4, "w": 6, "x": 18, "y": 0 },
           "datasource": {
             "type": "prometheus",
-            "uid": "thanos-query"
+            "uid": "prometheus-ops"
           },
           "targets": [
             {
@@ -192,7 +192,7 @@ data:
           "gridPos": { "h": 8, "w": 12, "x": 0, "y": 4 },
           "datasource": {
             "type": "prometheus",
-            "uid": "thanos-query"
+            "uid": "prometheus-ops"
           },
           "targets": [
             {
@@ -232,7 +232,7 @@ data:
           "gridPos": { "h": 8, "w": 12, "x": 12, "y": 4 },
           "datasource": {
             "type": "prometheus",
-            "uid": "thanos-query"
+            "uid": "prometheus-ops"
           },
           "targets": [
             {
@@ -284,7 +284,7 @@ data:
           "gridPos": { "h": 8, "w": 12, "x": 0, "y": 12 },
           "datasource": {
             "type": "prometheus",
-            "uid": "thanos-query"
+            "uid": "prometheus-ops"
           },
           "targets": [
             {
@@ -336,7 +336,7 @@ data:
           "gridPos": { "h": 8, "w": 12, "x": 12, "y": 12 },
           "datasource": {
             "type": "prometheus",
-            "uid": "thanos-query"
+            "uid": "prometheus-ops"
           },
           "targets": [
             {
@@ -388,7 +388,7 @@ data:
           "gridPos": { "h": 8, "w": 24, "x": 0, "y": 20 },
           "datasource": {
             "type": "prometheus",
-            "uid": "thanos-query"
+            "uid": "prometheus-ops"
           },
           "targets": [
             {
@@ -427,7 +427,7 @@ data:
           "gridPos": { "h": 8, "w": 12, "x": 0, "y": 28 },
           "datasource": {
             "type": "prometheus",
-            "uid": "thanos-query"
+            "uid": "prometheus-ops"
           },
           "targets": [
             {
@@ -479,7 +479,7 @@ data:
           "gridPos": { "h": 8, "w": 12, "x": 12, "y": 28 },
           "datasource": {
             "type": "prometheus",
-            "uid": "thanos-query"
+            "uid": "prometheus-ops"
           },
           "targets": [
             {
@@ -531,7 +531,7 @@ data:
           "gridPos": { "h": 8, "w": 12, "x": 0, "y": 36 },
           "datasource": {
             "type": "prometheus",
-            "uid": "thanos-query"
+            "uid": "prometheus-ops"
           },
           "targets": [
             {
@@ -701,7 +701,7 @@ data:
           "gridPos": { "h": 8, "w": 12, "x": 12, "y": 36 },
           "datasource": {
             "type": "prometheus",
-            "uid": "thanos-query"
+            "uid": "prometheus-ops"
           },
           "targets": [
             {
@@ -763,7 +763,7 @@ data:
             },
             "datasource": {
               "type": "prometheus",
-              "uid": "thanos-query"
+              "uid": "prometheus-ops"
             },
             "definition": "",
             "hide": 0,
@@ -822,7 +822,7 @@ data:
             },
             "datasource": {
               "type": "prometheus",
-              "uid": "thanos-query"
+              "uid": "prometheus-ops"
             },
             "definition": "label_values(kube_pod_status_phase{namespace=~\".*-lab$\",cluster=~\"$cluster\"}, namespace)",
             "hide": 0,

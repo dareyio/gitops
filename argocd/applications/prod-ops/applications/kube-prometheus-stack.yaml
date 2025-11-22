@@ -34,14 +34,35 @@ spec:
             externalLabels:
               cluster: ops
               prometheus_replica: $(POD_NAME)
-            remoteWrite:
-              - url: http://thanos-receive.monitoring.svc:19291/api/v1/receive
-                queueConfig:
-                  maxSamplesPerSend: 1000
-                  batchSendDeadline: 5s
-                  maxRetries: 3
-                  minBackoff: 30ms
-                  maxBackoff: 100ms
+            additionalScrapeConfigs:
+              - job_name: 'federate-blue'
+                honor_labels: true
+                metrics_path: '/federate'
+                scheme: https
+                tls_config:
+                  insecure_skip_verify: true
+                params:
+                  'match[]':
+                    - '{__name__=~".+"}'
+                static_configs:
+                  - targets:
+                      - 'prometheus-blue.talentos.darey.io'
+                    labels:
+                      source_cluster: 'blue'
+              - job_name: 'federate-green'
+                honor_labels: true
+                metrics_path: '/federate'
+                scheme: https
+                tls_config:
+                  insecure_skip_verify: true
+                params:
+                  'match[]':
+                    - '{__name__=~".+"}'
+                static_configs:
+                  - targets:
+                      - 'prometheus-green.talentos.darey.io'
+                    labels:
+                      source_cluster: 'green'
         alertmanager:
           enabled: true
           alertmanagerSpec:
