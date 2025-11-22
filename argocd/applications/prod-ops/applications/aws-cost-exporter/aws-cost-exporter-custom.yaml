@@ -32,6 +32,11 @@ spec:
       containers:
         - name: exporter
           image: python:3.11-slim
+          env:
+            - name: AWS_REGION
+              value: "eu-west-2"
+            - name: INITIAL_CREDITS_AMOUNT
+              value: "0"  # Set this to your initial promotional credit amount (e.g., "5000" for $5000)
           command: ["/bin/sh"]
           args:
             - -c
@@ -46,6 +51,12 @@ spec:
 
               # Initialize AWS clients
               ce = boto3.client('ce', region_name=os.environ.get('AWS_REGION', 'eu-west-2'))
+              
+              # Get initial credits amount from environment variable
+              try:
+                  initial_credits = float(os.environ.get('INITIAL_CREDITS_AMOUNT', '0'))
+              except (ValueError, TypeError):
+                  initial_credits = 0.0
 
               # Prometheus metrics
               current_month_cost = Gauge('aws_cost_exporter_current_month_cost', 'Current month cost', ['currency'])
@@ -120,23 +131,29 @@ spec:
                   except Exception as e:
                       print(f'Error calculating forecasted monthly cost: {e}')
                   
-                  # Remaining credits - calculate from credit/refund records in Cost Explorer
-                  # AWS doesn't provide remaining promotional credits directly, but we can
-                  # sum up credits/refunds applied this month as an estimate
+                  # Remaining credits - calculate as: initial_credits - credits_applied_this_month
+                  # AWS doesn't provide remaining promotional credits via API, so we calculate it
+                  # Initial credits amount must be set via INITIAL_CREDITS_AMOUNT environment variable
                   try:
-                      # Get cost data grouped by RECORD_TYPE to identify credits/refunds
+                      # Get cost data grouped by RECORD_TYPE to identify credits/refunds applied this month
                       credit_result = get_cost_and_usage(month_start, today_str, 'DAILY', [{'Type': 'DIMENSION', 'Key': 'RECORD_TYPE'}])
-                      total_credits = 0.0
+                      credits_applied_this_month = 0.0
                       if credit_result.get('ResultsByTime'):
                           for day_result in credit_result['ResultsByTime']:
                               if day_result.get('Groups'):
                                   for group in day_result['Groups']:
                                       record_type = group['Keys'][0] if group['Keys'] else 'Unknown'
                                       cost = float(group['Metrics']['BlendedCost']['Amount'])
-                                      # Credits and refunds appear as negative values or specific record types
-                                      if 'Credit' in record_type or 'Refund' in record_type or (cost < 0 and 'Usage' not in record_type):
-                                          total_credits += abs(cost)
-                      remaining_credits.set(total_credits)
+                                      # Credits appear as negative values with RECORD_TYPE='Credit'
+                                      if 'Credit' in record_type:
+                                          credits_applied_this_month += abs(cost)
+                      
+                      # Calculate remaining: initial - applied this month
+                      remaining = max(0.0, initial_credits - credits_applied_this_month)
+                      remaining_credits.set(remaining)
+                      
+                      if initial_credits == 0:
+                          print('WARNING: INITIAL_CREDITS_AMOUNT not set. Remaining credits will be 0.')
                   except Exception as e:
                       print(f'Error calculating remaining credits: {e}')
                       # Fallback to 0 if calculation fails
