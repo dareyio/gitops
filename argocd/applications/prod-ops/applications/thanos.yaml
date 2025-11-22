@@ -104,21 +104,14 @@ spec:
             limits:
               cpu: 2000m
               memory: 4Gi
-          service:
-            type: LoadBalancer
-            annotations:
-              service.beta.kubernetes.io/aws-load-balancer-type: "nlb"
-            # Using map format that chart expects (not list format)
-            # This matches chart defaults and avoids template conflict
-            ports:
-              http: 10902
-              grpc: 10901
-              remote-write: 19291
+          # Service configuration removed to avoid Helm template conflict
+          # Service will be fully managed via thanos-receive-service-patch.yaml
+          # This allows persistence to work without ports conflict
           persistence:
             enabled: true
-            storageClass: gp2-eks-csi
+            storageClass: efs-sc
             accessModes:
-              - ReadWriteOnce
+              - ReadWriteMany
             size: 50Gi
           serviceMonitor:
             enabled: true
