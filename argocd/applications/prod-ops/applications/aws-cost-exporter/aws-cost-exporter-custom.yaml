@@ -36,7 +36,7 @@ spec:
             - name: AWS_REGION
               value: "eu-west-2"
             - name: INITIAL_CREDITS_AMOUNT
-              value: "0"  # Set this to your initial promotional credit amount (e.g., "5000" for $5000)
+              value: "25000"  # Initial promotional credit: $25,000.00 (AWS Activate - alx ventures)
           command: ["/bin/sh"]
           args:
             - -c
@@ -132,10 +132,12 @@ spec:
                       print(f'Error calculating forecasted monthly cost: {e}')
                   
                   # Remaining credits - calculate as: initial_credits - credits_applied_this_month
-                  # AWS doesn't provide remaining promotional credits via API, so we calculate it
-                  # Initial credits amount must be set via INITIAL_CREDITS_AMOUNT environment variable
+                  # Formula: Remaining = INITIAL_CREDITS_AMOUNT - credits_applied_this_month_from_query
+                  # The query result ($1,827.91 for Nov) represents credits applied month-to-date
+                  # Initial credits amount is configurable via INITIAL_CREDITS_AMOUNT environment variable
                   try:
-                      # Get cost data grouped by RECORD_TYPE to identify credits/refunds applied this month
+                      # Get cost data grouped by RECORD_TYPE to identify credits applied this month
+                      # This gives us the month-to-date credits applied (e.g., $1,827.91 for November)
                       credit_result = get_cost_and_usage(month_start, today_str, 'DAILY', [{'Type': 'DIMENSION', 'Key': 'RECORD_TYPE'}])
                       credits_applied_this_month = 0.0
                       if credit_result.get('ResultsByTime'):
@@ -148,12 +150,15 @@ spec:
                                       if 'Credit' in record_type:
                                           credits_applied_this_month += abs(cost)
                       
-                      # Calculate remaining: initial - applied this month
+                      # Calculate remaining: initial_credits - credits_applied_this_month
+                      # Example: $25,000 - $1,827.91 = $23,172.09
                       remaining = max(0.0, initial_credits - credits_applied_this_month)
                       remaining_credits.set(remaining)
                       
                       if initial_credits == 0:
                           print('WARNING: INITIAL_CREDITS_AMOUNT not set. Remaining credits will be 0.')
+                      else:
+                          print(f'Credits calculation: ${initial_credits:.2f} (initial) - ${credits_applied_this_month:.2f} (applied this month) = ${remaining:.2f} (remaining)')
                   except Exception as e:
                       print(f'Error calculating remaining credits: {e}')
                       # Fallback to 0 if calculation fails
