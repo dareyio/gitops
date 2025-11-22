@@ -73,7 +73,7 @@ data:
           },
           "targets": [
             {
-              "expr": "aws_cost_exporter_remaining_credits",
+              "expr": "aws_cost_exporter_remaining_credits > 0",
               "legendFormat": "Credits",
               "refId": "A"
             }
