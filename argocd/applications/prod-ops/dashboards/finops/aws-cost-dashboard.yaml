@@ -97,39 +97,6 @@ data:
           }
         },
         {
-          "type": "stat",
-          "title": "Forecasted Monthly Spend",
-          "gridPos": { "h": 4, "w": 6, "x": 18, "y": 0 },
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus-ops"
-          },
-          "targets": [
-            {
-              "expr": "aws_cost_exporter_forecasted_monthly_cost",
-              "legendFormat": "Forecast",
-              "refId": "A"
-            }
-          ],
-          "fieldConfig": {
-            "defaults": {
-              "color": {
-                "mode": "thresholds"
-              },
-              "mappings": [],
-              "thresholds": {
-                "mode": "absolute",
-                "steps": [
-                  { "color": "green", "value": null },
-                  { "color": "yellow", "value": 3000 },
-                  { "color": "red", "value": 10000 }
-                ]
-              },
-              "unit": "currencyUSD"
-            }
-          }
-        },
-        {
           "type": "timeseries",
           "title": "Daily Cost Trend",
           "gridPos": { "h": 8, "w": 12, "x": 0, "y": 4 },
@@ -141,42 +108,6 @@ data:
             {
               "expr": "aws_cost_exporter_daily_cost",
               "legendFormat": "Daily Cost",
-              "refId": "A"
-            }
-          ],
-          "fieldConfig": {
-            "defaults": {
-              "color": {
-                "mode": "palette-classic"
-              },
-              "custom": {
-                "drawStyle": "line",
-                "lineInterpolation": "smooth",
-                "fillOpacity": 10,
-                "gradientMode": "none"
-              },
-              "unit": "currencyUSD"
-            }
-          },
-          "options": {
-            "legend": {
-              "displayMode": "table",
-              "placement": "bottom"
-            }
-          }
-        },
-        {
-          "type": "timeseries",
-          "title": "Monthly Cost Trend",
-          "gridPos": { "h": 8, "w": 12, "x": 12, "y": 4 },
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus-ops"
-          },
-          "targets": [
-            {
-              "expr": "aws_cost_exporter_current_month_cost",
-              "legendFormat": "Month to Date",
               "refId": "A"
             }
           ],
@@ -232,79 +163,6 @@ data:
               },
               "unit": "currencyUSD"
             }
-          }
-        },
-        {
-          "type": "table",
-          "title": "Top Spending Services",
-          "gridPos": { "h": 8, "w": 12, "x": 12, "y": 12 },
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus-ops"
-          },
-          "targets": [
-            {
-              "expr": "topk(10, sum(aws_cost_exporter_service_cost) by (service_name))",
-              "format": "table",
-              "instant": true,
-              "refId": "A"
-            }
-          ],
-          "fieldConfig": {
-            "defaults": {
-              "custom": {
-                "align": "auto"
-              },
-              "mappings": [],
-              "unit": "currencyUSD"
-            },
-            "overrides": [
-              {
-                "matcher": {
-                  "id": "byName",
-                  "options": "service_name"
-                },
-                "properties": [
-                  {
-                    "id": "displayName",
-                    "value": "Service"
-                  },
-                  {
-                    "id": "custom.width",
-                    "value": 200
-                  }
-                ]
-              },
-              {
-                "matcher": {
-                  "id": "byName",
-                  "options": "Value"
-                },
-                "properties": [
-                  {
-                    "id": "displayName",
-                    "value": "Cost (USD)"
-                  },
-                  {
-                    "id": "custom.width",
-                    "value": 150
-                  },
-                  {
-                    "id": "custom.align",
-                    "value": "right"
-                  }
-                ]
-              }
-            ]
-          },
-          "options": {
-            "showHeader": true,
-            "sortBy": [
-              {
-                "desc": true,
-                "displayName": "Cost (USD)"
-              }
-            ]
           }
         }
       ],
