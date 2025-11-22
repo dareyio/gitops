@@ -125,6 +125,18 @@ data:
               {
                 "matcher": {
                   "id": "byName",
+                  "options": "Time"
+                },
+                "properties": [
+                  {
+                    "id": "custom.hidden",
+                    "value": true
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
                   "options": "service_name"
                 },
                 "properties": [
@@ -134,7 +146,7 @@ data:
                   },
                   {
                     "id": "custom.width",
-                    "value": 300
+                    "value": 400
                   },
                   {
                     "id": "custom.align",
@@ -150,11 +162,11 @@ data:
                 "properties": [
                   {
                     "id": "displayName",
-                    "value": "Cost (USD)"
+                    "value": "Cost"
                   },
                   {
                     "id": "custom.width",
-                    "value": 150
+                    "value": 120
                   },
                   {
                     "id": "custom.align",
@@ -180,10 +192,13 @@ data:
             "sortBy": [
               {
                 "desc": true,
-                "displayName": "Cost (USD)"
+                "displayName": "Cost"
               }
             ],
-            "cellHeight": "sm"
+            "cellHeight": "sm",
+            "footer": {
+              "show": false
+            }
           }
         }
       ],
