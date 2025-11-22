@@ -71,12 +71,16 @@ spec:
                   tomorrow_str = (today + timedelta(days=1)).strftime('%Y-%m-%d')
                   
                   # Current month cost
+                  # Use DAILY granularity for partial months to get accurate sum
+                  # MONTHLY granularity with partial month periods can return incorrect values
                   try:
-                      result = get_cost_and_usage(month_start, today_str, 'MONTHLY')
+                      result = get_cost_and_usage(month_start, today_str, 'DAILY')
                       if result['ResultsByTime']:
-                          cost = float(result['ResultsByTime'][0]['Total']['BlendedCost']['Amount'])
+                          # Sum all daily costs for accurate partial month total
+                          total_cost = sum(float(day['Total']['BlendedCost']['Amount']) 
+                                          for day in result['ResultsByTime'])
                           currency = result['ResultsByTime'][0]['Total']['BlendedCost']['Unit']
-                          current_month_cost.labels(currency=currency).set(cost)
+                          current_month_cost.labels(currency=currency).set(total_cost)
                   except Exception as e:
                       print(f'Error getting current month cost: {e}')
                   
