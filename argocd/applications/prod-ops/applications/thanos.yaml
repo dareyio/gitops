@@ -39,6 +39,7 @@ spec:
           # Store configuration - Thanos Query will query Thanos Receive
           # Receive aggregates metrics from all Prometheus instances via remoteWrite
           # Using gRPC endpoint for store API
+          # Note: Store component is enabled but not yet running - will add when available
           storeEndpoints:
             - thanos-receive.monitoring.svc.cluster.local:10901
         objstoreConfig: |
@@ -118,7 +119,11 @@ spec:
                 port: 19291
                 targetPort: remote-write
           persistence:
-            enabled: false
+            enabled: true
+            storageClass: gp2-eks-csi
+            accessModes:
+              - ReadWriteOnce
+            size: 50Gi
           serviceMonitor:
             enabled: true
           serviceAccount:
