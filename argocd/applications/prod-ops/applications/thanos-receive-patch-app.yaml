@@ -1,16 +1,16 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: thanos-receive-patch
+  name: thanos-receive-service-patch
   namespace: argocd
   annotations:
-    argocd.argoproj.io/sync-wave: "3"
+    argocd.argoproj.io/sync-wave: "2"
 spec:
   project: default
   source:
     repoURL: https://github.com/dareyio/gitops.git
     targetRevision: main
-    path: argocd/applications/prod-ops/applications/thanos-receive-statefulset-patch.yaml
+    path: argocd/applications/prod-ops/applications/thanos-receive-service-patch.yaml
   destination:
     server: https://kubernetes.default.svc
     namespace: monitoring

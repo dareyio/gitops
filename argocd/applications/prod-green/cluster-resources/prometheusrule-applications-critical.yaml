@@ -266,4 +266,3 @@ spec:
           annotations:
             summary: "LiveClasses high memory usage"
             description: "LiveClasses pod {{ $labels.pod }} in cluster green has memory usage above 90% for 10 minutes."
-

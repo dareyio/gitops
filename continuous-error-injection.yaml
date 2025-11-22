@@ -1,0 +1,107 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: continuous-error-injector
+  namespace: default
+spec:
+  ttlSecondsAfterFinished: 3600
+  activeDeadlineSeconds: 3600
+  backoffLimit: 0
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: error-injector
+          image: curlimages/curl:latest
+          command:
+            - /bin/sh
+            - -c
+            - |
+              set -e
+
+              # Try to detect API URL - use external URL as applications are in different cluster
+              if [ -n "$DAREYSCORE_API_URL" ]; then
+                API_URL="$DAREYSCORE_API_URL"
+              else
+                # Use external URL since apps are likely in blue/green cluster
+                API_URL="https://dareyscore.talentos.darey.io"
+                echo "Using external URL: $API_URL"
+                echo "(Applications are in a different cluster)"
+              fi
+
+              echo "Starting continuous error injection for 1 hour..."
+              echo "API URL: $API_URL"
+              echo "Duration: 1 hour (3600 seconds)"
+              echo ""
+
+              END_TIME=$(($(date +%s) + 3600))
+              REQUEST_COUNT=0
+
+              # Function to make request and log
+              make_request() {
+                local method=$1
+                local endpoint=$2
+                local data=$3
+                local desc=$4
+                
+                REQUEST_COUNT=$((REQUEST_COUNT + 1))
+                if [ $((REQUEST_COUNT % 50)) -eq 0 ]; then
+                  echo "[$(date +%H:%M:%S)] Generated $REQUEST_COUNT requests..."
+                fi
+                
+                if [ -n "$data" ]; then
+                  curl -s -w "\n" -X "$method" "$API_URL$endpoint" \
+                    -H "Content-Type: application/json" \
+                    -d "$data" >/dev/null 2>&1 || true
+                else
+                  curl -s -w "\n" -X "$method" "$API_URL$endpoint" >/dev/null 2>&1 || true
+                fi
+              }
+
+              # Main loop - run for 1 hour
+              while [ $(date +%s) -lt $END_TIME ]; do
+                # Generate 4xx errors (70% of requests)
+                for i in {1..7}; do
+                  # 404 errors - non-existent endpoints
+                  make_request "GET" "/v1/nonexistent-$(date +%s)-$RANDOM" "" "404"
+                  
+                  # 400 errors - invalid JSON
+                  make_request "POST" "/v1/events/ingest" "invalid json {[" "400"
+                  
+                  # 400 errors - missing fields
+                  make_request "POST" "/v1/events/ingest" '{"event_type":"test"}' "400"
+                  
+                  # 405 errors - method not allowed
+                  make_request "DELETE" "/v1/health" "" "405"
+                  make_request "PATCH" "/v1/health" "" "405"
+                  
+                  # 422 errors - invalid data
+                  make_request "POST" "/v1/events/ingest" '{"event_type":"","payload":null}' "422"
+                  
+                  sleep 0.5
+                done
+                
+                # Generate 5xx errors (30% of requests) - try to trigger server errors
+                for i in {1..3}; do
+                  # Invalid but valid JSON that might cause 500
+                  make_request "POST" "/v1/events/ingest" '{"events":[{"event_type":"assessment_completed","payload":{"proficiency_level":99999,"score_percentage":-100}}]}' "500"
+                  
+                  # Very large payload (might cause 413 or 500)
+                  LARGE_PAYLOAD=$(python3 -c "print('x' * 50000)" 2>/dev/null || echo "x" | head -c 50000)
+                  make_request "POST" "/v1/events/ingest" "{\"events\":[{\"event_type\":\"test\",\"payload\":{\"data\":\"$LARGE_PAYLOAD\"}}]}" "413/500"
+                  
+                  # Invalid UUID format
+                  make_request "GET" "/v1/score/invalid-uuid-format" "" "400/500"
+                  
+                  sleep 0.5
+                done
+                
+                # Small delay between batches
+                sleep 1
+              done
+
+              echo ""
+              echo "Error injection complete!"
+              echo "Total requests generated: $REQUEST_COUNT"
+              echo "Duration: 1 hour"
+              echo "Check the Application Errors dashboard now!"
