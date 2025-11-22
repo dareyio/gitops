@@ -3,7 +3,18 @@ kind: Service
 metadata:
   name: thanos-receive
   namespace: monitoring
+  labels:
+    app.kubernetes.io/name: thanos
+    app.kubernetes.io/instance: thanos
+    app.kubernetes.io/component: receive
+  annotations:
+    service.beta.kubernetes.io/aws-load-balancer-type: "nlb"
 spec:
+  type: LoadBalancer
+  selector:
+    app.kubernetes.io/name: thanos
+    app.kubernetes.io/instance: thanos
+    app.kubernetes.io/component: receive
   ports:
     - name: http
       port: 10902
