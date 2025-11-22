@@ -97,42 +97,6 @@ data:
           }
         },
         {
-          "type": "timeseries",
-          "title": "Daily Cost Trend",
-          "gridPos": { "h": 8, "w": 12, "x": 0, "y": 4 },
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus-ops"
-          },
-          "targets": [
-            {
-              "expr": "aws_cost_exporter_daily_cost",
-              "legendFormat": "Daily Cost",
-              "refId": "A"
-            }
-          ],
-          "fieldConfig": {
-            "defaults": {
-              "color": {
-                "mode": "palette-classic"
-              },
-              "custom": {
-                "drawStyle": "line",
-                "lineInterpolation": "smooth",
-                "fillOpacity": 10,
-                "gradientMode": "none"
-              },
-              "unit": "currencyUSD"
-            }
-          },
-          "options": {
-            "legend": {
-              "displayMode": "table",
-              "placement": "bottom"
-            }
-          }
-        },
-        {
           "type": "bargauge",
           "title": "Cost by Service",
           "gridPos": { "h": 8, "w": 12, "x": 0, "y": 12 },
