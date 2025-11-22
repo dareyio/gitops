@@ -98,39 +98,6 @@ data:
         },
         {
           "type": "stat",
-          "title": "Daily Average Spend",
-          "gridPos": { "h": 4, "w": 6, "x": 12, "y": 0 },
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus-ops"
-          },
-          "targets": [
-            {
-              "expr": "avg_over_time(aws_cost_exporter_daily_cost[30d])",
-              "legendFormat": "Daily Avg",
-              "refId": "A"
-            }
-          ],
-          "fieldConfig": {
-            "defaults": {
-              "color": {
-                "mode": "thresholds"
-              },
-              "mappings": [],
-              "thresholds": {
-                "mode": "absolute",
-                "steps": [
-                  { "color": "green", "value": null },
-                  { "color": "yellow", "value": 50 },
-                  { "color": "red", "value": 200 }
-                ]
-              },
-              "unit": "currencyUSD"
-            }
-          }
-        },
-        {
-          "type": "stat",
           "title": "Forecasted Monthly Spend",
           "gridPos": { "h": 4, "w": 6, "x": 18, "y": 0 },
           "datasource": {
