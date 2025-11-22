@@ -108,8 +108,9 @@ spec:
             type: LoadBalancer
             annotations:
               service.beta.kubernetes.io/aws-load-balancer-type: "nlb"
-            # Ports removed - will be patched after Helm creates service
-            # This avoids Helm template conflict while allowing persistence
+            # Explicitly set ports to null to override chart defaults (which are a map)
+            # Service will be patched afterward to add all ports including remote-write
+            ports: null
           persistence:
             enabled: true
             storageClass: gp2-eks-csi
