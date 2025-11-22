@@ -97,9 +97,9 @@ data:
           }
         },
         {
-          "type": "bargauge",
+          "type": "table",
           "title": "Cost by Service",
-          "gridPos": { "h": 8, "w": 12, "x": 0, "y": 12 },
+          "gridPos": { "h": 12, "w": 24, "x": 0, "y": 4 },
           "datasource": {
             "type": "prometheus",
             "uid": "prometheus-ops"
@@ -107,26 +107,83 @@ data:
           "targets": [
             {
               "expr": "sum(aws_cost_exporter_service_cost) by (service_name)",
-              "legendFormat": "{{service_name}}",
+              "format": "table",
+              "instant": true,
               "refId": "A"
             }
           ],
           "fieldConfig": {
             "defaults": {
-              "color": {
-                "mode": "thresholds"
+              "custom": {
+                "align": "auto",
+                "displayMode": "auto"
               },
               "mappings": [],
-              "thresholds": {
-                "mode": "absolute",
-                "steps": [
-                  { "color": "green", "value": null },
-                  { "color": "yellow", "value": 100 },
-                  { "color": "red", "value": 500 }
+              "unit": "currencyUSD"
+            },
+            "overrides": [
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "service_name"
+                },
+                "properties": [
+                  {
+                    "id": "displayName",
+                    "value": "Service"
+                  },
+                  {
+                    "id": "custom.width",
+                    "value": 300
+                  },
+                  {
+                    "id": "custom.align",
+                    "value": "left"
+                  }
                 ]
               },
-              "unit": "currencyUSD"
-            }
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "Value"
+                },
+                "properties": [
+                  {
+                    "id": "displayName",
+                    "value": "Cost (USD)"
+                  },
+                  {
+                    "id": "custom.width",
+                    "value": 150
+                  },
+                  {
+                    "id": "custom.align",
+                    "value": "right"
+                  },
+                  {
+                    "id": "thresholds",
+                    "value": {
+                      "mode": "absolute",
+                      "steps": [
+                        { "color": "green", "value": null },
+                        { "color": "yellow", "value": 100 },
+                        { "color": "red", "value": 500 }
+                      ]
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          "options": {
+            "showHeader": true,
+            "sortBy": [
+              {
+                "desc": true,
+                "displayName": "Cost (USD)"
+              }
+            ],
+            "cellHeight": "sm"
           }
         }
       ],
