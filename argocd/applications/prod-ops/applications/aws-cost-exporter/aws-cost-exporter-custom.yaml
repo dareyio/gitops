@@ -120,12 +120,27 @@ spec:
                   except Exception as e:
                       print(f'Error calculating forecasted monthly cost: {e}')
                   
-                  # Remaining credits (placeholder - would need AWS Budgets API or manual input)
-                  # For now, set to 0 or a default value
+                  # Remaining credits - calculate from credit/refund records in Cost Explorer
+                  # AWS doesn't provide remaining promotional credits directly, but we can
+                  # sum up credits/refunds applied this month as an estimate
                   try:
-                      remaining_credits.set(0)
+                      # Get cost data grouped by RECORD_TYPE to identify credits/refunds
+                      credit_result = get_cost_and_usage(month_start, today_str, 'DAILY', [{'Type': 'DIMENSION', 'Key': 'RECORD_TYPE'}])
+                      total_credits = 0.0
+                      if credit_result.get('ResultsByTime'):
+                          for day_result in credit_result['ResultsByTime']:
+                              if day_result.get('Groups'):
+                                  for group in day_result['Groups']:
+                                      record_type = group['Keys'][0] if group['Keys'] else 'Unknown'
+                                      cost = float(group['Metrics']['BlendedCost']['Amount'])
+                                      # Credits and refunds appear as negative values or specific record types
+                                      if 'Credit' in record_type or 'Refund' in record_type or (cost < 0 and 'Usage' not in record_type):
+                                          total_credits += abs(cost)
+                      remaining_credits.set(total_credits)
                   except Exception as e:
-                      print(f'Error setting remaining credits: {e}')
+                      print(f'Error calculating remaining credits: {e}')
+                      # Fallback to 0 if calculation fails
+                      remaining_credits.set(0)
 
               # Start Prometheus metrics server
               start_http_server(8080)
