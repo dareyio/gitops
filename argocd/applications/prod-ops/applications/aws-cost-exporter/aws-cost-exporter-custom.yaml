@@ -112,15 +112,36 @@ spec:
                   except Exception as e:
                       print(f'Error getting daily cost: {e}')
                   
-                  # Cost by service
+                  # Cost by service - use DAILY granularity and sum, filter to Usage only (gross costs)
                   try:
-                      result = get_cost_and_usage(month_start, today_str, 'MONTHLY', [{'Type': 'DIMENSION', 'Key': 'SERVICE'}])
-                      if result['ResultsByTime']:
-                          for group in result['ResultsByTime'][0]['Groups']:
-                              service = group['Keys'][0] if group['Keys'] else 'Unknown'
-                              cost = float(group['Metrics']['BlendedCost']['Amount'])
-                              currency = group['Metrics']['BlendedCost']['Unit']
-                              service_cost.labels(service_name=service, currency=currency).set(cost)
+                      # Get service costs with RECORD_TYPE to separate usage from credits
+                      result = get_cost_and_usage(month_start, today_str, 'DAILY', [
+                          {'Type': 'DIMENSION', 'Key': 'SERVICE'},
+                          {'Type': 'DIMENSION', 'Key': 'RECORD_TYPE'}
+                      ])
+                      
+                      # Aggregate service costs (sum daily costs per service, only Usage)
+                      service_costs_dict = {}
+                      if result.get('ResultsByTime'):
+                          for day_result in result['ResultsByTime']:
+                              if day_result.get('Groups'):
+                                  for group in day_result['Groups']:
+                                      keys = group.get('Keys', [])
+                                      if len(keys) >= 2:
+                                          service = keys[0]
+                                          record_type = keys[1]
+                                          cost = float(group['Metrics']['BlendedCost']['Amount'])
+                                          currency = group['Metrics']['BlendedCost']['Unit']
+                                          
+                                          # Only count Usage costs (gross, before credits)
+                                          if 'Usage' in record_type:
+                                              if service not in service_costs_dict:
+                                                  service_costs_dict[service] = {'cost': 0.0, 'currency': currency}
+                                              service_costs_dict[service]['cost'] += cost
+                      
+                      # Set metrics for each service
+                      for service, data in service_costs_dict.items():
+                          service_cost.labels(service_name=service, currency=data['currency']).set(data['cost'])
                   except Exception as e:
                       print(f'Error getting service cost: {e}')
                   
