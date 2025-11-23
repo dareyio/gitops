@@ -17,8 +17,9 @@ spec:
     directory:
       recurse: true
   destination:
-    # Update this with staging workload cluster endpoint after cluster creation
-    server: https://FB48AC16EE81C0085089AAECDD2874F7.gr7.eu-west-2.eks.amazonaws.com
+    # Bootstrap application creates Application CRDs in ops cluster
+    # Individual applications will deploy to workload cluster
+    server: https://kubernetes.default.svc
     namespace: argocd
   syncPolicy:
     automated:
