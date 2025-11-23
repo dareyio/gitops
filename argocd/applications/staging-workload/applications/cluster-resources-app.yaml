@@ -18,7 +18,7 @@ spec:
       recurse: true
   destination:
     server: https://FB48AC16EE81C0085089AAECDD2874F7.gr7.eu-west-2.eks.amazonaws.com
-    namespace: argocd
+    namespace: monitoring
   syncPolicy:
     automated:
       prune: true
