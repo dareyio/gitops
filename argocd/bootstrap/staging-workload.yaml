@@ -1,0 +1,29 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: staging-workload-applications
+  namespace: argocd
+  labels:
+    cluster.darey.io/environment: staging
+    cluster.darey.io/type: workload
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/dareyio/gitops.git
+    targetRevision: HEAD
+    path: argocd/applications/staging-workload/applications
+    directory:
+      recurse: true
+  destination:
+    # Update this with staging workload cluster endpoint after cluster creation
+    server: https://FB48AC16EE81C0085089AAECDD2874F7.gr7.eu-west-2.eks.amazonaws.com
+    namespace: argocd
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+
