@@ -30,9 +30,9 @@ spec:
             annotations:
               service.beta.kubernetes.io/aws-load-balancer-type: "nlb"
               service.beta.kubernetes.io/aws-load-balancer-scheme: "internet-facing"
+              service.beta.kubernetes.io/aws-load-balancer-subnets: "subnet-0a352aea98573902a,subnet-0d422d2ef2c7587f9"
               external-dns.alpha.kubernetes.io/hostname: "ingress-staging-workload.talentos.darey.io"
               external-dns.alpha.kubernetes.io/manage: "true"
-              # Subnets will be auto-selected by AWS Load Balancer Controller
           ingressClass: nginx
           ingressClassByName: true
           publishService:
