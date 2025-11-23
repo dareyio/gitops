@@ -1,0 +1,37 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: lab-controller
+  namespace: argocd
+  labels:
+    cluster.darey.io/environment: staging
+    cluster.darey.io/type: workload
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+    argocd-image-updater.argoproj.io/image-list: api=586794457112.dkr.ecr.eu-west-2.amazonaws.com/lab-controller/labcontroller-api
+    argocd-image-updater.argoproj.io/write-back-method: git
+    argocd-image-updater.argoproj.io/git-branch: main
+    argocd-image-updater.argoproj.io/match-tag: "^latest$"
+    argocd-image-updater.argoproj.io/update-strategy: latest
+    argocd-image-updater.argoproj.io/allow-tags: "regexp:^latest$"
+    argocd-image-updater.argoproj.io/kustomize.image: api=lab-controller-api
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/dareyio/gitops.git
+    targetRevision: HEAD
+    path: argocd/applications/staging-workload/lab-controller
+    kustomize: {}
+  destination:
+    server: https://FB48AC16EE81C0085089AAECDD2874F7.gr7.eu-west-2.eks.amazonaws.com
+    namespace: lab-controller
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - PrunePropagationPolicy=foreground
+      - PruneLast=true
+  revisionHistoryLimit: 3
+
