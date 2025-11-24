@@ -12,5 +12,4 @@ spec:
     kind: ClusterIssuer
   dnsNames:
     - labcontroller-stg.talentos.darey.io
-    - labcontroller-stg.talentos.darey.io
 
