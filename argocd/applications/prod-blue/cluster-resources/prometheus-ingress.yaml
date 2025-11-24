@@ -5,13 +5,13 @@ metadata:
   namespace: monitoring
   annotations:
     argocd.argoproj.io/sync-wave: "1"
-    kubernetes.io/ingress.class: nginx
     cert-manager.io/cluster-issuer: letsencrypt-prod
     external-dns.alpha.kubernetes.io/hostname: prometheus-blue.talentos.darey.io
     external-dns.alpha.kubernetes.io/manage: "true"
     nginx.ingress.kubernetes.io/ssl-redirect: "true"
     nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
 spec:
+  ingressClassName: nginx
   tls:
     - hosts:
         - prometheus-blue.talentos.darey.io
