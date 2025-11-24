@@ -31,8 +31,6 @@ spec:
           zoneType: public
           batchChangeSize: 100
           batchChangeInterval: 5s
-          zoneIdFilters:
-            - Z09309422M11C474UPZX2
         domainFilters:
           - talentos.darey.io
         policy: sync
