@@ -55,9 +55,9 @@ spec:
             - name: XMPP_BOSH_URL_BASE
               value: http://prosody.liveclasses.svc.cluster.local:5280
             - name: PUBLIC_URL
-              value: https://streaming.talentos.darey.io
+              value: https://streaming-stg.talentos.darey.io
             - name: XMPP_DOMAIN
-              value: streaming.talentos.darey.io
+              value: streaming-stg.talentos.darey.io
             - name: ENABLE_AUTH
               value: "1"
             - name: ENABLE_GUESTS

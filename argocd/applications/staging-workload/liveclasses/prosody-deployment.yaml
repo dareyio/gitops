@@ -50,8 +50,8 @@ spec:
                   key: JIBRI_RECORDER_PASSWORD
           volumeMounts:
             - name: prosody-config
-              mountPath: /config/conf.d/streaming.talentos.darey.io.cfg.lua
-              subPath: streaming.talentos.darey.io.cfg.lua
+              mountPath: /config/conf.d/streaming-stg.talentos.darey.io.cfg.lua
+              subPath: streaming-stg.talentos.darey.io.cfg.lua
       volumes:
         - name: prosody-config
           configMap:

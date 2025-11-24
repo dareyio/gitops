@@ -9,12 +9,12 @@ metadata:
     nginx.ingress.kubernetes.io/backend-protocol: "HTTP"
     nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
     cert-manager.io/cluster-issuer: letsencrypt-prod
-    external-dns.alpha.kubernetes.io/hostname: streaming.talentos.darey.io
+    external-dns.alpha.kubernetes.io/hostname: streaming-stg.talentos.darey.io
     external-dns.alpha.kubernetes.io/manage: "true"
 spec:
   ingressClassName: nginx
   rules:
-    - host: streaming.talentos.darey.io
+    - host: streaming-stg.talentos.darey.io
       http:
         paths:
           - path: /http-bind
@@ -33,5 +33,5 @@ spec:
                   number: 80
   tls:
     - hosts:
-        - streaming.talentos.darey.io
+        - streaming-stg.talentos.darey.io
       secretName: jitsi-tls-cert

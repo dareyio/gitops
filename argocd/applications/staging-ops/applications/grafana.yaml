@@ -46,14 +46,14 @@ spec:
             nginx.ingress.kubernetes.io/ssl-redirect: "true"
             nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
             cert-manager.io/cluster-issuer: letsencrypt-prod
-            external-dns.alpha.kubernetes.io/hostname: grafana-staging-ops.talentos.darey.io
+            external-dns.alpha.kubernetes.io/hostname: grafana-stg.talentos.darey.io
             external-dns.alpha.kubernetes.io/manage: "true"
           hosts:
-            - grafana-staging-ops.talentos.darey.io
+            - grafana-stg.talentos.darey.io
           tls:
-            - secretName: grafana-staging-ops-tls
+            - secretName: grafana-stg-tls
               hosts:
-                - grafana-staging-ops.talentos.darey.io
+                - grafana-stg.talentos.darey.io
         datasources:
           datasources.yaml:
             apiVersion: 1

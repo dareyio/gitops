@@ -4,7 +4,7 @@ metadata:
   name: prosody-custom-config
   namespace: liveclasses
 data:
-  streaming.talentos.darey.io.cfg.lua: |
-    VirtualHost "streaming.talentos.darey.io"
+  streaming-stg.talentos.darey.io.cfg.lua: |
+    VirtualHost "streaming-stg.talentos.darey.io"
       authentication = "anonymous"
       c2s_require_encryption = false

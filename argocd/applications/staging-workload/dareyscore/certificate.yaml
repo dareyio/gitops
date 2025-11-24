@@ -11,6 +11,6 @@ spec:
     name: letsencrypt-prod
     kind: ClusterIssuer
   dnsNames:
-    - dareyscore.talentos.darey.io
-    - dareyscore.talentos.darey.io
+    - dareyscore-stg.talentos.darey.io
+    - dareyscore-stg.talentos.darey.io
 

@@ -6,7 +6,7 @@ metadata:
   annotations:
     argocd.argoproj.io/sync-wave: "1"
     cert-manager.io/cluster-issuer: letsencrypt-prod
-    external-dns.alpha.kubernetes.io/hostname: prometheus-staging-workload.talentos.darey.io
+    external-dns.alpha.kubernetes.io/hostname: prometheus-stg.talentos.darey.io
     external-dns.alpha.kubernetes.io/manage: "true"
     nginx.ingress.kubernetes.io/ssl-redirect: "true"
     nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
@@ -14,10 +14,10 @@ spec:
   ingressClassName: nginx
   tls:
     - hosts:
-        - prometheus-staging-workload.talentos.darey.io
-      secretName: prometheus-staging-workload-tls
+        - prometheus-stg.talentos.darey.io
+      secretName: prometheus-stg-tls
   rules:
-    - host: prometheus-staging-workload.talentos.darey.io
+    - host: prometheus-stg.talentos.darey.io
       http:
         paths:
           - path: /

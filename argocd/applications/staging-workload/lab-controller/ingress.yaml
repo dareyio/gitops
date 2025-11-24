@@ -11,16 +11,16 @@ metadata:
     nginx.ingress.kubernetes.io/proxy-send-timeout: "60"
     nginx.ingress.kubernetes.io/proxy-read-timeout: "60"
     cert-manager.io/cluster-issuer: letsencrypt-prod
-    external-dns.alpha.kubernetes.io/hostname: labcontroller.talentos.darey.io
+    external-dns.alpha.kubernetes.io/hostname: labcontroller-stg.talentos.darey.io
     external-dns.alpha.kubernetes.io/manage: "true"
 spec:
   ingressClassName: nginx
   tls:
     - hosts:
-        - labcontroller.talentos.darey.io
+        - labcontroller-stg.talentos.darey.io
       secretName: labcontroller-tls
   rules:
-    - host: labcontroller.talentos.darey.io
+    - host: labcontroller-stg.talentos.darey.io
       http:
         paths:
           - path: /

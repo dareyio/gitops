@@ -49,7 +49,7 @@ spec:
                     - '{__name__=~".+"}'
                 static_configs:
                   - targets:
-                      - 'prometheus-staging-workload.talentos.darey.io'
+                      - 'prometheus-stg.talentos.darey.io'
                     labels:
                       source_cluster: 'staging-workload'
         alertmanager:

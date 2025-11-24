@@ -47,8 +47,8 @@ data:
         
         // Connection settings - use BOSH instead of WebSocket
         hosts: {
-            domain: 'streaming.talentos.darey.io',
-            muc: 'conference.streaming.talentos.darey.io'
+            domain: 'streaming-stg.talentos.darey.io',
+            muc: 'conference.streaming-stg.talentos.darey.io'
         },
         bosh: '/http-bind',
         constraints: {
