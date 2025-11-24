@@ -1,0 +1,15 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: jitsi-tls-cert
+  namespace: liveclasses
+  annotations:
+    argocd.argoproj.io/sync-wave: "3"
+spec:
+  secretName: jitsi-tls-cert
+  issuerRef:
+    name: letsencrypt-prod
+    kind: ClusterIssuer
+  dnsNames:
+    - streaming-stg.talentos.darey.io
+
