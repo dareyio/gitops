@@ -12,5 +12,4 @@ spec:
     kind: ClusterIssuer
   dnsNames:
     - dareyscore-stg.talentos.darey.io
-    - dareyscore-stg.talentos.darey.io
 
