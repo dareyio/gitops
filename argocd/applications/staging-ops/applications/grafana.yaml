@@ -20,7 +20,7 @@ spec:
         adminPassword: admin
         persistence:
           enabled: true
-          storageClassName: gp2
+          storageClassName: gp2-csi
           size: 10Gi
         securityContext:
           runAsNonRoot: false
