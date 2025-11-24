@@ -66,6 +66,14 @@ spec:
                 uid: prometheus-staging-ops
                 jsonData:
                   timeInterval: 30s
+        sidecar:
+          dashboards:
+            enabled: true
+            label: grafana_dashboard
+            labelValue: "1"
+            searchNamespace: monitoring
+            provider:
+              foldersFromFilesStructure: true
   destination:
     server: https://kubernetes.default.svc
     namespace: monitoring
