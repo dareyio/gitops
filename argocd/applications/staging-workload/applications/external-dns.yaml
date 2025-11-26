@@ -33,6 +33,10 @@ spec:
           batchChangeInterval: 5s
         domainFilters:
           - talentos.darey.io
+        zoneIdFilter:
+          - Z04524691I7N1YCZQEG3J
+          - Z097044910654LWU22ADA
+          - Z10178022OB7G3E9Q5IUC
         policy: sync
         txtOwnerId: external-dns-staging
         logFormat: json
