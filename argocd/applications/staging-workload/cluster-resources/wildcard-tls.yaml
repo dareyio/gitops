@@ -10,8 +10,9 @@ spec:
   issuerRef:
     name: letsencrypt-prod
     kind: ClusterIssuer
-  commonName: "*.talentos.darey.io"
+  commonName: "*.labcontroller-stg.talentos.darey.io"
   dnsNames:
+    - "*.labcontroller-stg.talentos.darey.io"
     - "*.talentos.darey.io"
     - talentos.darey.io
     - "*.projectlabs-api.talentos.darey.io"

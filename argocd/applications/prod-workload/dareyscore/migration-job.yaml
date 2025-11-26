@@ -1,0 +1,55 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: dareyscore-migration
+  namespace: dareyscore
+  annotations:
+    argocd.argoproj.io/sync-options: Replace=true
+spec:
+  backoffLimit: 3
+  template:
+    metadata:
+      labels:
+        app: dareyscore-migration
+    spec:
+      serviceAccountName: dareyscore-sa
+      restartPolicy: OnFailure
+      containers:
+        - name: migration
+          image: 586794457112.dkr.ecr.eu-west-2.amazonaws.com/dareyscore/dareyscore-api:76bdf69af9eb22ff71291371771e450bb66ea51b
+          imagePullPolicy: Always
+          command:
+            - alembic
+            - upgrade
+            - head
+          envFrom:
+            - configMapRef:
+                name: dareyscore-config
+            - secretRef:
+                name: dareyscore-api-secrets
+          env:
+            - name: SERVICE_NAME
+              value: dareyscore-migration
+            - name: SERVICE_NAMESPACE
+              value: dareyscore
+            - name: OTEL_EXPORTER_OTLP_ENDPOINT
+              valueFrom:
+                configMapKeyRef:
+                  name: dareyscore-config
+                  key: OTLP_ENDPOINT
+            - name: OTEL_EXPORTER_OTLP_INSECURE
+              valueFrom:
+                configMapKeyRef:
+                  name: dareyscore-config
+                  key: OTLP_INSECURE
+            - name: OTEL_SERVICE_NAME
+              value: dareyscore-migration
+            - name: OTEL_RESOURCE_ATTRIBUTES
+              value: "service.namespace=dareyscore,service.instance.id=$(HOSTNAME)"
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 200m
+              memory: 256Mi

@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: dareyscore-api
+  namespace: dareyscore
+spec:
+  type: ClusterIP
+  selector:
+    app: dareyscore-api
+  ports:
+    - port: 80
+      targetPort: 8080
+      protocol: TCP
+      name: http

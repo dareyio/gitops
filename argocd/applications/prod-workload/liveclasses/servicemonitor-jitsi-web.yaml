@@ -1,0 +1,23 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: jitsi-web
+  namespace: liveclasses
+  labels:
+    app: jitsi-web
+    release: kube-prometheus-stack
+  annotations:
+    argocd.argoproj.io/sync-wave: "3"
+spec:
+  selector:
+    matchLabels:
+      app: jitsi-web
+  namespaceSelector:
+    matchNames:
+      - liveclasses
+  endpoints:
+    - port: http
+      path: /metrics
+      interval: 30s
+      scrapeTimeout: 10s
+

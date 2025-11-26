@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: prosody-custom-config
+  namespace: liveclasses
+data:
+  streaming.talentos.darey.io.cfg.lua: |
+    VirtualHost "streaming.talentos.darey.io"
+      authentication = "anonymous"
+      c2s_require_encryption = false

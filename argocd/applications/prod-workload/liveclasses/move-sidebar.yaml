@@ -1,0 +1,54 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: jitsi-move-sidebar
+  namespace: liveclasses
+data:
+  move-sidebar.js: |
+    // JavaScript to move Jitsi sidebar to the right side
+    (function() {
+        'use strict';
+        
+        function moveSidebarToRight() {
+            const sidebar = document.querySelector('.premeeting-screen .left-column');
+            if (sidebar) {
+                // Apply positioning styles directly
+                sidebar.style.position = 'fixed';
+                sidebar.style.right = '20px';
+                sidebar.style.top = '50%';
+                sidebar.style.transform = 'translateY(-50%)';
+                sidebar.style.left = 'auto';
+                sidebar.style.width = '140px';
+                sidebar.style.zIndex = '1000';
+                
+                console.log('✅ Sidebar moved to right side');
+                return true;
+            }
+            return false;
+        }
+        
+        // Try multiple times to ensure it works
+        function tryMoveSidebar() {
+            if (moveSidebarToRight()) {
+                return;
+            }
+            
+            // Try again after a delay
+            setTimeout(tryMoveSidebar, 500);
+        }
+        
+        // Start when DOM is ready
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', tryMoveSidebar);
+        } else {
+            tryMoveSidebar();
+        }
+        
+        // Also try when Jitsi loads
+        window.addEventListener('load', function() {
+            setTimeout(tryMoveSidebar, 1000);
+        });
+        
+        // Fallback after 3 seconds
+        setTimeout(tryMoveSidebar, 3000);
+    })();

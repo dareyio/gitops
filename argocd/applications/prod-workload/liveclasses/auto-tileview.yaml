@@ -1,0 +1,60 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: jitsi-auto-tileview
+  namespace: liveclasses
+data:
+  auto-tileview.js: |
+    // Auto-enable tile view script for Jitsi
+    (function() {
+        'use strict';
+        
+        // Function to enable tile view
+        function enableTileView() {
+            // Look for tile view button with various selectors
+            const selectors = [
+                '[aria-label*="tile view"]',
+                '[title*="tile view"]', 
+                '[data-tooltip*="tile view"]',
+                '.toolbox-button[data-tooltip*="tile view"]',
+                '.toolbox-button[aria-label*="tile view"]',
+                '[id*="tileview"]',
+                '[class*="tileview"]'
+            ];
+            
+            for (const selector of selectors) {
+                const tileViewBtn = document.querySelector(selector);
+                if (tileViewBtn && !tileViewBtn.classList.contains('toggled')) {
+                    console.log('Auto-clicking tile view button');
+                    tileViewBtn.click();
+                    return true;
+                }
+            }
+            return false;
+        }
+        
+        // Try to enable tile view immediately and on intervals
+        function tryEnableTileView() {
+            if (enableTileView()) {
+                return;
+            }
+            
+            // Try again after a delay
+            setTimeout(tryEnableTileView, 1000);
+        }
+        
+        // Start trying when DOM is ready
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', tryEnableTileView);
+        } else {
+            tryEnableTileView();
+        }
+        
+        // Also try when Jitsi is fully loaded
+        window.addEventListener('load', function() {
+            setTimeout(tryEnableTileView, 2000);
+        });
+        
+        // Try again after 5 seconds as fallback
+        setTimeout(tryEnableTileView, 5000);
+    })();

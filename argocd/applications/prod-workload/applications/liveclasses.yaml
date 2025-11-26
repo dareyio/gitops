@@ -1,0 +1,29 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: liveclasses
+  namespace: argocd
+  labels:
+    cluster.darey.io/environment: prod
+    cluster.darey.io/type: workload
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/dareyio/gitops.git
+    targetRevision: HEAD
+    path: argocd/applications/prod-workload/liveclasses
+  destination:
+    server: https://REPLACE_WITH_PROD_WORKLOAD_CLUSTER_ENDPOINT
+    namespace: liveclasses
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - PrunePropagationPolicy=foreground
+      - PruneLast=true
+  revisionHistoryLimit: 3
+

@@ -1,0 +1,16 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: labcontroller-tls
+  namespace: lab-controller
+  annotations:
+    argocd.argoproj.io/sync-wave: "3"
+spec:
+  secretName: labcontroller-tls
+  issuerRef:
+    name: letsencrypt-prod
+    kind: ClusterIssuer
+  dnsNames:
+    - labcontroller.talentos.darey.io
+    - labcontroller.talentos.darey.io
+
