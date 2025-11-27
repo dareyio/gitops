@@ -74,6 +74,12 @@ spec:
                   name: lab-controller-secrets
                   key: AWS_SECRET_ACCESS_KEY
                   optional: true
+            - name: LAB_ORCHESTRATOR_ENCRYPTION_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: lab-controller-secrets
+                  key: LAB_ORCHESTRATOR_ENCRYPTION_KEY
+                  optional: false
             - name: LAB_BASE_URL
               value: "https://labcontroller-stg.talentos.darey.io"
             - name: LAB_CONTROLLER_ECR_ROLE_ARN
