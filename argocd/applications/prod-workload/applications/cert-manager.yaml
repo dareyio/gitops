@@ -45,7 +45,7 @@ spec:
           annotations:
             eks.amazonaws.com/role-arn: arn:aws:iam::586794457112:role/darey-v2-prod-workload-cert-manager-role
   destination:
-    server: https://REPLACE_WITH_PROD_WORKLOAD_CLUSTER_ENDPOINT
+    server: https://7C05438C47646D6F6B088B82CE4E5E6A.gr7.eu-west-2.eks.amazonaws.com
     namespace: cert-manager
   syncPolicy:
     automated:

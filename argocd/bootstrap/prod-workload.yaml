@@ -1,29 +1,28 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: dareyscore
+  name: prod-workload-applications
   namespace: argocd
   labels:
     cluster.darey.io/environment: prod
     cluster.darey.io/type: workload
-  annotations:
-    argocd.argoproj.io/sync-wave: "2"
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
 spec:
   project: default
   source:
     repoURL: https://github.com/dareyio/gitops.git
     targetRevision: HEAD
-    path: argocd/applications/prod-workload/dareyscore
+    path: argocd/applications/prod-workload/applications
+    directory:
+      recurse: true
   destination:
     server: https://7C05438C47646D6F6B088B82CE4E5E6A.gr7.eu-west-2.eks.amazonaws.com
-    namespace: dareyscore
+    namespace: argocd
   syncPolicy:
     automated:
       prune: true
       selfHeal: true
     syncOptions:
       - CreateNamespace=true
-      - PrunePropagationPolicy=foreground
-      - PruneLast=true
-  revisionHistoryLimit: 3
 
