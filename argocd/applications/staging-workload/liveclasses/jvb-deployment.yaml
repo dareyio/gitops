@@ -15,16 +15,29 @@ spec:
       labels:
         app: jvb
     spec:
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                labelSelector:
+                  matchExpressions:
+                    - key: app
+                      operator: In
+                      values:
+                        - jibri
+                        - jvb
+                topologyKey: kubernetes.io/hostname
       containers:
         - name: jvb
           image: jitsi/jvb:jvb-2.3-245-g6ddd4f41-1
           resources:
             requests:
-              cpu: "1000m"
-              memory: "2Gi"
+              cpu: "600m"
+              memory: "1Gi"
             limits:
-              cpu: "2000m"
-              memory: "4Gi"
+              cpu: "1500m"
+              memory: "2Gi"
           ports:
             - containerPort: 10000
               protocol: UDP

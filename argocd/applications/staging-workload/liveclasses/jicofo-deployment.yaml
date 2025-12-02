@@ -15,16 +15,30 @@ spec:
       labels:
         app: jicofo
     spec:
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                labelSelector:
+                  matchExpressions:
+                    - key: app
+                      operator: In
+                      values:
+                        - jicofo
+                        - jibri
+                        - jvb
+                topologyKey: kubernetes.io/hostname
       containers:
         - name: jicofo
           image: jitsi/jicofo:jicofo-1.0-1148-1
           resources:
             requests:
-              cpu: "500m"
-              memory: "512Mi"
+              cpu: "300m"
+              memory: "384Mi"
             limits:
-              cpu: "1000m"
-              memory: "1Gi"
+              cpu: "800m"
+              memory: "768Mi"
           env:
             - name: JICOFO_AUTH_PASSWORD
               valueFrom:
