@@ -35,7 +35,7 @@ spec:
           - talentos.darey.io
         extraArgs:
           - --zone-id-filter=Z04524691I7N1YCZQEG3J
-        policy: sync
+        policy: upsert-only
         txtOwnerId: external-dns-staging
         logFormat: json
         logLevel: debug
