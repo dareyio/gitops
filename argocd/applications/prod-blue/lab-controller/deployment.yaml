@@ -111,7 +111,7 @@ spec:
             - name: WILDCARD_TLS_SECRET_NAME
               value: "wildcard-projectlabs-api-talentos-darey-io"
             - name: TRACING_ENABLED
-              value: "true"
+              value: "false"
             - name: OTLP_ENDPOINT
               value: "http://tempo.observability.svc:4317"
             - name: OTLP_INSECURE
