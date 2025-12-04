@@ -117,7 +117,7 @@ spec:
             - name: WILDCARD_TLS_SECRET_NAME
               value: "wildcard-projectlabs-api-talentos-darey-io"
             - name: TRACING_ENABLED
-              value: "true"
+              value: "false"
             - name: OTLP_ENDPOINT
               value: "http://tempo.observability.svc:4317"
             - name: OTLP_INSECURE
@@ -132,6 +132,12 @@ spec:
               value: "GET,POST,PUT,DELETE,OPTIONS,PATCH"
             - name: CORS_ALLOW_HEADERS
               value: "Authorization,Content-Type,X-Lab-Session-Id,X-Lab-Session-Token,X-Lab-Auth-Mode"
+            - name: MAX_CONCURRENT_LAB_CREATIONS
+              value: "15"
+            - name: K8S_CLIENT_QPS
+              value: "50"
+            - name: K8S_CLIENT_BURST
+              value: "100"
           resources:
             requests:
               cpu: "200m"
