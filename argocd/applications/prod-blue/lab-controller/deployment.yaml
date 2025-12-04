@@ -13,7 +13,7 @@ metadata:
     argocd-image-updater.argoproj.io/update-strategy: latest
     argocd-image-updater.argoproj.io/kustomize.image: api=lab-controller-api
 spec:
-  replicas: 3
+  replicas: 5
   selector:
     matchLabels:
       app: lab-controller
@@ -128,8 +128,8 @@ spec:
               value: "Authorization,Content-Type,X-Lab-Session-Id,X-Lab-Session-Token,X-Lab-Auth-Mode"
           resources:
             requests:
-              cpu: "100m"
-              memory: "256Mi"
+              cpu: "200m"
+              memory: "512Mi"
             limits:
               cpu: "1000m"
               memory: "1Gi"

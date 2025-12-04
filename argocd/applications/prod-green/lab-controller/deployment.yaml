@@ -12,7 +12,7 @@ metadata:
     argocd-image-updater.argoproj.io/match-tag: "^[0-9a-f]{40}$"
     argocd-image-updater.argoproj.io/update-strategy: latest
 spec:
-  replicas: 3
+  replicas: 5
   selector:
     matchLabels:
       app: lab-controller
@@ -124,9 +124,9 @@ spec:
               value: "Authorization,Content-Type,X-Lab-Session-Id,X-Lab-Session-Token,X-Lab-Auth-Mode"
           resources:
             requests:
-              cpu: "100m"
-              memory: "128Mi"
-            limits:
-              cpu: "500m"
+              cpu: "200m"
               memory: "512Mi"
+            limits:
+              cpu: "1000m"
+              memory: "1Gi"
       restartPolicy: Always
