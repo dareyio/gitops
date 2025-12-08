@@ -15,6 +15,20 @@ spec:
       labels:
         app: jibri
     spec:
+      serviceAccountName: jibri
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                labelSelector:
+                  matchExpressions:
+                    - key: app
+                      operator: In
+                      values:
+                        - jibri
+                        - jvb
+                topologyKey: kubernetes.io/hostname
       containers:
         - name: jibri
           image: jitsi/jibri:jibri-8.0-183-g7b406bf-1
@@ -49,9 +63,41 @@ spec:
                 secretKeyRef:
                   name: jitsi-auth-secrets
                   key: JIBRI_RECORDER_PASSWORD
+            - name: AWS_REGION
+              value: "eu-west-2"
+            - name: AWS_S3_BUCKET
+              value: "darey-v2-prod-jibri-recordings"
+            - name: JIBRI_SESSION_ID
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: SUPABASE_WEBHOOK_URL
+              value: "https://$(SUPABASE_PROJECT_REF).supabase.co"
+            - name: SUPABASE_ANON_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: supabase-secrets
+                  key: SUPABASE_ANON_KEY
+                  optional: true
+          command:
+            - "/bin/bash"
+            - "-c"
+            - |
+              # Install AWS CLI if not present
+              if ! command -v aws &> /dev/null; then
+                echo "Installing AWS CLI..."
+                apt-get update && apt-get install -y awscli || echo "AWS CLI installation failed, continuing..."
+              fi
+              # Copy config files
+              cp /config/config.json /etc/jitsi/jibri/config.json || true
+              cp /config/finalize.sh /etc/jitsi/jibri/finalize.sh || true
+              chmod +x /etc/jitsi/jibri/finalize.sh || true
+              # Start Jibri
+              exec /opt/jitsi/jibri/launch.sh
       volumes:
         - name: jibri-config
-          emptyDir: {}
+          configMap:
+            name: jibri-config
         - name: dshm
           emptyDir:
             medium: Memory
