@@ -67,6 +67,8 @@ spec:
               value: "eu-west-2"
             - name: AWS_S3_BUCKET
               value: "darey-v2-prod-jibri-recordings"
+            - name: ENVIRONMENT
+              value: "prod"
             - name: JIBRI_SESSION_ID
               valueFrom:
                 fieldRef:

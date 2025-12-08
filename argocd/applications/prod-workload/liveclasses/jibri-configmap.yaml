@@ -99,6 +99,7 @@ data:
     SESSION_ID="${JIBRI_SESSION_ID:-unknown}"
     S3_BUCKET="${AWS_S3_BUCKET:-darey-v2-prod-jibri-recordings}"
     S3_REGION="${AWS_REGION:-eu-west-2}"
+    ENVIRONMENT="${ENVIRONMENT:-prod}"
     
     echo "Finalizing recording: $RECORDING_FILE for session: $SESSION_ID"
     
@@ -107,14 +108,24 @@ data:
       exit 1
     fi
     
-    # Upload to S3 using AWS CLI (uses IAM role from service account)
-    S3_KEY="recordings/${SESSION_ID}/$(basename $RECORDING_FILE)"
+    # Create organized S3 path structure: environment/year/month/day/session_id/filename
+    # This structure is scalable and allows for easy partitioning and lifecycle management
+    YEAR=$(date -u +%Y)
+    MONTH=$(date -u +%m)
+    DAY=$(date -u +%d)
+    FILENAME=$(basename "$RECORDING_FILE")
+    
+    # S3 key structure: recordings/{environment}/{year}/{month}/{day}/{session_id}/{filename}
+    S3_KEY="recordings/${ENVIRONMENT}/${YEAR}/${MONTH}/${DAY}/${SESSION_ID}/${FILENAME}"
+    
     echo "Uploading to s3://${S3_BUCKET}/${S3_KEY}"
     
+    # Upload to S3 using AWS CLI (uses IAM role from service account)
     aws s3 cp "$RECORDING_FILE" "s3://${S3_BUCKET}/${S3_KEY}" \
       --region "$S3_REGION" \
-      --metadata "session-id=${SESSION_ID}" \
-      --content-type "video/mp4" || {
+      --metadata "session-id=${SESSION_ID},environment=${ENVIRONMENT},year=${YEAR},month=${MONTH},day=${DAY}" \
+      --content-type "video/mp4" \
+      --storage-class "STANDARD" || {
       echo "Error: Failed to upload to S3"
       exit 1
     }
