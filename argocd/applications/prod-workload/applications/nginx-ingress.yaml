@@ -17,26 +17,43 @@ spec:
     helm:
       valuesObject:
         controller:
-          replicaCount: 2
+          replicaCount: 3
           resources:
             requests:
-              cpu: 100m
-              memory: 128Mi
-            limits:
               cpu: 500m
               memory: 512Mi
+            limits:
+              cpu: 2000m
+              memory: 1Gi
           service:
             type: LoadBalancer
             annotations:
-              service.beta.kubernetes.io/aws-load-balancer-type: "nlb"
               service.beta.kubernetes.io/aws-load-balancer-scheme: "internet-facing"
               service.beta.kubernetes.io/aws-load-balancer-subnets: "subnet-0cf2e2821b3efa3bb,subnet-0342d80893fd2921e"
+              service.beta.kubernetes.io/aws-load-balancer-connection-idle-timeout: "60"
               external-dns.alpha.kubernetes.io/hostname: "ingress-prod-workload.talentos.darey.io"
               external-dns.alpha.kubernetes.io/manage: "true"
           ingressClass: nginx
           ingressClassByName: true
           publishService:
             enabled: true
+          config:
+            keepalive-timeout: "75"
+            keepalive-requests: "100"
+            upstream-keepalive-connections: "32"
+            upstream-keepalive-requests: "100"
+            upstream-keepalive-timeout: "60"
+            proxy-connect-timeout: "60"
+            proxy-send-timeout: "60"
+            proxy-read-timeout: "60"
+            client-body-buffer-size: "128k"
+            proxy-buffering: "on"
+            proxy-buffer-size: "4k"
+            proxy-buffers: "8 4k"
+            gzip: "on"
+            gzip-types: "application/json application/javascript application/xml text/css text/javascript text/plain text/xml"
+            gzip-min-length: "1000"
+            gzip-comp-level: "6"
           metrics:
             enabled: true
             serviceMonitor:

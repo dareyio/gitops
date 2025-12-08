@@ -12,7 +12,7 @@ metadata:
     argocd-image-updater.argoproj.io/match-tag: "^[0-9a-f]{40}$"
     argocd-image-updater.argoproj.io/update-strategy: latest
 spec:
-  replicas: 5
+  replicas: 3
   selector:
     matchLabels:
       app: lab-controller
@@ -24,7 +24,7 @@ spec:
       serviceAccountName: lab-controller-sa
       containers:
         - name: lab-controller
-          image: 586794457112.dkr.ecr.eu-west-2.amazonaws.com/lab-controller/labcontroller-api:latest
+          image: 586794457112.dkr.ecr.eu-west-2.amazonaws.com/lab-controller/labcontroller-api:5491974-amd64
           imagePullPolicy: Always
           ports:
             - containerPort: 80
@@ -107,26 +107,18 @@ spec:
             - name: WILDCARD_TLS_SECRET_NAME
               value: "wildcard-projectlabs-api-talentos-darey-io"
             - name: TRACING_ENABLED
-              value: "false"
+              value: "true"
             - name: OTLP_ENDPOINT
               value: "http://tempo.observability.svc:4317"
             - name: OTLP_INSECURE
               value: "true"
             - name: TELEMETRY_ENVIRONMENT
               value: "prod"
-            - name: CORS_ALLOWED_ORIGINS
-              value: "https://v2-dev.darey.io,https://darey.io,https://*.darey.io"
-            - name: CORS_ALLOW_CREDENTIALS
-              value: "true"
-            - name: CORS_ALLOW_METHODS
-              value: "GET,POST,PUT,DELETE,OPTIONS,PATCH"
-            - name: CORS_ALLOW_HEADERS
-              value: "Authorization,Content-Type,X-Lab-Session-Id,X-Lab-Session-Token,X-Lab-Auth-Mode"
           resources:
             requests:
-              cpu: "200m"
-              memory: "512Mi"
+              cpu: "100m"
+              memory: "128Mi"
             limits:
-              cpu: "1000m"
-              memory: "1Gi"
+              cpu: "500m"
+              memory: "512Mi"
       restartPolicy: Always

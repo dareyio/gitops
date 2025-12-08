@@ -13,7 +13,7 @@ metadata:
     argocd-image-updater.argoproj.io/update-strategy: latest
     argocd-image-updater.argoproj.io/kustomize.image: api=lab-controller-api
 spec:
-  replicas: 5
+  replicas: 3
   selector:
     matchLabels:
       app: lab-controller
@@ -111,7 +111,7 @@ spec:
             - name: WILDCARD_TLS_SECRET_NAME
               value: "wildcard-projectlabs-api-talentos-darey-io"
             - name: TRACING_ENABLED
-              value: "false"
+              value: "true"
             - name: OTLP_ENDPOINT
               value: "http://tempo.observability.svc:4317"
             - name: OTLP_INSECURE
@@ -128,8 +128,8 @@ spec:
               value: "Authorization,Content-Type,X-Lab-Session-Id,X-Lab-Session-Token,X-Lab-Auth-Mode"
           resources:
             requests:
-              cpu: "200m"
-              memory: "512Mi"
+              cpu: "100m"
+              memory: "256Mi"
             limits:
               cpu: "1000m"
               memory: "1Gi"
