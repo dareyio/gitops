@@ -48,6 +48,17 @@ spec:
                 secretKeyRef:
                   name: jitsi-auth-secrets
                   key: JIBRI_RECORDER_PASSWORD
+            - name: JWT_APP_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: jitsi-jwt-secret
+                  key: JITSI_JWT_SECRET
+            - name: JWT_APP_ID
+              value: "darey-io"
+            - name: JWT_ACCEPTED_ISSUERS
+              value: "darey-io"
+            - name: JWT_ACCEPTED_AUDIENCES
+              value: "jitsi"
           volumeMounts:
             - name: prosody-config
               mountPath: /config/conf.d/streaming-stg.talentos.darey.io.cfg.lua

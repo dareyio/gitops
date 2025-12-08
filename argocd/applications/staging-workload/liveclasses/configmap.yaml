@@ -6,5 +6,18 @@ metadata:
 data:
   streaming-stg.talentos.darey.io.cfg.lua: |
     VirtualHost "streaming-stg.talentos.darey.io"
-      authentication = "anonymous"
+      authentication = "token"
+      app_id = "darey-io"
+      app_secret = os.getenv("JWT_APP_SECRET")
+      allow_empty_token = false
+      token_affinity = true
       c2s_require_encryption = false
+      
+      -- Enable JWT authentication module
+      modules_enabled = {
+        "token_verification";
+      }
+      
+      -- Accept tokens from darey-io issuer
+      accepted_issuers = { "darey-io" }
+      accepted_audiences = { "jitsi" }
