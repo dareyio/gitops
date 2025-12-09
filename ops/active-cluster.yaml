@@ -1,4 +1,0 @@
-# Active production cluster marker
-# Updated by DNS switch workflow after cutover.
-cluster: green
-last_updated: "2025-11-23T16:53:02Z"

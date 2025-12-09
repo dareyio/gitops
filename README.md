@@ -4,7 +4,7 @@ ArgoCD GitOps repository for managing Kubernetes applications across EKS cluster
 
 ## Overview
 
-This repository contains ArgoCD Application definitions and Kubernetes manifests for deploying applications to production EKS clusters using GitOps principles with blue/green deployment support.
+This repository contains ArgoCD Application definitions and Kubernetes manifests for deploying applications to production EKS clusters using GitOps principles with an ops/workload architecture.
 
 ## Structure
 
@@ -12,32 +12,36 @@ This repository contains ArgoCD Application definitions and Kubernetes manifests
 gitops/
 ├── argocd/
 │   ├── applications/
-│   │   ├── prod-blue/          # Blue cluster applications
+│   │   ├── prod-ops/           # Operations cluster applications
+│   │   │   ├── applications/   # ArgoCD Application definitions
+│   │   │   ├── cluster-resources/  # Cluster-level resources
+│   │   │   └── dashboards/     # Grafana dashboards
+│   │   ├── prod-workload/      # Workload cluster applications
 │   │   │   ├── applications/   # ArgoCD Application definitions
 │   │   │   ├── cluster-resources/  # Cluster-level resources
 │   │   │   ├── dareyscore/     # DareyScore application manifests
+│   │   │   ├── liveclasses/    # LiveClasses application manifests
+│   │   │   ├── lab-controller/ # Lab Controller application manifests
 │   │   │   └── dashboards/     # Grafana dashboards
-│   │   └── prod-green/         # Green cluster applications
-│   │       ├── applications/  # ArgoCD Application definitions
-│   │       ├── cluster-resources/  # Cluster-level resources
-│   │       ├── dareyscore/     # DareyScore application manifests
-│   │       └── dashboards/     # Grafana dashboards
+│   │   ├── staging-ops/        # Staging operations cluster
+│   │   └── staging-workload/   # Staging workload cluster
 │   └── bootstrap/              # Bootstrap applications
-│       ├── prod-blue.yaml      # Blue cluster bootstrap
-│       └── prod-green.yaml     # Green cluster bootstrap
+│       ├── prod-ops.yaml       # Operations cluster bootstrap
+│       ├── prod-workload.yaml  # Workload cluster bootstrap
+│       ├── staging-ops.yaml    # Staging operations bootstrap
+│       └── staging-workload.yaml # Staging workload bootstrap
 ├── ops/
-│   ├── active-cluster.yaml     # Active cluster configuration
 │   └── dns-targets.yaml        # DNS routing configuration
 └── README.md
 ```
 
-## Blue/Green Deployment
+## Ops/Workload Architecture
 
-The infrastructure supports blue/green deployment with active cluster management:
+The infrastructure uses a separation of concerns approach:
 
-- **Active Cluster**: Defined in `ops/active-cluster.yaml`
-- **DNS Routing**: Customer-facing domain automatically routes to active cluster
-- **Zero Downtime**: Switch clusters by updating active cluster and running Terraform
+- **Ops Cluster**: Manages ArgoCD, monitoring, and operational tools
+- **Workload Cluster**: Runs application workloads (DareyScore, LiveClasses, Lab Controller)
+- **DNS Routing**: Customer-facing domains route to workload cluster via External-DNS
 
 ## Applications
 
@@ -61,34 +65,30 @@ The infrastructure supports blue/green deployment with active cluster management
 
 - **DareyScore** - Scoring API and worker services
 
-## Active Cluster Management
+## Cluster Management
 
-The active cluster is managed via `ops/active-cluster.yaml`:
+Applications are managed via ArgoCD:
 
-```yaml
-cluster: blue  # or green
-last_updated: "2025-11-13T00:00:00Z"
-```
-
-When switching clusters:
-1. Update `ops/active-cluster.yaml`
-2. Run Terraform apply (updates DNS routing)
-3. ArgoCD syncs applications to the new active cluster
+- **Ops Cluster**: ArgoCD runs in the ops cluster and manages applications across all clusters
+- **Workload Cluster**: Application workloads run in the workload cluster
+- **Multi-Cluster**: ArgoCD in ops cluster can manage applications in both ops and workload clusters
 
 ## Customer-Facing DNS
 
 The customer-facing domain `dareyscore.talentos.darey.io` is configured to:
 
-- Point to the active cluster's LoadBalancer (managed by Terraform)
-- Accept TLS certificates for both customer-facing and cluster-specific domains
-- Route traffic to the active cluster automatically
+- Point to the workload cluster's LoadBalancer (managed by External-DNS)
+- Accept TLS certificates via cert-manager (Let's Encrypt)
+- Route traffic to the workload cluster automatically
 
 ## ArgoCD Bootstrap
 
 Bootstrap applications are defined in `argocd/bootstrap/`:
 
-- `prod-blue.yaml` - Bootstrap application for blue cluster
-- `prod-green.yaml` - Bootstrap application for green cluster
+- `prod-ops.yaml` - Bootstrap application for operations cluster
+- `prod-workload.yaml` - Bootstrap application for workload cluster
+- `staging-ops.yaml` - Bootstrap application for staging operations cluster
+- `staging-workload.yaml` - Bootstrap application for staging workload cluster
 
 These applications create the App-of-Apps pattern, managing all other applications.
 
