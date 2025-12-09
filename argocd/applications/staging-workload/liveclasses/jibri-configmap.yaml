@@ -1,0 +1,147 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: jibri-config
+  namespace: liveclasses
+data:
+  config.json: |
+    {
+      "xmpp": {
+        "hosts": {
+          "domain": "streaming-stg.talentos.darey.io",
+          "muc": "conference.streaming-stg.talentos.darey.io",
+          "focus": "focus.streaming-stg.talentos.darey.io"
+        },
+        "client": {
+          "username": "jibri",
+          "password": "${JIBRI_XMPP_PASSWORD}",
+          "domain": "streaming-stg.talentos.darey.io"
+        }
+      },
+      "recording": {
+        "recordingDirectory": "/config/recordings",
+        "finalizeScript": "/config/finalize.sh"
+      },
+      "sip": {
+        "enabled": false
+      },
+      "jibri": {
+        "xmpp": {
+          "environments": [
+            {
+              "name": "prod environment",
+              "xmpp_server_hosts": ["prosody"],
+              "xmpp_domain": "streaming-stg.talentos.darey.io",
+              "control_login": {
+                "domain": "streaming-stg.talentos.darey.io",
+                "username": "jibri",
+                "password": "${JIBRI_XMPP_PASSWORD}"
+              },
+              "control_muc": {
+                "domain": "streaming-stg.talentos.darey.io",
+                "room_name": "JibriBrewery",
+                "nickname": "jibri"
+              },
+              "call_login": {
+                "domain": "recorder.streaming-stg.talentos.darey.io",
+                "username": "recorder",
+                "password": "${JIBRI_RECORDER_PASSWORD}"
+              },
+              "room_jid_domain_string_to_strip": "conference.",
+              "usage_timeout": "0",
+              "trust_all_xmpp_certs": true
+            }
+          ]
+        },
+        "ffmpeg": {
+          "resolution": "1920x1080",
+          "frameRate": 30
+        },
+        "chrome": {
+          "flags": [
+            "--use-fake-ui-for-media-stream",
+            "--use-fake-device-for-media-stream",
+            "--disable-dev-shm-usage",
+            "--no-sandbox"
+          ]
+        },
+        "recording": {
+          "recordingsDirectory": "/config/recordings",
+          "finalizeScript": "/config/finalize.sh"
+        },
+        "stats": {
+          "enabled": true
+        },
+        "webhook": {
+          "subscribers": [
+            "http://jibri-webhook.liveclasses.svc.cluster.local:8080/webhook"
+          ]
+        },
+        "s3": {
+          "enabled": true,
+          "bucket": "darey-io-v2-lab-staging-jibri-recordings",
+          "region": "eu-west-2",
+          "path": "recordings",
+          "credentials": {
+            "useIAMRole": true
+          }
+        }
+      }
+    }
+  finalize.sh: |
+    #!/bin/bash
+    # Finalize script for Jibri recordings
+    # This script is called after recording completes
+    # The recording file path is passed as the first argument
+    
+    RECORDING_FILE="$1"
+    SESSION_ID="${JIBRI_SESSION_ID:-unknown}"
+    S3_BUCKET="${AWS_S3_BUCKET:-darey-io-v2-lab-staging-jibri-recordings}"
+    S3_REGION="${AWS_REGION:-eu-west-2}"
+    ENVIRONMENT="${ENVIRONMENT:-staging}"
+    
+    echo "Finalizing recording: $RECORDING_FILE for session: $SESSION_ID"
+    
+    if [ ! -f "$RECORDING_FILE" ]; then
+      echo "Error: Recording file not found: $RECORDING_FILE"
+      exit 1
+    fi
+    
+    # Create organized S3 path structure: environment/year/month/day/session_id/filename
+    # This structure is scalable and allows for easy partitioning and lifecycle management
+    YEAR=$(date -u +%Y)
+    MONTH=$(date -u +%m)
+    DAY=$(date -u +%d)
+    FILENAME=$(basename "$RECORDING_FILE")
+    
+    # S3 key structure: recordings/{environment}/{year}/{month}/{day}/{session_id}/{filename}
+    S3_KEY="recordings/${ENVIRONMENT}/${YEAR}/${MONTH}/${DAY}/${SESSION_ID}/${FILENAME}"
+    
+    echo "Uploading to s3://${S3_BUCKET}/${S3_KEY}"
+    
+    # Upload to S3 using AWS CLI (uses IAM role from service account)
+    aws s3 cp "$RECORDING_FILE" "s3://${S3_BUCKET}/${S3_KEY}" \
+      --region "$S3_REGION" \
+      --metadata "session-id=${SESSION_ID},environment=${ENVIRONMENT},year=${YEAR},month=${MONTH},day=${DAY}" \
+      --content-type "video/mp4" \
+      --storage-class "STANDARD" || {
+      echo "Error: Failed to upload to S3"
+      exit 1
+    }
+    
+    # Generate S3 URL
+    S3_URL="https://${S3_BUCKET}.s3.${S3_REGION}.amazonaws.com/${S3_KEY}"
+    echo "Recording uploaded to: $S3_URL"
+    
+    # Notify Supabase webhook about completion
+    WEBHOOK_URL="${SUPABASE_WEBHOOK_URL:-https://api.supabase.co}"
+    curl -X POST "${WEBHOOK_URL}/functions/v1/jibri-webhook" \
+      -H "Content-Type: application/json" \
+      -H "Authorization: Bearer ${SUPABASE_ANON_KEY}" \
+      -d "{\"sessionId\": \"$SESSION_ID\", \"status\": \"completed\", \"recordingUrl\": \"$S3_URL\", \"file\": \"$RECORDING_FILE\"}" || {
+      echo "Warning: Failed to notify webhook, but upload succeeded"
+    }
+    
+    exit 0
+
