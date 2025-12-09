@@ -28,10 +28,30 @@ spec:
           service:
             type: LoadBalancer
             annotations:
+              # Optimize NLB for HTTP/HTTPS traffic (ALB requires AWS Load Balancer Controller + Ingress)
+              # Keep NLB but optimize connection handling
+              service.beta.kubernetes.io/aws-load-balancer-type: "nlb"
               service.beta.kubernetes.io/aws-load-balancer-scheme: "internet-facing"
               service.beta.kubernetes.io/aws-load-balancer-subnets: "subnet-0a352aea98573902a,subnet-0d422d2ef2c7587f9"
+              # NLB optimization for HTTP/HTTPS
+              service.beta.kubernetes.io/aws-load-balancer-connection-idle-timeout: "3600"
+              service.beta.kubernetes.io/aws-load-balancer-cross-zone-load-balancing-enabled: "true"
+              service.beta.kubernetes.io/aws-load-balancer-healthcheck-interval: "30"
+              service.beta.kubernetes.io/aws-load-balancer-healthcheck-timeout: "10"
+              service.beta.kubernetes.io/aws-load-balancer-healthcheck-healthy-threshold: "2"
+              service.beta.kubernetes.io/aws-load-balancer-healthcheck-unhealthy-threshold: "3"
               external-dns.alpha.kubernetes.io/hostname: "ingress-staging-workload.talentos.darey.io"
               external-dns.alpha.kubernetes.io/manage: "true"
+          config:
+            # Optimize NGINX for SSL/TLS with NLB
+            ssl-protocols: "TLSv1.2 TLSv1.3"
+            ssl-ciphers: "ECDHE-ECDSA-AES128-GCM-SHA256,ECDHE-RSA-AES128-GCM-SHA256,ECDHE-ECDSA-AES256-GCM-SHA384,ECDHE-RSA-AES256-GCM-SHA384"
+            http2: "true"
+            keepalive-timeout: "3600"
+            keepalive-requests: "10000"
+            proxy-read-timeout: "3600"
+            proxy-send-timeout: "3600"
+            proxy-connect-timeout: "60"
           ingressClass: nginx
           ingressClassByName: true
           publishService:
