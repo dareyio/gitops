@@ -35,11 +35,15 @@ spec:
             - sh
             - -c
             - |
-              chmod 600 /etc/mongodb-key/keyfile
-              echo "Keyfile permissions fixed"
+              cp /etc/mongodb-key/keyfile /tmp/keyfile
+              chmod 600 /tmp/keyfile
+              echo "Keyfile copied and permissions fixed"
           volumeMounts:
             - name: mongodb-key
               mountPath: /etc/mongodb-key
+              readOnly: true
+            - name: keyfile-tmp
+              mountPath: /tmp
         - name: init-mongodb
           image: mongo:7.0
           command:
@@ -97,7 +101,7 @@ spec:
             - --replSet
             - bbb-rs
             - --keyFile
-            - /etc/mongodb-key/keyfile
+            - /tmp/keyfile
             - --wiredTigerCacheSizeGB
             - "2"
           volumeMounts:
@@ -106,6 +110,8 @@ spec:
             - name: mongodb-key
               mountPath: /etc/mongodb-key
               readOnly: true
+            - name: keyfile-tmp
+              mountPath: /tmp
             - name: mongodb-config
               mountPath: /etc/mongod.conf
               subPath: mongod.conf
@@ -140,6 +146,8 @@ spec:
         - name: mongodb-key
           secret:
             secretName: mongodb-keyfile
+        - name: keyfile-tmp
+          emptyDir: {}
         - name: mongodb-config
           configMap:
             name: mongodb-config
