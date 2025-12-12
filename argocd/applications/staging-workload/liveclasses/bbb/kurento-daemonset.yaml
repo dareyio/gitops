@@ -19,8 +19,8 @@ spec:
       #   node-type: media-processing
       containers:
         - name: kurento
-          image: 586794457112.dkr.ecr.eu-west-2.amazonaws.com/liveclasses/kurento-media-server:3.0.4
-          imagePullPolicy: Always
+          image: kurento/kurento-media-server:7.0.0
+          imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8888
               name: websocket
@@ -74,4 +74,3 @@ data:
         }
       }
     }
-
