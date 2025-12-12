@@ -1,0 +1,22 @@
+# ArgoCD ignore file - exclude Jitsi resources from sync
+jitsi-*.yaml
+jibri-*.yaml
+jicofo-*.yaml
+jvb-*.yaml
+prosody-*.yaml
+servicemonitor-jitsi*.yaml
+servicemonitor-jicofo.yaml
+servicemonitor-jvb.yaml
+nginx-config.yaml
+service.yaml
+turn-api-deployment.yaml
+external-secret.yaml
+certificate.yaml
+configmap.yaml
+AUTHENTICATION.md
+generate-test-jwt.py
+auto-tileview.yaml
+custom-css.yaml
+head-injection.yaml
+move-sidebar.yaml
+
