@@ -71,6 +71,15 @@ data:
         "resources": {
           "garbageCollectorPeriod": 240,
           "threadPoolSize": 20
+        },
+        "net": {
+          "websocket": {
+            "port": 8888,
+            "secure": {
+              "port": 8433
+            }
+          }
         }
-      }
+      },
+      "configPath": "/etc/kurento"
     }
