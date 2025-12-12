@@ -4,10 +4,10 @@ kind: Kustomization
 namespace: liveclasses
 
 resources:
-  - ../../namespace.yaml
-  - ../../liveclasses-config.yaml
-  - ../../liveclasses-recordings-serviceaccount.yaml
-  - ../../liveclasses-streaming-ingress.yaml
+  - ../namespace.yaml
+  - ../liveclasses-config.yaml
+  - ../liveclasses-recordings-serviceaccount.yaml
+  - ../liveclasses-streaming-ingress.yaml
   - ../bbb/bbb-api-deployment.yaml
   - ../bbb/bbb-api-service.yaml
   - ../bbb/bbb-web-deployment.yaml
