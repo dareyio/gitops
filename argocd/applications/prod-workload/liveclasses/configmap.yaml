@@ -7,7 +7,7 @@ data:
   # Feature flag: "bbb" or "jitsi" - determines default provider for root path
   provider: "bbb"
   # Enable/disable providers independently
-  jitsi_enabled: "true"
+  jitsi_enabled: "false"
   bbb_enabled: "true"
   # Default path routing based on provider
   default_path: "/bbb"

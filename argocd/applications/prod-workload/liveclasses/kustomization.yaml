@@ -1,0 +1,13 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: liveclasses
+
+# Use base kustomization which excludes Jitsi resources
+resources:
+  - base
+
+# Conditionally include Jitsi resources based on ConfigMap value
+# Since ConfigMap shows jitsi_enabled: "false", we don't include Jitsi resources
+# This ensures Jitsi deployments are pruned when disabled
+
