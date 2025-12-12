@@ -1,0 +1,29 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: liveclasses
+
+resources:
+  - ../../base
+
+# Include Jitsi deployments when enabled
+patchesStrategicMerge:
+  - |-
+    apiVersion: v1
+    kind: ConfigMap
+    metadata:
+      name: liveclasses-config
+    data:
+      jitsi_enabled: "true"
+
+resources:
+  - ../../jitsi-web-deployment.yaml
+  - ../../jitsi-web-configmap.yaml
+  - ../../jicofo-deployment.yaml
+  - ../../jvb-deployment.yaml
+  - ../../prosody-deployment.yaml
+  - ../../jibri-deployment.yaml
+  - ../../jibri-configmap.yaml
+  - ../../service.yaml
+  - ../../nginx-config.yaml
+
