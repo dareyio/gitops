@@ -81,12 +81,12 @@ spec:
             - name: MONGO_USERNAME
               valueFrom:
                 secretKeyRef:
-                  name: mongodb-secrets
+                  name: mongodb-secret
                   key: root-username
             - name: MONGO_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: mongodb-secrets
+                  name: mongodb-secret
                   key: root-password
           resources:
             requests:
