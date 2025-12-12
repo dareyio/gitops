@@ -80,4 +80,3 @@ data:
   freeswitch.xml: |
     <!-- Basic FreeSWITCH configuration for BBB -->
     <!-- Full configuration should be provided via ConfigMap or mounted volume -->
-
