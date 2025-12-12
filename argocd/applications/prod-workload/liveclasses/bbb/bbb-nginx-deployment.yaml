@@ -1,0 +1,118 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bbb-nginx
+  namespace: liveclasses
+  labels:
+    app: bbb-nginx
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: bbb-nginx
+  template:
+    metadata:
+      labels:
+        app: bbb-nginx
+    spec:
+      containers:
+        - name: nginx
+          image: nginx:1.25-alpine
+          ports:
+            - containerPort: 80
+              name: http
+          volumeMounts:
+            - name: nginx-config
+              mountPath: /etc/nginx/nginx.conf
+              subPath: nginx.conf
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 256Mi
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 80
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 80
+            initialDelaySeconds: 5
+            periodSeconds: 5
+      volumes:
+        - name: nginx-config
+          configMap:
+            name: bbb-nginx-config
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: bbb-nginx-config
+  namespace: liveclasses
+data:
+  nginx.conf: |
+    events {
+      worker_connections 1024;
+    }
+    http {
+      upstream bbb-web {
+        server bbb-web:3000;
+      }
+      upstream bbb-api {
+        server bbb-api:8090;
+      }
+      server {
+        listen 80;
+        server_name _;
+        location /health {
+          access_log off;
+          return 200 "healthy\n";
+          add_header Content-Type text/plain;
+        }
+        location /api {
+          proxy_pass http://bbb-api;
+          proxy_set_header Host $host;
+          proxy_set_header X-Real-IP $remote_addr;
+          proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+          proxy_set_header X-Forwarded-Proto $scheme;
+        }
+        location / {
+          proxy_pass http://bbb-web;
+          proxy_set_header Host $host;
+          proxy_set_header X-Real-IP $remote_addr;
+          proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+          proxy_set_header X-Forwarded-Proto $scheme;
+          proxy_http_version 1.1;
+          proxy_set_header Upgrade $http_upgrade;
+          proxy_set_header Connection "upgrade";
+        }
+      }
+    }
+
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: bbb-nginx-hpa
+  namespace: liveclasses
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: bbb-nginx
+  minReplicas: 2
+  maxReplicas: 3
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 70
+

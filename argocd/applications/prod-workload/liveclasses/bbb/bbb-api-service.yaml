@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: bbb-api
+  namespace: liveclasses
+  labels:
+    app: bbb-api
+spec:
+  type: ClusterIP
+  selector:
+    app: bbb-api
+  ports:
+    - name: api
+      port: 8090
+      targetPort: 8090
+      protocol: TCP
+

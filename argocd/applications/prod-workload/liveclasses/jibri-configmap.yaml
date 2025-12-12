@@ -80,9 +80,9 @@ data:
         },
         "s3": {
           "enabled": true,
-          "bucket": "darey-v2-prod-jibri-recordings",
+          "bucket": "darey-v2-prod-liveclasses-recordings",
           "region": "eu-west-2",
-          "path": "recordings",
+          "path": "recordings/jitsi",
           "credentials": {
             "useIAMRole": true
           }
@@ -97,7 +97,7 @@ data:
     
     RECORDING_FILE="$1"
     SESSION_ID="${JIBRI_SESSION_ID:-unknown}"
-    S3_BUCKET="${AWS_S3_BUCKET:-darey-v2-prod-jibri-recordings}"
+    S3_BUCKET="${AWS_S3_BUCKET:-darey-v2-prod-liveclasses-recordings}"
     S3_REGION="${AWS_REGION:-eu-west-2}"
     ENVIRONMENT="${ENVIRONMENT:-prod}"
     
@@ -108,15 +108,16 @@ data:
       exit 1
     fi
     
-    # Create organized S3 path structure: environment/year/month/day/session_id/filename
+    # Create organized S3 path structure: provider/environment/year/month/day/session_id/filename
     # This structure is scalable and allows for easy partitioning and lifecycle management
+    # Provider: jitsi (for Jitsi recordings)
     YEAR=$(date -u +%Y)
     MONTH=$(date -u +%m)
     DAY=$(date -u +%d)
     FILENAME=$(basename "$RECORDING_FILE")
     
-    # S3 key structure: recordings/{environment}/{year}/{month}/{day}/{session_id}/{filename}
-    S3_KEY="recordings/${ENVIRONMENT}/${YEAR}/${MONTH}/${DAY}/${SESSION_ID}/${FILENAME}"
+    # S3 key structure: recordings/jitsi/{environment}/{year}/{month}/{day}/{session_id}/{filename}
+    S3_KEY="recordings/jitsi/${ENVIRONMENT}/${YEAR}/${MONTH}/${DAY}/${SESSION_ID}/${FILENAME}"
     
     echo "Uploading to s3://${S3_BUCKET}/${S3_KEY}"
     

@@ -1,10 +1,9 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: jitsi-streaming-ingress
+  name: liveclasses-streaming-ingress
   namespace: liveclasses
   annotations:
-    nginx.ingress.kubernetes.io/rewrite-target: /
     nginx.ingress.kubernetes.io/ssl-redirect: "true"
     nginx.ingress.kubernetes.io/backend-protocol: "HTTP"
     nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
@@ -17,21 +16,40 @@ spec:
     - host: streaming.talentos.darey.io
       http:
         paths:
-          - path: /http-bind
+          # Jitsi XMPP/BOSH endpoints
+          - path: /jitsi/http-bind
             pathType: Prefix
             backend:
               service:
                 name: prosody
                 port:
                   number: 5280
-          - path: /
+          # Jitsi web interface
+          - path: /jitsi
             pathType: Prefix
             backend:
               service:
                 name: jitsi-web
                 port:
                   number: 80
+          # BBB web interface
+          - path: /bbb
+            pathType: Prefix
+            backend:
+              service:
+                name: bbb-web
+                port:
+                  number: 80
+          # Default root path - routes to BBB (can be changed by updating this ingress)
+          # To change default provider, update the service name below
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: bbb-web
+                port:
+                  number: 80
   tls:
     - hosts:
         - streaming.talentos.darey.io
-      secretName: jitsi-tls-cert
+      secretName: liveclasses-tls-cert
