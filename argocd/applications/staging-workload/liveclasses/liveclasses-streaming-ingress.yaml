@@ -1,0 +1,66 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: liveclasses-streaming-ingress
+  namespace: liveclasses
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/backend-protocol: "HTTP"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
+    nginx.ingress.kubernetes.io/proxy-buffering: "off"
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    external-dns.alpha.kubernetes.io/hostname: streaming-stg.talentos.darey.io
+    external-dns.alpha.kubernetes.io/manage: "true"
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: streaming-stg.talentos.darey.io
+      http:
+        paths:
+          # Jitsi XMPP/BOSH endpoints
+          - path: /jitsi/http-bind
+            pathType: Prefix
+            backend:
+              service:
+                name: prosody
+                port:
+                  number: 5280
+          # Jitsi web interface
+          - path: /jitsi
+            pathType: Prefix
+            backend:
+              service:
+                name: jitsi-web
+                port:
+                  number: 80
+          # BBB API service
+          - path: /bbb/api
+            pathType: Prefix
+            backend:
+              service:
+                name: liveclasses-bbb-api
+                port:
+                  number: 8080
+          # BBB web interface (when deployed)
+          - path: /bbb
+            pathType: Prefix
+            backend:
+              service:
+                name: bbb-web
+                port:
+                  number: 80
+          # Default root path - routes to BBB API (can be changed by updating this ingress)
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: liveclasses-bbb-api
+                port:
+                  number: 8080
+  tls:
+    - hosts:
+        - streaming-stg.talentos.darey.io
+      secretName: liveclasses-tls-cert
+

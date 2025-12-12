@@ -1,0 +1,28 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mongodb-config
+  namespace: liveclasses
+data:
+  mongod.conf: |
+    storage:
+      wiredTiger:
+        engineConfig:
+          cacheSizeGB: 2
+        collectionConfig:
+          blockCompressor: snappy
+        indexConfig:
+          prefixCompression: true
+    systemLog:
+      destination: file
+      logAppend: true
+      path: /var/log/mongodb/mongod.log
+      verbosity: 1
+    net:
+      port: 27017
+      bindIp: 0.0.0.0
+    replication:
+      replSetName: bbb-rs
+    security:
+      keyFile: /etc/mongodb-key/keyfile
+

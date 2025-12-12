@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: liveclasses-config
+  namespace: liveclasses
+data:
+  # Feature flag: "bbb" or "jitsi" - determines default provider for root path
+  provider: "bbb"
+  # Enable/disable providers independently
+  jitsi_enabled: "false"
+  bbb_enabled: "true"
+  # Default path routing based on provider
+  default_path: "/bbb"
+  # Streaming domain
+  streaming_domain: "streaming-stg.talentos.darey.io"
+  # S3 bucket configuration
+  s3_bucket_name: "darey-v2-staging-liveclasses-recordings"
+  s3_region: "eu-west-2"
+  # Environment
+  environment: "staging"
+

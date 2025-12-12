@@ -1,0 +1,28 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: freeswitch
+  namespace: liveclasses
+  labels:
+    app: freeswitch
+spec:
+  type: ClusterIP
+  selector:
+    app: freeswitch
+  ports:
+    - name: sip
+      port: 5060
+      targetPort: 5060
+      protocol: UDP
+    - name: sip-tls
+      port: 5080
+      targetPort: 5080
+      protocol: TCP
+    - name: rtp
+      port: 16384
+      targetPort: 16384
+      protocol: UDP
+      # Note: RTP uses a range, but Kubernetes Services support single ports
+      # For full RTP range support, consider using NodePort or LoadBalancer
+      # Or handle RTP routing at the ingress/load balancer level
+

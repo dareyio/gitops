@@ -1,0 +1,127 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: liveclasses-bbb-api
+  namespace: liveclasses
+  labels:
+    app: liveclasses-bbb-api
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: liveclasses-bbb-api
+  template:
+    metadata:
+      labels:
+        app: liveclasses-bbb-api
+    spec:
+      serviceAccountName: liveclasses-recordings
+      containers:
+        - name: api
+          image: 586794457112.dkr.ecr.eu-west-2.amazonaws.com/liveclasses/bbb-api:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+              name: http
+          env:
+            - name: PORT
+              value: "8080"
+            - name: ENVIRONMENT
+              valueFrom:
+                configMapKeyRef:
+                  name: liveclasses-config
+                  key: environment
+            - name: BBB_API_URL
+              value: "http://bbb-api:8090"
+            - name: BBB_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: bbb-secrets
+                  key: api-secret
+            - name: S3_BUCKET_NAME
+              valueFrom:
+                configMapKeyRef:
+                  name: liveclasses-config
+                  key: s3_bucket_name
+            - name: S3_REGION
+              valueFrom:
+                configMapKeyRef:
+                  name: liveclasses-config
+                  key: s3_region
+            - name: SUPABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: supabase-secrets
+                  key: SUPABASE_URL
+            - name: SUPABASE_SERVICE_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: supabase-secrets
+                  key: SUPABASE_SERVICE_KEY
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 1000m
+              memory: 1Gi
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            timeoutSeconds: 3
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: liveclasses-bbb-api
+  namespace: liveclasses
+  labels:
+    app: liveclasses-bbb-api
+spec:
+  type: ClusterIP
+  selector:
+    app: liveclasses-bbb-api
+  ports:
+    - name: http
+      port: 8080
+      targetPort: 8080
+      protocol: TCP
+
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: liveclasses-bbb-api-hpa
+  namespace: liveclasses
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: liveclasses-bbb-api
+  minReplicas: 2
+  maxReplicas: 5
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 70
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: 80
+

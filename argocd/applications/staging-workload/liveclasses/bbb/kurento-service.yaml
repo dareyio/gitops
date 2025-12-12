@@ -1,0 +1,24 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: kurento-media-server
+  namespace: liveclasses
+  labels:
+    app: kurento-media-server
+spec:
+  type: ClusterIP
+  selector:
+    app: kurento-media-server
+  ports:
+    - name: websocket
+      port: 8888
+      targetPort: 8888
+      protocol: TCP
+    - name: rtp-start
+      port: 5000
+      targetPort: 5000
+      protocol: UDP
+    # Note: RTP uses a large range (5000-65535), but Kubernetes Services
+    # support single ports. For full RTP range, consider NodePort or
+    # handle at ingress/load balancer level
+
