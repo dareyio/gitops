@@ -1,0 +1,98 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: mongodb-init-replicaset
+  namespace: liveclasses
+spec:
+  template:
+    spec:
+      restartPolicy: OnFailure
+      containers:
+        - name: mongodb-init
+          image: mongo:7.0
+          command:
+            - bash
+            - -c
+            - |
+              set -e
+              echo "Initializing MongoDB replica set..."
+              
+              # Wait for all MongoDB pods to be ready
+              echo "Waiting for MongoDB pods to be ready..."
+              for i in 0 1 2; do
+                until mongosh --host mongodb-${i}.mongodb.liveclasses.svc.cluster.local:27017 \
+                  --username="${MONGO_USERNAME}" \
+                  --password="${MONGO_PASSWORD}" \
+                  --authenticationDatabase=admin \
+                  --eval "db.adminCommand('ping')" --quiet; do
+                  echo "Waiting for mongodb-${i}..."
+                  sleep 2
+                done
+                echo "mongodb-${i} is ready"
+              done
+              
+              # Check if replica set is already initialized
+              RS_STATUS=$(mongosh --host mongodb-0.mongodb.liveclasses.svc.cluster.local:27017 \
+                --username="${MONGO_USERNAME}" \
+                --password="${MONGO_PASSWORD}" \
+                --authenticationDatabase=admin \
+                --eval "rs.status().ok" --quiet 2>/dev/null || echo "0")
+              
+              if [ "$RS_STATUS" = "1" ]; then
+                echo "Replica set already initialized"
+                mongosh --host mongodb-0.mongodb.liveclasses.svc.cluster.local:27017 \
+                  --username="${MONGO_USERNAME}" \
+                  --password="${MONGO_PASSWORD}" \
+                  --authenticationDatabase=admin \
+                  --eval "rs.status()"
+                exit 0
+              fi
+              
+              # Initialize replica set
+              echo "Initializing replica set..."
+              mongosh --host mongodb-0.mongodb.liveclasses.svc.cluster.local:27017 \
+                --username="${MONGO_USERNAME}" \
+                --password="${MONGO_PASSWORD}" \
+                --authenticationDatabase=admin \
+                --eval "
+                  rs.initiate({
+                    _id: 'bbb-rs',
+                    members: [
+                      { _id: 0, host: 'mongodb-0.mongodb.liveclasses.svc.cluster.local:27017', priority: 2 },
+                      { _id: 1, host: 'mongodb-1.mongodb.liveclasses.svc.cluster.local:27017', priority: 1 },
+                      { _id: 2, host: 'mongodb-2.mongodb.liveclasses.svc.cluster.local:27017', priority: 1 }
+                    ]
+                  })
+                "
+              
+              # Wait for replica set to be ready
+              echo "Waiting for replica set to be ready..."
+              sleep 10
+              
+              # Check replica set status
+              mongosh --host mongodb-0.mongodb.liveclasses.svc.cluster.local:27017 \
+                --username="${MONGO_USERNAME}" \
+                --password="${MONGO_PASSWORD}" \
+                --authenticationDatabase=admin \
+                --eval "rs.status()"
+              
+              echo "Replica set initialized successfully"
+          env:
+            - name: MONGO_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: mongodb-secret
+                  key: root-username
+            - name: MONGO_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mongodb-secret
+                  key: root-password
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+

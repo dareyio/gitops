@@ -1,0 +1,97 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: mongodb-backup
+  namespace: liveclasses
+spec:
+  schedule: "0 2 * * *"
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          serviceAccountName: mongodb-backup
+          restartPolicy: OnFailure
+          containers:
+            - name: mongodb-backup
+              image: mongo:7.0
+              command:
+                - bash
+                - -c
+                - |
+                  set -e
+                  TIMESTAMP=$(date +%Y-%m-%d-%H%M%S)
+                  DATE_DIR=$(date +%Y-%m-%d)
+                  BACKUP_NAME="mongodb-backup-${TIMESTAMP}"
+                  BACKUP_DIR="/backup/${BACKUP_NAME}"
+                  S3_PATH="s3://${S3_BUCKET}/backups/mongodb/${DATE_DIR}/${BACKUP_NAME}"
+                  
+                  echo "Starting MongoDB backup at $(date)"
+                  echo "Backup name: ${BACKUP_NAME}"
+                  echo "S3 path: ${S3_PATH}"
+                  
+                  # Create backup directory
+                  mkdir -p ${BACKUP_DIR}
+                  
+                  # Perform backup
+                  mongodump \
+                    --host="${MONGO_HOST}" \
+                    --username="${MONGO_USERNAME}" \
+                    --password="${MONGO_PASSWORD}" \
+                    --authenticationDatabase=admin \
+                    --db=bigbluebutton \
+                    --archive="${BACKUP_DIR}/backup.archive" \
+                    --gzip
+                  
+                  # Create backup metadata
+                  cat > ${BACKUP_DIR}/metadata.json <<EOF
+                  {
+                    "backup_name": "${BACKUP_NAME}",
+                    "timestamp": "${TIMESTAMP}",
+                    "database": "bigbluebutton",
+                    "mongodb_version": "$(mongosh --version | head -1)",
+                    "backup_size": "$(du -sh ${BACKUP_DIR}/backup.archive | cut -f1)"
+                  }
+                  EOF
+                  
+                  # Upload to S3
+                  echo "Uploading backup to S3..."
+                  aws s3 cp ${BACKUP_DIR}/backup.archive ${S3_PATH}/backup.archive
+                  aws s3 cp ${BACKUP_DIR}/metadata.json ${S3_PATH}/metadata.json
+                  
+                  # Cleanup old backups (keep last 30 days)
+                  echo "Cleaning up old backups..."
+                  OLD_DATE=$(date -d '30 days ago' +%Y-%m-%d)
+                  aws s3 rm s3://${S3_BUCKET}/backups/mongodb/${OLD_DATE}/ --recursive || true
+                  
+                  echo "Backup completed successfully at $(date)"
+                  echo "Backup location: ${S3_PATH}"
+              env:
+                - name: MONGO_HOST
+                  value: "mongodb-0.mongodb.liveclasses.svc.cluster.local:27017"
+                - name: MONGO_USERNAME
+                  valueFrom:
+                    secretKeyRef:
+                      name: mongodb-secret
+                      key: root-username
+                - name: MONGO_PASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      name: mongodb-secret
+                      key: root-password
+                - name: S3_BUCKET
+                  valueFrom:
+                    configMapKeyRef:
+                      name: liveclasses-config
+                      key: s3_bucket_name
+                - name: AWS_REGION
+                  value: "eu-west-2"
+              resources:
+                requests:
+                  cpu: 500m
+                  memory: 1Gi
+                limits:
+                  cpu: 2000m
+                  memory: 2Gi
+

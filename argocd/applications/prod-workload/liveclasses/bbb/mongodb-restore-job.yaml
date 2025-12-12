@@ -1,0 +1,89 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: mongodb-restore
+  namespace: liveclasses
+spec:
+  template:
+    spec:
+      serviceAccountName: mongodb-backup
+      restartPolicy: Never
+      containers:
+        - name: mongodb-restore
+          image: mongo:7.0
+          command:
+            - bash
+            - -c
+            - |
+              set -e
+              if [ -z "$RESTORE_DATE" ] || [ -z "$RESTORE_TIME" ]; then
+                echo "Error: RESTORE_DATE and RESTORE_TIME must be set"
+                echo "Usage: Set RESTORE_DATE=YYYY-MM-DD and RESTORE_TIME=HHMMSS"
+                exit 1
+              fi
+              
+              BACKUP_NAME="mongodb-backup-${RESTORE_DATE}-${RESTORE_TIME}"
+              S3_PATH="s3://${S3_BUCKET}/backups/mongodb/${RESTORE_DATE}/${BACKUP_NAME}"
+              RESTORE_DIR="/restore/${BACKUP_NAME}"
+              
+              echo "Starting MongoDB restore at $(date)"
+              echo "Restore from: ${S3_PATH}"
+              
+              # Create restore directory
+              mkdir -p ${RESTORE_DIR}
+              
+              # Download backup from S3
+              echo "Downloading backup from S3..."
+              aws s3 cp ${S3_PATH}/backup.archive ${RESTORE_DIR}/backup.archive
+              
+              # Verify backup exists
+              if [ ! -f "${RESTORE_DIR}/backup.archive" ]; then
+                echo "Error: Backup file not found at ${S3_PATH}/backup.archive"
+                exit 1
+              fi
+              
+              # Restore database
+              echo "Restoring database..."
+              mongorestore \
+                --host="${MONGO_HOST}" \
+                --username="${MONGO_USERNAME}" \
+                --password="${MONGO_PASSWORD}" \
+                --authenticationDatabase=admin \
+                --db=bigbluebutton \
+                --archive="${RESTORE_DIR}/backup.archive" \
+                --gzip \
+                --drop
+              
+              echo "Restore completed successfully at $(date)"
+          env:
+            - name: MONGO_HOST
+              value: "mongodb-0.mongodb.liveclasses.svc.cluster.local:27017"
+            - name: MONGO_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: mongodb-secret
+                  key: root-username
+            - name: MONGO_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mongodb-secret
+                  key: root-password
+            - name: S3_BUCKET
+              valueFrom:
+                configMapKeyRef:
+                  name: liveclasses-config
+                  key: s3_bucket_name
+            - name: AWS_REGION
+              value: "eu-west-2"
+            - name: RESTORE_DATE
+              value: "YYYY-MM-DD"
+            - name: RESTORE_TIME
+              value: "HHMMSS"
+          resources:
+            requests:
+              cpu: 500m
+              memory: 1Gi
+            limits:
+              cpu: 2000m
+              memory: 2Gi
+
