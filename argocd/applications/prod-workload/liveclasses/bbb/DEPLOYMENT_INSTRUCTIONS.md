@@ -1,130 +1,151 @@
-# BBB Infrastructure Deployment Instructions
+# BBB Infrastructure Deployment Instructions (GitOps)
+
+## Overview
+
+All infrastructure is managed through GitOps (ArgoCD). Changes are committed to the gitops repository and ArgoCD automatically syncs them to the cluster.
 
 ## Prerequisites
 
 1. Terraform applied for production (S3 bucket and IAM role created)
-2. Service account annotation updated
+2. Service account annotation updated (via GitOps)
 3. BBB images synced to ECR
+4. Secrets configured (via External Secrets Operator or manual secrets)
 
-## Deployment Order
+## GitOps Workflow
 
-### Step 1: Generate MongoDB Keyfile
+All deployments go through GitOps:
+1. **Commit changes** to gitops repository
+2. **Push to main branch** (or create PR)
+3. **ArgoCD automatically syncs** (if auto-sync enabled)
+4. **Or manually sync** via ArgoCD UI/CLI
 
-```bash
-# Generate secure keyfile for MongoDB replica set
-openssl rand -base64 756 > /tmp/mongodb-keyfile
+## Deployment Steps
 
-# Create secret from keyfile
-kubectl create secret generic mongodb-keyfile \
-  --from-file=keyfile=/tmp/mongodb-keyfile \
-  -n liveclasses
+### Step 1: Generate MongoDB Keyfile Secret
 
-# Clean up
-rm /tmp/mongodb-keyfile
+**Option A: Using External Secrets Operator (Recommended)**
+
+Create an ExternalSecret in AWS Secrets Manager and sync it:
+
+```yaml
+# File: argocd/applications/prod-workload/liveclasses/bbb/mongodb-keyfile-externalsecret.yaml
+apiVersion: external-secrets.io/v1beta1
+kind: ExternalSecret
+metadata:
+  name: mongodb-keyfile
+  namespace: liveclasses
+spec:
+  secretStoreRef:
+    name: aws-secrets-manager
+    kind: SecretStore
+  target:
+    name: mongodb-keyfile
+    creationPolicy: Owner
+  data:
+    - secretKey: keyfile
+      remoteRef:
+        key: prod/liveclasses/mongodb-keyfile
 ```
 
-### Step 2: Update MongoDB Secrets
-
-**Important:** Update secrets with production values before deploying:
-
+Generate the keyfile value:
 ```bash
-# Update mongodb-secret with real credentials
-kubectl edit secret mongodb-secret -n liveclasses
-
-# Or use External Secrets Operator to sync from AWS Secrets Manager
+openssl rand -base64 756
 ```
 
-### Step 3: Deploy MongoDB
+Store in AWS Secrets Manager as `prod/liveclasses/mongodb-keyfile`
+
+**Option B: Manual Secret (Temporary)**
+
+If not using External Secrets, update `mongodb-keyfile-secret.yaml` with the generated keyfile and commit.
+
+### Step 2: Configure Secrets
+
+**Update these files with production values or use External Secrets:**
+
+1. **mongodb-secret.yaml** - MongoDB credentials
+   - Root username/password
+   - Database user credentials
+   - Or create ExternalSecret to sync from AWS Secrets Manager
+
+2. **bbb-config-secret.yaml** - BBB API secret
+   - Generate secure salt: `openssl rand -base64 32`
+   - Or create ExternalSecret to sync from AWS Secrets Manager
+
+### Step 3: Sync BBB Images to ECR
 
 ```bash
-# Apply MongoDB resources in order
-kubectl apply -f mongodb-configmap.yaml
-kubectl apply -f mongodb-secret.yaml
-kubectl apply -f mongodb-keyfile-secret.yaml
-kubectl apply -f mongodb-service.yaml
-kubectl apply -f mongodb-statefulset.yaml
-kubectl apply -f mongodb-pdb.yaml
-
-# Wait for all pods to be ready
-kubectl wait --for=condition=ready pod -l app=mongodb -n liveclasses --timeout=300s
-```
-
-### Step 4: Initialize MongoDB Replica Set
-
-```bash
-# Run init job
-kubectl apply -f mongodb-init-job.yaml
-
-# Check job status
-kubectl get job mongodb-init-replicaset -n liveclasses
-
-# View logs
-kubectl logs job/mongodb-init-replicaset -n liveclasses
-
-# Verify replica set status
-kubectl exec -it mongodb-0 -n liveclasses -- mongosh \
-  --username="mongodb-admin" \
-  --password="YOUR_PASSWORD" \
-  --authenticationDatabase=admin \
-  --eval "rs.status()"
-```
-
-### Step 5: Deploy MongoDB Backup
-
-```bash
-# Apply backup service account
-kubectl apply -f mongodb-backup-serviceaccount.yaml
-
-# Apply backup CronJob
-kubectl apply -f mongodb-backup-cronjob.yaml
-
-# Verify CronJob
-kubectl get cronjob mongodb-backup -n liveclasses
-```
-
-### Step 6: Sync BBB Images to ECR
-
-```bash
-# Run image sync script
 cd /Users/dare/Desktop/xterns/darey-new
 ./scripts/sync-bbb-images-to-ecr.sh
 ```
 
-### Step 7: Update BBB Secrets
+This pulls BBB images from Docker Hub and pushes them to ECR. The deployment manifests already reference ECR images.
+
+### Step 4: Commit and Push to GitOps
 
 ```bash
-# Update bbb-secrets with real API secret
-kubectl edit secret bbb-secrets -n liveclasses
+cd /Users/dare/Desktop/xterns/darey-new/gitops
 
-# Or use External Secrets Operator
+# Review changes
+git status
+
+# Add all new files
+git add argocd/applications/prod-workload/liveclasses/
+
+# Commit
+git commit -m "feat: Add MongoDB HA and BBB native components"
+
+# Push to main (or create PR)
+git push origin main
 ```
 
-### Step 8: Deploy BBB Native Components
+### Step 5: ArgoCD Sync
+
+**If auto-sync is enabled** (which it is for liveclasses), ArgoCD will automatically sync within a few minutes.
+
+**To manually trigger sync:**
 
 ```bash
-# Apply BBB native API
-kubectl apply -f bbb-native-api-deployment.yaml
-kubectl apply -f bbb-api-service.yaml
+# Via ArgoCD CLI
+argocd app sync liveclasses
 
-# Apply BBB web
-kubectl apply -f bbb-web-deployment.yaml
-kubectl apply -f bbb-web-service.yaml
-
-# Apply BBB nginx
-kubectl apply -f bbb-nginx-deployment.yaml
-
-# Apply FreeSWITCH and Kurento (already using ECR images)
-kubectl apply -f freeswitch-daemonset.yaml
-kubectl apply -f kurento-daemonset.yaml
+# Or via ArgoCD UI
+# Navigate to Applications > liveclasses > Sync
 ```
 
-### Step 9: Verify Deployment
+### Step 6: Initialize MongoDB Replica Set
+
+After MongoDB StatefulSet pods are running, initialize the replica set:
+
+**Option A: One-time Job (GitOps)**
+
+The `mongodb-init-job.yaml` is included in the base kustomization. However, since it's a one-time job, you may want to apply it manually after the first sync:
 
 ```bash
+# Wait for MongoDB pods to be ready
+kubectl wait --for=condition=ready pod -l app=mongodb -n liveclasses --timeout=300s
+
+# Apply init job (one-time)
+kubectl apply -f argocd/applications/prod-workload/liveclasses/bbb/mongodb-init-job.yaml
+
+# Check status
+kubectl get job mongodb-init-replicaset -n liveclasses
+kubectl logs job/mongodb-init-replicaset -n liveclasses
+```
+
+**Option B: Add to GitOps (if you want it managed)**
+
+If you want the init job managed by GitOps, add it to `base/kustomization.yaml` and it will be created. Note: Jobs can only run once, so you may need to delete and recreate if it fails.
+
+### Step 7: Verify Deployment
+
+```bash
+# Check ArgoCD application status
+argocd app get liveclasses
+
 # Check all pods
 kubectl get pods -n liveclasses
 
-# Check MongoDB replica set
+# Check MongoDB replica set (after init)
 kubectl exec -it mongodb-0 -n liveclasses -- mongosh \
   --username="mongodb-admin" \
   --password="YOUR_PASSWORD" \
@@ -142,27 +163,83 @@ curl http://localhost:8080/health
 
 ## Restore from Backup
 
-To restore MongoDB from a backup:
+To restore MongoDB from a backup, create a restore job:
+
+**Option A: Manual Job (One-time)**
 
 ```bash
-# Edit restore job with backup date and time
-kubectl create job mongodb-restore-manual \
-  --from=cronjob/mongodb-backup \
-  -n liveclasses
+# Edit mongodb-restore-job.yaml with RESTORE_DATE and RESTORE_TIME
+# Then apply manually
+kubectl apply -f argocd/applications/prod-workload/liveclasses/bbb/mongodb-restore-job.yaml
 
-# Edit the job to set RESTORE_DATE and RESTORE_TIME
-kubectl edit job mongodb-restore-manual -n liveclasses
-
-# Set environment variables:
-# RESTORE_DATE=2025-12-12
-# RESTORE_TIME=020000
-
-# Apply and monitor
-kubectl apply -f mongodb-restore-job.yaml
+# Monitor
 kubectl logs job/mongodb-restore -n liveclasses -f
 ```
 
+**Option B: Add to GitOps**
+
+If you want restore jobs managed by GitOps, you can add the restore job to kustomization, but remember to remove it after restore completes.
+
+## Monitoring ArgoCD Sync
+
+```bash
+# Watch ArgoCD sync status
+argocd app get liveclasses --refresh
+
+# View sync history
+argocd app history liveclasses
+
+# View application resources
+argocd app resources liveclasses
+```
+
 ## Troubleshooting
+
+### ArgoCD Not Syncing
+
+```bash
+# Check application status
+argocd app get liveclasses
+
+# Check for sync errors
+argocd app get liveclasses | grep -A 10 "Status"
+
+# Force refresh
+argocd app get liveclasses --refresh
+```
+
+### MongoDB Replica Set Not Initialized
+
+The init job may need to be run manually after first deployment. See Step 6.
+
+### Secrets Not Syncing
+
+If using External Secrets Operator:
+```bash
+# Check ExternalSecret status
+kubectl get externalsecret -n liveclasses
+
+# Check SecretStore
+kubectl get secretstore -n liveclasses
+
+# View ExternalSecret events
+kubectl describe externalsecret mongodb-secret -n liveclasses
+```
+
+## Troubleshooting
+
+### ArgoCD Sync Issues
+
+```bash
+# Check application sync status
+argocd app get liveclasses
+
+# View sync operation details
+argocd app get liveclasses --refresh
+
+# Check for resource conflicts
+argocd app resources liveclasses
+```
 
 ### MongoDB Replica Set Not Initialized
 
@@ -170,7 +247,7 @@ kubectl logs job/mongodb-restore -n liveclasses -f
 # Check init job logs
 kubectl logs job/mongodb-init-replicaset -n liveclasses
 
-# Manually initialize if needed
+# Manually initialize if needed (one-time)
 kubectl exec -it mongodb-0 -n liveclasses -- mongosh \
   --username="mongodb-admin" \
   --password="YOUR_PASSWORD" \
@@ -189,6 +266,9 @@ kubectl logs mongodb-0 -n liveclasses
 
 # Verify PVCs
 kubectl get pvc -n liveclasses
+
+# Check ArgoCD sync status for these resources
+argocd app resources liveclasses | grep mongodb
 ```
 
 ### BBB API Cannot Connect to MongoDB
@@ -201,16 +281,39 @@ kubectl exec -it <bbb-api-pod> -n liveclasses -- \
   --password="YOUR_PASSWORD"
 ```
 
+### Secrets Not Syncing (External Secrets)
+
+```bash
+# Check ExternalSecret status
+kubectl get externalsecret -n liveclasses
+
+# View ExternalSecret details
+kubectl describe externalsecret mongodb-secret -n liveclasses
+
+# Check SecretStore
+kubectl get secretstore -n liveclasses
+```
+
 ## Monitoring
 
-- MongoDB metrics: Available via Prometheus (if ServiceMonitor created)
-- Backup status: Check CronJob logs
-- Replica set health: `rs.status()` command
+- **ArgoCD**: Application sync status and health
+- **MongoDB metrics**: Available via Prometheus (if ServiceMonitor created)
+- **Backup status**: Check CronJob logs via `kubectl logs cronjob/mongodb-backup`
+- **Replica set health**: `rs.status()` command
 
 ## Maintenance
 
 - **Daily**: Review backup job logs
-- **Weekly**: Verify replica set health
+- **Weekly**: Verify replica set health and ArgoCD sync status
 - **Monthly**: Test restore procedure
 - **Quarterly**: Review and update MongoDB version
+
+## GitOps Best Practices
+
+1. **Never use kubectl apply** - All changes go through GitOps
+2. **Review changes** before committing to main branch
+3. **Use PRs** for production changes when possible
+4. **Monitor ArgoCD** sync status after pushing changes
+5. **Use External Secrets** for sensitive data instead of committing secrets
+6. **Test in staging** first if available
 

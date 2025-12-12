@@ -17,4 +17,13 @@ resources:
   - ../bbb/freeswitch-service.yaml
   - ../bbb/kurento-daemonset.yaml
   - ../bbb/kurento-service.yaml
-
+  - ../bbb/mongodb-statefulset.yaml
+  - ../bbb/mongodb-service.yaml
+  - ../bbb/mongodb-configmap.yaml
+  - ../bbb/mongodb-secret.yaml
+  - ../bbb/mongodb-keyfile-externalsecret.yaml
+  - ../bbb/mongodb-secret-externalsecret.yaml
+  - ../bbb/mongodb-pdb.yaml
+  - ../bbb/mongodb-backup-cronjob.yaml
+  - ../bbb/mongodb-backup-serviceaccount.yaml
+  - ../bbb/bbb-secret-externalsecret.yaml
