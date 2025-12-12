@@ -11,4 +11,3 @@ metadata:
     argocd.argoproj.io/sync-wave: "-1"
 data:
   note: "Old jitsi-streaming-ingress should be deleted - replaced by liveclasses-streaming-ingress"
-
