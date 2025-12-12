@@ -28,50 +28,50 @@ spec:
                       values:
                         - mongodb
                 topologyKey: kubernetes.io/hostname
-          initContainers:
-            - name: fix-keyfile-permissions
-              image: busybox:1.36
-              command:
-                - sh
-                - -c
-                - |
-                  chmod 600 /etc/mongodb-key/keyfile
-                  echo "Keyfile permissions fixed"
-              volumeMounts:
-                - name: mongodb-key
-                  mountPath: /etc/mongodb-key
-            - name: init-mongodb
-              image: mongo:7.0
-              command:
-                - bash
-                - -c
-                - |
-                  set -e
-                  if [ "$(hostname)" == "mongodb-0" ]; then
-                    echo "Primary node, skipping init"
-                    exit 0
-                  fi
-                  echo "Waiting for primary node to be ready..."
-                  until mongosh --host mongodb-0.mongodb.liveclasses.svc.cluster.local:27017 --eval "db.adminCommand('ping')" --quiet; do
-                    echo "Waiting for primary..."
-                    sleep 2
-                  done
-                  echo "Primary node is ready"
-              env:
-                - name: MONGO_INITDB_ROOT_USERNAME
-                  valueFrom:
-                    secretKeyRef:
-                      name: mongodb-secret
-                      key: root-username
-                - name: MONGO_INITDB_ROOT_PASSWORD
-                  valueFrom:
-                    secretKeyRef:
-                      name: mongodb-secret
-                      key: root-password
-              volumeMounts:
-                - name: mongodb-key
-                  mountPath: /etc/mongodb-key
-                  readOnly: true
+      initContainers:
+        - name: fix-keyfile-permissions
+          image: busybox:1.36
+          command:
+            - sh
+            - -c
+            - |
+              chmod 600 /etc/mongodb-key/keyfile
+              echo "Keyfile permissions fixed"
+          volumeMounts:
+            - name: mongodb-key
+              mountPath: /etc/mongodb-key
+        - name: init-mongodb
+          image: mongo:7.0
+          command:
+            - bash
+            - -c
+            - |
+              set -e
+              if [ "$(hostname)" == "mongodb-0" ]; then
+                echo "Primary node, skipping init"
+                exit 0
+              fi
+              echo "Waiting for primary node to be ready..."
+              until mongosh --host mongodb-0.mongodb.liveclasses.svc.cluster.local:27017 --eval "db.adminCommand('ping')" --quiet; do
+                echo "Waiting for primary..."
+                sleep 2
+              done
+              echo "Primary node is ready"
+          env:
+            - name: MONGO_INITDB_ROOT_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: mongodb-secret
+                  key: root-username
+            - name: MONGO_INITDB_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mongodb-secret
+                  key: root-password
+          volumeMounts:
+            - name: mongodb-key
+              mountPath: /etc/mongodb-key
+              readOnly: true
       containers:
         - name: mongodb
           image: mongo:7.0
