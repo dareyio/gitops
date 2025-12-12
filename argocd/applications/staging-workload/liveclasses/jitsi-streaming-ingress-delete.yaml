@@ -1,0 +1,14 @@
+# This file marks the old jitsi-streaming-ingress for deletion
+# It should be removed by ArgoCD when Jitsi is disabled
+# The new liveclasses-streaming-ingress replaces it
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: jitsi-ingress-deleted
+  namespace: liveclasses
+  annotations:
+    argocd.argoproj.io/sync-wave: "-1"
+data:
+  note: "Old jitsi-streaming-ingress should be deleted - replaced by liveclasses-streaming-ingress"
+
