@@ -32,7 +32,15 @@ spec:
                 name: jitsi-web
                 port:
                   number: 80
-          # BBB web interface
+          # BBB API service
+          - path: /bbb/api
+            pathType: Prefix
+            backend:
+              service:
+                name: liveclasses-bbb-api
+                port:
+                  number: 8080
+          # BBB web interface (when deployed)
           - path: /bbb
             pathType: Prefix
             backend:
@@ -40,15 +48,15 @@ spec:
                 name: bbb-web
                 port:
                   number: 80
-          # Default root path - routes to BBB (can be changed by updating this ingress)
+          # Default root path - routes to BBB API (can be changed by updating this ingress)
           # To change default provider, update the service name below
           - path: /
             pathType: Prefix
             backend:
               service:
-                name: bbb-web
+                name: liveclasses-bbb-api
                 port:
-                  number: 80
+                  number: 8080
   tls:
     - hosts:
         - streaming.talentos.darey.io
