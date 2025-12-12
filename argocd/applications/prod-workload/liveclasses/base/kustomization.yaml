@@ -4,26 +4,29 @@ kind: Kustomization
 namespace: liveclasses
 
 resources:
-  - ../namespace.yaml
-  - ../configmap.yaml
-  - ../liveclasses-recordings-serviceaccount.yaml
-  - ../ingress.yaml
-  - ../bbb/bbb-api-deployment.yaml
-  - ../bbb/bbb-api-service.yaml
-  - ../bbb/bbb-web-deployment.yaml
-  - ../bbb/bbb-web-service.yaml
-  - ../bbb/bbb-nginx-deployment.yaml
-  - ../bbb/freeswitch-daemonset.yaml
-  - ../bbb/freeswitch-service.yaml
-  - ../bbb/kurento-daemonset.yaml
-  - ../bbb/kurento-service.yaml
-  - ../bbb/mongodb-statefulset.yaml
-  - ../bbb/mongodb-service.yaml
-  - ../bbb/mongodb-configmap.yaml
-  - ../bbb/mongodb-secret.yaml
-  - ../bbb/mongodb-keyfile-externalsecret.yaml
-  - ../bbb/mongodb-secret-externalsecret.yaml
-  - ../bbb/mongodb-pdb.yaml
-  - ../bbb/mongodb-backup-cronjob.yaml
-  - ../bbb/mongodb-backup-serviceaccount.yaml
-  - ../bbb/bbb-secret-externalsecret.yaml
+  - ../../namespace.yaml
+  - ../../configmap.yaml
+  - ../../liveclasses-recordings-serviceaccount.yaml
+  - ../../ingress.yaml
+  - ../bbb-api-deployment.yaml
+  - ../bbb-api-service.yaml
+  - ../bbb-web-deployment.yaml
+  - ../bbb-web-service.yaml
+  - ../bbb-nginx-deployment.yaml
+  - ../freeswitch-daemonset.yaml
+  - ../freeswitch-service.yaml
+  - ../kurento-daemonset.yaml
+  - ../kurento-service.yaml
+  - ../mongodb-statefulset.yaml
+  - ../mongodb-service.yaml
+  - ../mongodb-configmap.yaml
+  - ../mongodb-secret.yaml
+  - ../mongodb-keyfile-externalsecret.yaml
+  - ../mongodb-secret-externalsecret.yaml
+  - ../mongodb-pdb.yaml
+  - ../mongodb-backup-cronjob.yaml
+  - ../mongodb-backup-serviceaccount.yaml
+  - ../bbb-secret-externalsecret.yaml
+
+# Note: Jitsi resources are intentionally excluded from base
+# They should only be included when explicitly enabled via overlay

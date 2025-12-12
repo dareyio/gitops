@@ -3,11 +3,12 @@ kind: Kustomization
 
 namespace: liveclasses
 
-# Use base kustomization which excludes Jitsi resources
+# Include base resources (BBB, MongoDB, shared resources)
+# Base kustomization excludes Jitsi resources
 resources:
   - base
 
-# Conditionally include Jitsi resources based on ConfigMap value
-# Since ConfigMap shows jitsi_enabled: "false", we don't include Jitsi resources
-# This ensures Jitsi deployments are pruned when disabled
+# Jitsi resources are NOT included here - they will be pruned by ArgoCD
+# To enable Jitsi, use the overlay: overlays/jitsi-enabled
+# Or manually add Jitsi resources to this kustomization
 
