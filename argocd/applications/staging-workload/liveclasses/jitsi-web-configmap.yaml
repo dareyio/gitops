@@ -48,7 +48,8 @@ data:
         // Connection settings - use BOSH instead of WebSocket
         hosts: {
             domain: 'streaming-stg.talentos.darey.io',
-            muc: 'conference.streaming-stg.talentos.darey.io'
+            muc: 'conference.streaming-stg.talentos.darey.io',
+            focus: 'focus.streaming-stg.talentos.darey.io'
         },
         bosh: '/http-bind',
         constraints: {
@@ -100,7 +101,7 @@ data:
         
         // Force camera initialization
         enableLayerSuspension: false,
-        disableSimulcast: true,
+        disableSimulcast: false,
         
         // Additional camera settings for auto-start
         startAudioOnly: false,
@@ -131,7 +132,38 @@ data:
         customScripts: [
             'auto-tileview.js',
             'move-sidebar.js'
-        ]
+        ],
+        
+        // Screen sharing configuration
+        desktopSharingFrameRate: {
+            min: 5,
+            max: 30
+        },
+        enableScreensharing: true,
+        enableDesktopSharing: true,
+        desktopSharingSources: ['screen', 'window', 'tab'],
+        
+        // WebRTC configuration for screen sharing
+        p2p: {
+            enabled: false,
+            stunServers: [
+                { urls: 'stun:stun.l.google.com:19302' }
+            ]
+        },
+        
+        // ICE servers will be fetched from REST API and set dynamically
+        // See head-injection.yaml for the script that fetches credentials
+        iceServers: [],
+        
+        // Enable screen sharing audio
+        enableScreensharingAudio: true,
+        
+        // Screen sharing display configuration
+        disableScreensharing: false,
+        
+        // Ensure screen share tracks are properly handled
+        enableRemb: true,
+        enableTcc: true
     };
 
   interface_config.js: |

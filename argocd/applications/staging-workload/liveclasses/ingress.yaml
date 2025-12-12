@@ -4,26 +4,26 @@ metadata:
   name: jitsi-streaming-ingress
   namespace: liveclasses
   annotations:
-    nginx.ingress.kubernetes.io/rewrite-target: /
     nginx.ingress.kubernetes.io/ssl-redirect: "true"
     nginx.ingress.kubernetes.io/backend-protocol: "HTTP"
-    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
+    nginx.ingress.kubernetes.io/proxy-buffering: "off"
     cert-manager.io/cluster-issuer: letsencrypt-prod
-    external-dns.alpha.kubernetes.io/hostname: streaming-stg.talentos.darey.io
-    external-dns.alpha.kubernetes.io/manage: "true"
+    acme.cert-manager.io/http01-ingress-class: nginx
 spec:
   ingressClassName: nginx
   rules:
     - host: streaming-stg.talentos.darey.io
       http:
         paths:
-          - path: /http-bind
+          - path: /api/turn-credentials
             pathType: Prefix
             backend:
               service:
-                name: prosody
+                name: turn-credentials-api
                 port:
-                  number: 5280
+                  number: 80
           - path: /
             pathType: Prefix
             backend:

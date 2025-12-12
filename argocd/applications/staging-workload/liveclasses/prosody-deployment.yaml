@@ -27,6 +27,7 @@ spec:
           ports:
             - containerPort: 5222
             - containerPort: 5280
+            - containerPort: 5347
           env:
             - name: JICOFO_AUTH_PASSWORD
               valueFrom:

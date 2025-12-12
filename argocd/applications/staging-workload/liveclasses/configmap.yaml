@@ -16,8 +16,30 @@ data:
       -- Enable JWT authentication module
       modules_enabled = {
         "token_verification";
+        -- "turncredentials";  -- Disabled: TURN not needed
       }
       
       -- Accept tokens from darey-io issuer
       accepted_issuers = { "darey-io" }
       accepted_audiences = { "jitsi" }
+    
+    VirtualHost "auth.meet.jitsi"
+      authentication = "internal_plain"
+    
+    Component "focus.streaming-stg.talentos.darey.io" "client_proxy"
+      target_address = "focus@auth.meet.jitsi"
+      component_secret = "JICOFO_AUTH_PASSWORD"
+    
+    Component "conference.streaming-stg.talentos.darey.io" "muc"
+      restrict_room_creation = false
+      muc_room_locking = false
+      muc_room_default_public_jids = true
+      max_history_messages = 50
+      max_occupants = 100
+    
+    Component "internal-muc.meet.jitsi" "muc"
+      restrict_room_creation = false
+      muc_room_locking = false
+      muc_room_default_public_jids = true
+      max_history_messages = 50
+      max_occupants = 100

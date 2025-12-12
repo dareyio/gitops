@@ -45,6 +45,30 @@ spec:
                 secretKeyRef:
                   name: jitsi-auth-secrets
                   key: JICOFO_AUTH_PASSWORD
+            - name: XMPP_SERVER
+              value: prosody.liveclasses.svc.cluster.local
+            - name: XMPP_DOMAIN
+              value: streaming-stg.talentos.darey.io
+            - name: JICOFO_HOST
+              value: focus.streaming-stg.talentos.darey.io
+            - name: JICOFO_HOSTNAME
+              value: focus.streaming-stg.talentos.darey.io
+            - name: JICOFO_PORT
+              value: "5347"
+            - name: JICOFO_MUC_DOMAIN
+              value: conference.streaming-stg.talentos.darey.io
+            - name: JICOFO_BRIDGE_MUC
+              value: jvbbrewery@internal-muc.meet.jitsi
+            - name: JICOFO_AUTH_DOMAIN
+              value: auth.meet.jitsi
+            - name: JICOFO_AUTH_USER
+              value: focus
+            - name: JICOFO_ENABLE_AUTO_HEALTH_CHECK
+              value: "true"
+            - name: JICOFO_ENABLE_BRIDGE_HEALTH_CHECKS
+              value: "true"
+            - name: JAVA_SYS_PROPS
+              value: "-Dorg.jitsi.jicofo.TURN_DISABLE_AUTO_DISCOVER=true"
 
 ---
 apiVersion: v1

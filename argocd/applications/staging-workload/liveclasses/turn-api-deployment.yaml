@@ -1,0 +1,70 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: turn-credentials-api
+  namespace: liveclasses
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: turn-credentials-api
+  template:
+    metadata:
+      labels:
+        app: turn-credentials-api
+    spec:
+      containers:
+        - name: api
+          image: 586794457112.dkr.ecr.eu-west-2.amazonaws.com/jisti-turn-app:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 3000
+              name: http
+          env:
+            - name: PORT
+              value: "3000"
+            - name: TURN_SERVER
+              value: "a1fb1460b774b4702869d629af6eb4e8-469b1b908cf26069.elb.eu-west-2.amazonaws.com"
+            - name: TURN_PORT
+              value: "3478"
+            - name: TURN_USERNAME
+              value: "turn"
+            - name: TURN_PASSWORD
+              value: "securejvb"
+          resources:
+            requests:
+              memory: "64Mi"
+              cpu: "50m"
+            limits:
+              memory: "128Mi"
+              cpu: "100m"
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 3000
+            initialDelaySeconds: 10
+            periodSeconds: 30
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 3000
+            initialDelaySeconds: 5
+            periodSeconds: 10
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: turn-credentials-api
+  namespace: liveclasses
+spec:
+  selector:
+    app: turn-credentials-api
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 3000
+      name: http
+  type: ClusterIP
+

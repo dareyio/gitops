@@ -96,10 +96,10 @@ spec:
             #   value: "1"
           volumeMounts:
             - name: config-volume
-              mountPath: /usr/share/jitsi-meet/config.js
+              mountPath: /config/config.js
               subPath: config.js
             - name: config-volume
-              mountPath: /usr/share/jitsi-meet/interface_config.js
+              mountPath: /config/interface_config.js
               subPath: interface_config.js
             - name: custom-css
               mountPath: /usr/share/jitsi-meet/css/custom.css
