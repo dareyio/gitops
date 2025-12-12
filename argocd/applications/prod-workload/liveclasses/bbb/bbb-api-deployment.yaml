@@ -1,43 +1,63 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: bbb-api
+  name: liveclasses-bbb-api
   namespace: liveclasses
   labels:
-    app: bbb-api
+    app: liveclasses-bbb-api
 spec:
   replicas: 2
   selector:
     matchLabels:
-      app: bbb-api
+      app: liveclasses-bbb-api
   template:
     metadata:
       labels:
-        app: bbb-api
+        app: liveclasses-bbb-api
     spec:
+      serviceAccountName: liveclasses-recordings
       containers:
-        - name: bbb-api
-          image: bigbluebutton/bigbluebutton:3.0.4
-          command: ["/usr/bin/bbb-conf", "--setip", "streaming.talentos.darey.io"]
+        - name: api
+          image: 586794457112.dkr.ecr.eu-west-2.amazonaws.com/liveclasses/bbb-api:latest
+          imagePullPolicy: Always
           ports:
-            - containerPort: 8090
-              name: api
+            - containerPort: 8080
+              name: http
           env:
-            - name: BBB_API_SECRET
+            - name: PORT
+              value: "8080"
+            - name: ENVIRONMENT
+              valueFrom:
+                configMapKeyRef:
+                  name: liveclasses-config
+                  key: environment
+            - name: BBB_API_URL
+              value: "http://bbb-api:8090"
+            - name: BBB_SECRET
               valueFrom:
                 secretKeyRef:
                   name: bbb-secrets
                   key: api-secret
-            - name: MONGODB_URL
+            - name: S3_BUCKET_NAME
               valueFrom:
                 configMapKeyRef:
-                  name: bbb-config
-                  key: mongodb-url
-            - name: REDIS_URL
+                  name: liveclasses-config
+                  key: s3_bucket_name
+            - name: S3_REGION
               valueFrom:
                 configMapKeyRef:
-                  name: bbb-config
-                  key: redis-url
+                  name: liveclasses-config
+                  key: s3_region
+            - name: SUPABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: supabase-secrets
+                  key: SUPABASE_URL
+            - name: SUPABASE_SERVICE_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: supabase-secrets
+                  key: SUPABASE_SERVICE_KEY
           resources:
             requests:
               cpu: 500m
@@ -47,28 +67,48 @@ spec:
               memory: 2Gi
           livenessProbe:
             httpGet:
-              path: /api/health
-              port: 8090
-            initialDelaySeconds: 60
-            periodSeconds: 15
+              path: /health
+              port: 8080
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
           readinessProbe:
             httpGet:
-              path: /api/health
-              port: 8090
-            initialDelaySeconds: 20
-            periodSeconds: 10
+              path: /health
+              port: 8080
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            timeoutSeconds: 3
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: liveclasses-bbb-api
+  namespace: liveclasses
+  labels:
+    app: liveclasses-bbb-api
+spec:
+  type: ClusterIP
+  selector:
+    app: liveclasses-bbb-api
+  ports:
+    - name: http
+      port: 8080
+      targetPort: 8080
+      protocol: TCP
 
 ---
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
-  name: bbb-api-hpa
+  name: liveclasses-bbb-api-hpa
   namespace: liveclasses
 spec:
   scaleTargetRef:
     apiVersion: apps/v1
     kind: Deployment
-    name: bbb-api
+    name: liveclasses-bbb-api
   minReplicas: 2
   maxReplicas: 5
   metrics:
