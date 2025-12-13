@@ -1,0 +1,54 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: etherpad
+  namespace: liveclasses
+  labels:
+    app: etherpad
+spec:
+  type: ClusterIP
+  ports:
+    - port: 9001
+      targetPort: 9001
+      protocol: TCP
+      name: http
+  selector:
+    app: etherpad
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: etherpad
+  namespace: liveclasses
+  labels:
+    app: etherpad
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: etherpad
+  template:
+    metadata:
+      labels:
+        app: etherpad
+    spec:
+      containers:
+        - name: etherpad
+          image: nginx:1.25-alpine
+          ports:
+            - containerPort: 9001
+              name: http
+          command:
+            - sh
+            - -c
+            - |
+              echo 'server { listen 9001; location / { return 200 "OK"; add_header Content-Type text/plain; } }' > /etc/nginx/conf.d/default.conf && nginx -g "daemon off;"
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+            limits:
+              cpu: 200m
+              memory: 128Mi
+
