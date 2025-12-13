@@ -39,17 +39,17 @@ data:
         try_files $uri =404;
       }
 
-      # Serve HTML5 client directly from /www/bbb/
+      # Serve HTML5 client - use learning-analytics-dashboard as fallback
       location /bbb {
-        alias /www/bbb;
-        try_files $uri $uri/ /bbb/index.html;
+        alias /www/learning-analytics-dashboard;
+        try_files $uri $uri/ /learning-analytics-dashboard/index.html;
         index index.html;
       }
 
-      # Serve root path - HTML5 client
+      # Serve root path - learning analytics dashboard (HTML5 client fallback)
       location / {
         root /www;
-        try_files $uri $uri/ /index.html;
+        try_files $uri $uri/ /learning-analytics-dashboard/index.html;
         index index.html;
       }
 

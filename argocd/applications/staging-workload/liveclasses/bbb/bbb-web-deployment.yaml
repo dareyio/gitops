@@ -28,11 +28,43 @@ spec:
               echo 'location = /demo/ { return 404; }' >> /tmp/demo.nginx
               echo 'location /demo { return 404; }' >> /tmp/demo.nginx
               
+              # Override default.conf to serve HTML5 directly instead of proxying to greenlight
+              cat > /tmp/default.conf << 'DEFAULTEOF'
+              server {
+                  listen 80;
+                  server_name _;
+                  root /www;
+                  
+                  location /bbb {
+                      alias /www/learning-analytics-dashboard;
+                      try_files $uri $uri/ /learning-analytics-dashboard/index.html;
+                      index index.html;
+                  }
+                  
+                  location / {
+                      root /www;
+                      try_files $uri $uri/ /learning-analytics-dashboard/index.html;
+                      index index.html;
+                  }
+                  
+                  location /bigbluebutton/api {
+                      proxy_pass http://bbb-api:8090;
+                      proxy_set_header Host $host;
+                      proxy_set_header X-Real-IP $remote_addr;
+                      proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                      proxy_set_header X-Forwarded-Proto $scheme;
+                      proxy_http_version 1.1;
+                  }
+              }
+              DEFAULTEOF
+              
               # Create entrypoint script that runs BEFORE docker-entrypoint.sh processes configs
               echo '#!/bin/sh' > /tmp/fix-bigbluebutton.sh
               echo '# Fix bigbluebutton nginx config before nginx starts' >> /tmp/fix-bigbluebutton.sh
               echo 'find /etc/nginx -type f -name "*bigbluebutton*" -exec sed -i "s/listen 10\.7\.7\.1:8185;/listen 0.0.0.0:8185;/g" {} \;' >> /tmp/fix-bigbluebutton.sh
               echo 'find /etc/nginx -type f -name "*bigbluebutton*" -exec sed -i "s/listen 127\.0\.0\.1:8185;/listen 0.0.0.0:8185;/g" {} \;' >> /tmp/fix-bigbluebutton.sh
+              echo '# Override default.conf after docker-entrypoint processes it' >> /tmp/fix-bigbluebutton.sh
+              echo 'cp /tmp/default.conf /etc/nginx/conf.d/default.conf' >> /tmp/fix-bigbluebutton.sh
               chmod +x /tmp/fix-bigbluebutton.sh
           volumeMounts:
             - name: nginx-config
@@ -61,6 +93,10 @@ spec:
               find /etc/nginx -type f 2>/dev/null | xargs grep -l "10\.7\.7\.1:8185" 2>/dev/null | while read file; do
                 sed -i "s/listen 10\.7\.7\.1:8185;/listen 0.0.0.0:8185;/g" "$file"
               done
+              # Override default.conf to serve HTML5 directly
+              if [ -f /tmp/default.conf ]; then
+                cp /tmp/default.conf /etc/nginx/conf.d/default.conf
+              fi
               # Execute original entrypoint
               exec /docker-entrypoint.sh nginx -g "daemon off;"
           ports:
