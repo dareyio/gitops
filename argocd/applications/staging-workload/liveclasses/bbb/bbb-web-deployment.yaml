@@ -93,12 +93,49 @@ spec:
               find /etc/nginx -type f 2>/dev/null | xargs grep -l "10\.7\.7\.1:8185" 2>/dev/null | while read file; do
                 sed -i "s/listen 10\.7\.7\.1:8185;/listen 0.0.0.0:8185;/g" "$file"
               done
-              # Override default.conf to serve HTML5 directly (after entrypoint processes it)
-              sleep 2
-              if [ -f /tmp/default.conf ]; then
-                cp /tmp/default.conf /etc/nginx/conf.d/default.conf
-                echo "Default.conf overridden"
-              fi
+              # Create default.conf directly to serve HTML5 instead of proxying to greenlight
+              # This runs before docker-entrypoint.sh processes configs
+              cat > /etc/nginx/conf.d/default.conf << 'NGINXEOF'
+              server {
+                  listen 48087 default_server;
+                  listen [::]:48087 default_server;
+                  server_name _;
+                  root /www;
+                  access_log /dev/stdout;
+                  index index.html;
+                  
+                  # Redirect without trailing slash
+                  location = /learning-analytics-dashboard {
+                      return 301 /learning-analytics-dashboard/;
+                  }
+                  
+                  # Serve dashboard - use root instead of alias for better compatibility
+                  location /learning-analytics-dashboard/ {
+                      root /www;
+                      try_files $uri $uri/ /learning-analytics-dashboard/index.html;
+                  }
+                  
+                  location /bbb {
+                      root /www;
+                      try_files $uri $uri/ /learning-analytics-dashboard/index.html;
+                  }
+                  
+                  location / {
+                      root /www;
+                      try_files $uri $uri/ /learning-analytics-dashboard/index.html;
+                  }
+                  
+                  location /bigbluebutton/api {
+                      proxy_pass http://bbb-api:8090/bigbluebutton/api;
+                      proxy_set_header Host $host;
+                      proxy_set_header X-Real-IP $remote_addr;
+                      proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                      proxy_set_header X-Forwarded-Proto $scheme;
+                      proxy_http_version 1.1;
+                  }
+              }
+              NGINXEOF
+              echo "Default.conf created - serving HTML5 directly"
               # Execute original entrypoint
               exec /docker-entrypoint.sh nginx -g "daemon off;"
           ports:
