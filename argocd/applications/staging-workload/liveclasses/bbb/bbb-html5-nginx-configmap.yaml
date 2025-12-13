@@ -7,7 +7,13 @@ data:
   demo.nginx: |
     # Demo configuration disabled for Kubernetes deployment
     # Original config referenced host.docker.internal which doesn't exist in K8s
-    # location /demo {
-    #   proxy_pass http://host.docker.internal:8001;
-    # }
+    # Using a dummy location that returns 404 instead
+    location = /demo/ {
+      return 404 "Demo service not available in Kubernetes deployment";
+      add_header Content-Type text/plain;
+    }
+    location /demo {
+      return 404 "Demo service not available in Kubernetes deployment";
+      add_header Content-Type text/plain;
+    }
 

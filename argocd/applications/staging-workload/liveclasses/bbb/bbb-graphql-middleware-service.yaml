@@ -1,0 +1,54 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: bbb-graphql-middleware
+  namespace: liveclasses
+  labels:
+    app: bbb-graphql-middleware
+spec:
+  type: ClusterIP
+  ports:
+    - port: 4000
+      targetPort: 4000
+      protocol: TCP
+      name: http
+  selector:
+    app: bbb-graphql-middleware
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bbb-graphql-middleware
+  namespace: liveclasses
+  labels:
+    app: bbb-graphql-middleware
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: bbb-graphql-middleware
+  template:
+    metadata:
+      labels:
+        app: bbb-graphql-middleware
+    spec:
+      containers:
+        - name: middleware
+          image: nginx:1.25-alpine
+          ports:
+            - containerPort: 4000
+              name: http
+          command:
+            - sh
+            - -c
+            - |
+              echo 'server { listen 4000; location / { return 200 "OK"; add_header Content-Type text/plain; } }' > /etc/nginx/conf.d/default.conf && nginx -g "daemon off;"
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+            limits:
+              cpu: 200m
+              memory: 128Mi
+

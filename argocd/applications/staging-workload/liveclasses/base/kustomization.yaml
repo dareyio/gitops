@@ -30,6 +30,8 @@ resources:
   - ../bbb/bbb-native-api-deployment.yaml
   - ../bbb/bbb-graphql-server-service.yaml
   - ../bbb/bbb-demo-service.yaml
+  - ../bbb/bbb-html5-nginx-configmap.yaml
+  - ../bbb/bbb-graphql-middleware-service.yaml
 # Note: Jitsi resources are intentionally excluded from base
 # They should only be included when explicitly enabled via overlay
 
