@@ -64,7 +64,7 @@ spec:
               # Execute original entrypoint
               exec /docker-entrypoint.sh nginx -g "daemon off;"
           ports:
-            - containerPort: 80
+            - containerPort: 48087
               name: http
             - containerPort: 8185
               name: api
@@ -91,7 +91,7 @@ spec:
           livenessProbe:
             httpGet:
               path: /
-              port: 80
+              port: 48087
             initialDelaySeconds: 60
             periodSeconds: 30
             timeoutSeconds: 10
@@ -99,7 +99,7 @@ spec:
           readinessProbe:
             httpGet:
               path: /
-              port: 80
+              port: 48087
             initialDelaySeconds: 30
             periodSeconds: 10
             timeoutSeconds: 5
