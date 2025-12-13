@@ -22,6 +22,7 @@ spec:
             - sh
             - -c
             - |
+              # Fix demo.nginx
               echo '# Demo configuration disabled for Kubernetes' > /tmp/demo.nginx
               echo '# Original config referenced host.docker.internal which does not exist in K8s' >> /tmp/demo.nginx
               echo 'location = /demo/ { return 404; }' >> /tmp/demo.nginx
@@ -40,6 +41,9 @@ spec:
             - name: nginx-config
               mountPath: /etc/nginx/bbb/demo.nginx
               subPath: demo.nginx
+            - name: bigbluebutton-config
+              mountPath: /etc/nginx/bigbluebutton
+              subPath: bigbluebutton
           env:
             - name: NODE_ENV
               value: "production"
@@ -69,6 +73,9 @@ spec:
       volumes:
         - name: nginx-config
           emptyDir: {}
+        - name: bigbluebutton-config
+          configMap:
+            name: bbb-bigbluebutton-nginx
 
 ---
 apiVersion: autoscaling/v2
