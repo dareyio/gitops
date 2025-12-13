@@ -43,6 +43,8 @@ spec:
                   key: api-secret
             - name: BBB_URL
               value: "https://streaming-stg.talentos.darey.io"
+            - name: ENABLE_RECORDING
+              value: "true"
           resources:
             requests:
               cpu: 500m

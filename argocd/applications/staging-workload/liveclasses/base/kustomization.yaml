@@ -28,6 +28,7 @@ resources:
   - ../bbb/mongodb-backup-serviceaccount.yaml
   - ../bbb/bbb-secret-externalsecret.yaml
   - ../bbb/bbb-native-api-deployment.yaml
+  - ../bbb/bbb-graphql-server-service.yaml
 # Note: Jitsi resources are intentionally excluded from base
 # They should only be included when explicitly enabled via overlay
 
