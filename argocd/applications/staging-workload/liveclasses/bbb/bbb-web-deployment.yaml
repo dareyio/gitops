@@ -15,6 +15,20 @@ spec:
       labels:
         app: bbb-web
     spec:
+      initContainers:
+        - name: fix-nginx-config
+          image: busybox:1.36
+          command:
+            - sh
+            - -c
+            - |
+              echo '# Demo configuration disabled for Kubernetes' > /tmp/demo.nginx
+              echo '# Original config referenced host.docker.internal which does not exist in K8s' >> /tmp/demo.nginx
+              echo 'location = /demo/ { return 404; }' >> /tmp/demo.nginx
+              echo 'location /demo { return 404; }' >> /tmp/demo.nginx
+          volumeMounts:
+            - name: nginx-config
+              mountPath: /tmp
       containers:
         - name: bbb-html5
           image: 586794457112.dkr.ecr.eu-west-2.amazonaws.com/liveclasses/bbb-html5:3.0.4
@@ -23,7 +37,7 @@ spec:
             - containerPort: 3000
               name: http
           volumeMounts:
-            - name: nginx-override
+            - name: nginx-config
               mountPath: /etc/nginx/bbb/demo.nginx
               subPath: demo.nginx
           env:
@@ -53,9 +67,8 @@ spec:
             initialDelaySeconds: 10
             periodSeconds: 5
       volumes:
-        - name: nginx-override
-          configMap:
-            name: bbb-html5-nginx-override
+        - name: nginx-config
+          emptyDir: {}
 
 ---
 apiVersion: autoscaling/v2
