@@ -64,8 +64,10 @@ spec:
               # Execute original entrypoint
               exec /docker-entrypoint.sh nginx -g "daemon off;"
           ports:
-            - containerPort: 3000
+            - containerPort: 80
               name: http
+            - containerPort: 8185
+              name: api
           volumeMounts:
             - name: nginx-config
               mountPath: /etc/nginx/bbb/demo.nginx
@@ -88,16 +90,18 @@ spec:
               memory: 2Gi
           livenessProbe:
             httpGet:
-              path: /health
-              port: 3000
+              path: /
+              port: 80
             initialDelaySeconds: 30
             periodSeconds: 10
+            timeoutSeconds: 5
           readinessProbe:
             httpGet:
-              path: /health
-              port: 3000
+              path: /
+              port: 80
             initialDelaySeconds: 10
             periodSeconds: 5
+            timeoutSeconds: 3
       volumes:
         - name: nginx-config
           emptyDir: {}
