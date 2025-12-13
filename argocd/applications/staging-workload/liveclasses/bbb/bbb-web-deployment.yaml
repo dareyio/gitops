@@ -28,18 +28,17 @@ spec:
               echo 'location = /demo/ { return 404; }' >> /tmp/demo.nginx
               echo 'location /demo { return 404; }' >> /tmp/demo.nginx
               
-              # Create entrypoint script to fix bigbluebutton config
-              echo '#!/bin/sh' > /tmp/entrypoint.sh
-              echo 'set -e' >> /tmp/entrypoint.sh
-              echo 'if [ -f /etc/nginx/bigbluebutton ]; then' >> /tmp/entrypoint.sh
-              echo '  sed -i "s/listen 10\.7\.7\.1:8185;/listen 0.0.0.0:8185;/g" /etc/nginx/bigbluebutton' >> /tmp/entrypoint.sh
-              echo '  sed -i "s/listen 127\.0\.0\.1:8185;/listen 0.0.0.0:8185;/g" /etc/nginx/bigbluebutton' >> /tmp/entrypoint.sh
-              echo 'fi' >> /tmp/entrypoint.sh
-              echo 'exec "$@"' >> /tmp/entrypoint.sh
-              chmod +x /tmp/entrypoint.sh
+              # Create entrypoint script that runs BEFORE docker-entrypoint.sh processes configs
+              echo '#!/bin/sh' > /tmp/fix-bigbluebutton.sh
+              echo '# Fix bigbluebutton nginx config before nginx starts' >> /tmp/fix-bigbluebutton.sh
+              echo 'find /etc/nginx -type f -name "*bigbluebutton*" -exec sed -i "s/listen 10\.7\.7\.1:8185;/listen 0.0.0.0:8185;/g" {} \;' >> /tmp/fix-bigbluebutton.sh
+              echo 'find /etc/nginx -type f -name "*bigbluebutton*" -exec sed -i "s/listen 127\.0\.0\.1:8185;/listen 0.0.0.0:8185;/g" {} \;' >> /tmp/fix-bigbluebutton.sh
+              chmod +x /tmp/fix-bigbluebutton.sh
           volumeMounts:
             - name: nginx-config
               mountPath: /tmp
+            - name: entrypoint-dir
+              mountPath: /target-entrypoint
       containers:
         - name: bbb-html5
           image: 586794457112.dkr.ecr.eu-west-2.amazonaws.com/liveclasses/bbb-html5:3.0.4
@@ -48,19 +47,9 @@ spec:
             - sh
             - -c
             - |
-              # Wait for initContainer to finish and fix nginx config
-              sleep 2
-              # Fix nginx bigbluebutton config - check multiple possible locations
-              for file in /etc/nginx/bigbluebutton /etc/nginx/conf.d/bigbluebutton /usr/share/nginx/html/bigbluebutton; do
-                if [ -f "$file" ]; then
-                  echo "Fixing $file"
-                  sed -i 's/listen 10\.7\.7\.1:8185;/listen 0.0.0.0:8185;/g' "$file"
-                  sed -i 's/listen 127\.0\.0\.1:8185;/listen 0.0.0.0:8185;/g' "$file"
-                fi
-              done
-              # Also fix any files in /etc/nginx that might contain the IP
-              find /etc/nginx -type f -name "*bigbluebutton*" -exec sed -i 's/listen 10\.7\.7\.1:8185;/listen 0.0.0.0:8185;/g' {} \;
-              find /etc/nginx -type f -name "*bigbluebutton*" -exec sed -i 's/listen 127\.0\.0\.1:8185;/listen 0.0.0.0:8185;/g' {} \;
+              # Copy fix script to entrypoint.d so it runs before nginx config processing
+              cp /tmp/fix-bigbluebutton.sh /docker-entrypoint.d/05-fix-bigbluebutton.sh
+              chmod +x /docker-entrypoint.d/05-fix-bigbluebutton.sh
               # Execute original entrypoint
               exec /docker-entrypoint.sh nginx -g "daemon off;"
           ports:
@@ -71,8 +60,10 @@ spec:
               mountPath: /etc/nginx/bbb/demo.nginx
               subPath: demo.nginx
             - name: nginx-config
-              mountPath: /tmp/entrypoint.sh
-              subPath: entrypoint.sh
+              mountPath: /tmp/fix-bigbluebutton.sh
+              subPath: fix-bigbluebutton.sh
+            - name: entrypoint-dir
+              mountPath: /docker-entrypoint.d
           env:
             - name: NODE_ENV
               value: "production"
@@ -103,6 +94,8 @@ spec:
             periodSeconds: 5
       volumes:
         - name: nginx-config
+          emptyDir: {}
+        - name: entrypoint-dir
           emptyDir: {}
 
 ---
