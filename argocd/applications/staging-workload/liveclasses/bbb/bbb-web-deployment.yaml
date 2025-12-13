@@ -108,8 +108,7 @@ spec:
               name: api
           volumeMounts:
             - name: nginx-config
-              mountPath: /etc/nginx/bbb/demo.nginx
-              subPath: demo.nginx
+              mountPath: /tmp
             - name: bigbluebutton-config
               mountPath: /etc/nginx/bigbluebutton
               subPath: bigbluebutton
