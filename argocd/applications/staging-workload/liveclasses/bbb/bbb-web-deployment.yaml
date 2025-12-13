@@ -47,9 +47,13 @@ spec:
             - sh
             - -c
             - |
-              # Copy fix script to entrypoint.d so it runs before nginx config processing
-              cp /tmp/fix-bigbluebutton.sh /docker-entrypoint.d/05-fix-bigbluebutton.sh
-              chmod +x /docker-entrypoint.d/05-fix-bigbluebutton.sh
+              # Fix bigbluebutton config BEFORE docker-entrypoint processes it
+              # The file is processed during entrypoint, so we need to fix it first
+              find /etc/nginx -type f \( -name "bigbluebutton" -o -name "*bigbluebutton*" \) -exec sed -i 's/listen 10\.7\.7\.1:8185;/listen 0.0.0.0:8185;/g' {} \;
+              find /etc/nginx -type f \( -name "bigbluebutton" -o -name "*bigbluebutton*" \) -exec sed -i 's/listen 127\.0\.0\.1:8185;/listen 0.0.0.0:8185;/g' {} \;
+              # Also check if it's in conf.d
+              find /etc/nginx/conf.d -type f -exec sed -i 's/listen 10\.7\.7\.1:8185;/listen 0.0.0.0:8185;/g' {} \;
+              find /etc/nginx/conf.d -type f -exec sed -i 's/listen 127\.0\.0\.1:8185;/listen 0.0.0.0:8185;/g' {} \;
               # Execute original entrypoint
               exec /docker-entrypoint.sh nginx -g "daemon off;"
           ports:
@@ -59,11 +63,6 @@ spec:
             - name: nginx-config
               mountPath: /etc/nginx/bbb/demo.nginx
               subPath: demo.nginx
-            - name: nginx-config
-              mountPath: /tmp/fix-bigbluebutton.sh
-              subPath: fix-bigbluebutton.sh
-            - name: entrypoint-dir
-              mountPath: /docker-entrypoint.d
           env:
             - name: NODE_ENV
               value: "production"
@@ -94,8 +93,6 @@ spec:
             periodSeconds: 5
       volumes:
         - name: nginx-config
-          emptyDir: {}
-        - name: entrypoint-dir
           emptyDir: {}
 
 ---
