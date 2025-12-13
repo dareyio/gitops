@@ -27,9 +27,19 @@ spec:
               echo '# Original config referenced host.docker.internal which does not exist in K8s' >> /tmp/demo.nginx
               echo 'location = /demo/ { return 404; }' >> /tmp/demo.nginx
               echo 'location /demo { return 404; }' >> /tmp/demo.nginx
+              
+              # Copy and fix bigbluebutton config if it exists
+              if [ -f /source/bigbluebutton ]; then
+                cp /source/bigbluebutton /tmp/bigbluebutton-fixed
+                sed -i 's/listen 10\.7\.7\.1:8185;/listen 0.0.0.0:8185;/g' /tmp/bigbluebutton-fixed
+                sed -i 's/listen 127\.0\.0\.1:8185;/listen 0.0.0.0:8185;/g' /tmp/bigbluebutton-fixed
+              fi
           volumeMounts:
             - name: nginx-config
               mountPath: /tmp
+            - name: nginx-source
+              mountPath: /source
+              readOnly: true
       containers:
         - name: bbb-html5
           image: 586794457112.dkr.ecr.eu-west-2.amazonaws.com/liveclasses/bbb-html5:3.0.4
@@ -41,9 +51,9 @@ spec:
             - name: nginx-config
               mountPath: /etc/nginx/bbb/demo.nginx
               subPath: demo.nginx
-            - name: bigbluebutton-config
+            - name: nginx-config
               mountPath: /etc/nginx/bigbluebutton
-              subPath: bigbluebutton
+              subPath: bigbluebutton-fixed
           env:
             - name: NODE_ENV
               value: "production"
@@ -51,6 +61,8 @@ spec:
               value: "/bbb"
             - name: BBB_API_URL
               value: "http://bbb-api:8090"
+            - name: EXTERNAL_IPv4
+              value: "0.0.0.0"
           resources:
             requests:
               cpu: 500m
@@ -73,9 +85,8 @@ spec:
       volumes:
         - name: nginx-config
           emptyDir: {}
-        - name: bigbluebutton-config
-          configMap:
-            name: bbb-bigbluebutton-nginx
+        - name: nginx-source
+          emptyDir: {}
 
 ---
 apiVersion: autoscaling/v2
