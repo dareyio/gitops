@@ -46,10 +46,21 @@ spec:
             - -c
             - |
               # Fix bigbluebutton config BEFORE docker-entrypoint processes it
-              # Replace hardcoded IPs with 0.0.0.0, then remove duplicates
-              find /etc/nginx -type f \( -name "bigbluebutton" -o -name "*bigbluebutton*" \) -exec sh -c 'sed -i "s/listen 10\.7\.7\.1:8185;/listen 0.0.0.0:8185;/g" "$1"; sed -i "s/listen 127\.0\.0\.1:8185;/#listen 127.0.0.1:8185;/g" "$1"' _ {} \;
-              # Also check conf.d
-              find /etc/nginx/conf.d -type f -exec sh -c 'sed -i "s/listen 10\.7\.7\.1:8185;/listen 0.0.0.0:8185;/g" "$1"; sed -i "s/listen 127\.0\.0\.1:8185;/#listen 127.0.0.1:8185;/g" "$1"' _ {} \;
+              # Use a more comprehensive approach to catch all instances
+              for dir in /etc/nginx /etc/nginx/conf.d /usr/share/nginx; do
+                if [ -d "$dir" ]; then
+                  find "$dir" -type f \( -name "*bigbluebutton*" -o -name "bigbluebutton" \) 2>/dev/null | while read file; do
+                    if [ -f "$file" ]; then
+                      sed -i "s/listen 10\.7\.7\.1:8185;/listen 0.0.0.0:8185;/g" "$file"
+                      sed -i "s/listen 127\.0\.0\.1:8185;/#listen 127.0.0.1:8185;/g" "$file"
+                    fi
+                  done
+                fi
+              done
+              # Also fix any file containing the IP address
+              find /etc/nginx -type f 2>/dev/null | xargs grep -l "10\.7\.7\.1:8185" 2>/dev/null | while read file; do
+                sed -i "s/listen 10\.7\.7\.1:8185;/listen 0.0.0.0:8185;/g" "$file"
+              done
               # Execute original entrypoint
               exec /docker-entrypoint.sh nginx -g "daemon off;"
           ports:
