@@ -28,22 +28,28 @@ spec:
               echo 'location = /demo/ { return 404; }' >> /tmp/demo.nginx
               echo 'location /demo { return 404; }' >> /tmp/demo.nginx
               
-              # Copy and fix bigbluebutton config if it exists
-              if [ -f /source/bigbluebutton ]; then
-                cp /source/bigbluebutton /tmp/bigbluebutton-fixed
-                sed -i 's/listen 10\.7\.7\.1:8185;/listen 0.0.0.0:8185;/g' /tmp/bigbluebutton-fixed
-                sed -i 's/listen 127\.0\.0\.1:8185;/listen 0.0.0.0:8185;/g' /tmp/bigbluebutton-fixed
-              fi
+              # Create entrypoint script to fix bigbluebutton config
+              echo '#!/bin/sh' > /tmp/entrypoint.sh
+              echo 'set -e' >> /tmp/entrypoint.sh
+              echo 'if [ -f /etc/nginx/bigbluebutton ]; then' >> /tmp/entrypoint.sh
+              echo '  sed -i "s/listen 10\.7\.7\.1:8185;/listen 0.0.0.0:8185;/g" /etc/nginx/bigbluebutton' >> /tmp/entrypoint.sh
+              echo '  sed -i "s/listen 127\.0\.0\.1:8185;/listen 0.0.0.0:8185;/g" /etc/nginx/bigbluebutton' >> /tmp/entrypoint.sh
+              echo 'fi' >> /tmp/entrypoint.sh
+              echo 'exec "$@"' >> /tmp/entrypoint.sh
+              chmod +x /tmp/entrypoint.sh
           volumeMounts:
             - name: nginx-config
               mountPath: /tmp
-            - name: nginx-source
-              mountPath: /source
-              readOnly: true
       containers:
         - name: bbb-html5
           image: 586794457112.dkr.ecr.eu-west-2.amazonaws.com/liveclasses/bbb-html5:3.0.4
           imagePullPolicy: Always
+          command:
+            - /tmp/entrypoint.sh
+            - /docker-entrypoint.sh
+            - nginx
+            - -g
+            - daemon off;
           ports:
             - containerPort: 3000
               name: http
@@ -52,8 +58,8 @@ spec:
               mountPath: /etc/nginx/bbb/demo.nginx
               subPath: demo.nginx
             - name: nginx-config
-              mountPath: /etc/nginx/bigbluebutton
-              subPath: bigbluebutton-fixed
+              mountPath: /tmp/entrypoint.sh
+              subPath: entrypoint.sh
           env:
             - name: NODE_ENV
               value: "production"
@@ -84,8 +90,6 @@ spec:
             periodSeconds: 5
       volumes:
         - name: nginx-config
-          emptyDir: {}
-        - name: nginx-source
           emptyDir: {}
 
 ---
