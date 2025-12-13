@@ -1,0 +1,46 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: host.docker.internal
+  namespace: liveclasses
+  labels:
+    app: bbb-demo
+spec:
+  type: ExternalName
+  externalName: localhost
+  ports:
+    - port: 8001
+      targetPort: 8001
+      protocol: TCP
+      name: http
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bbb-demo
+  namespace: liveclasses
+  labels:
+    app: bbb-demo
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: bbb-demo
+  template:
+    metadata:
+      labels:
+        app: bbb-demo
+    spec:
+      containers:
+        - name: demo
+          image: nginx:1.25-alpine
+          ports:
+            - containerPort: 8001
+              name: http
+          command:
+            - sh
+            - -c
+            - |
+              echo 'server { listen 8001; location / { return 200 "Demo service"; add_header Content-Type text/plain; } }' > /etc/nginx/conf.d/default.conf && nginx -g "daemon off;"
+

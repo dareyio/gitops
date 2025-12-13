@@ -45,6 +45,10 @@ spec:
               value: "https://streaming-stg.talentos.darey.io"
             - name: ENABLE_RECORDING
               value: "true"
+            - name: IGNORE_TLS_CERT_ERRORS
+              value: "false"
+            - name: ENABLE_HTTPS_PROXY
+              value: "false"
           resources:
             requests:
               cpu: 500m
