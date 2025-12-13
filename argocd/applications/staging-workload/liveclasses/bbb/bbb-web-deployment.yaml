@@ -46,12 +46,10 @@ spec:
             - -c
             - |
               # Fix bigbluebutton config BEFORE docker-entrypoint processes it
-              # The file is processed during entrypoint, so we need to fix it first
-              find /etc/nginx -type f \( -name "bigbluebutton" -o -name "*bigbluebutton*" \) -exec sed -i 's/listen 10\.7\.7\.1:8185;/listen 0.0.0.0:8185;/g' {} \;
-              find /etc/nginx -type f \( -name "bigbluebutton" -o -name "*bigbluebutton*" \) -exec sed -i 's/listen 127\.0\.0\.1:8185;/listen 0.0.0.0:8185;/g' {} \;
-              # Also check if it's in conf.d
-              find /etc/nginx/conf.d -type f -exec sed -i 's/listen 10\.7\.7\.1:8185;/listen 0.0.0.0:8185;/g' {} \;
-              find /etc/nginx/conf.d -type f -exec sed -i 's/listen 127\.0\.0\.1:8185;/listen 0.0.0.0:8185;/g' {} \;
+              # Replace hardcoded IPs with 0.0.0.0, then remove duplicates
+              find /etc/nginx -type f \( -name "bigbluebutton" -o -name "*bigbluebutton*" \) -exec sh -c 'sed -i "s/listen 10\.7\.7\.1:8185;/listen 0.0.0.0:8185;/g" "$1"; sed -i "s/listen 127\.0\.0\.1:8185;/#listen 127.0.0.1:8185;/g" "$1"' _ {} \;
+              # Also check conf.d
+              find /etc/nginx/conf.d -type f -exec sh -c 'sed -i "s/listen 10\.7\.7\.1:8185;/listen 0.0.0.0:8185;/g" "$1"; sed -i "s/listen 127\.0\.0\.1:8185;/#listen 127.0.0.1:8185;/g" "$1"' _ {} \;
               # Execute original entrypoint
               exec /docker-entrypoint.sh nginx -g "daemon off;"
           ports:
