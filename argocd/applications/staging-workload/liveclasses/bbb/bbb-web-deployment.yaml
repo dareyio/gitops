@@ -37,8 +37,6 @@ spec:
           volumeMounts:
             - name: nginx-config
               mountPath: /tmp
-            - name: entrypoint-dir
-              mountPath: /target-entrypoint
       containers:
         - name: bbb-html5
           image: 586794457112.dkr.ecr.eu-west-2.amazonaws.com/liveclasses/bbb-html5:3.0.4
