@@ -1,0 +1,54 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: greenlight
+  namespace: liveclasses
+  labels:
+    app: greenlight
+spec:
+  type: ClusterIP
+  ports:
+    - port: 80
+      targetPort: 80
+      protocol: TCP
+      name: http
+  selector:
+    app: greenlight
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: greenlight
+  namespace: liveclasses
+  labels:
+    app: greenlight
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: greenlight
+  template:
+    metadata:
+      labels:
+        app: greenlight
+    spec:
+      containers:
+        - name: greenlight
+          image: nginx:1.25-alpine
+          ports:
+            - containerPort: 80
+              name: http
+          command:
+            - sh
+            - -c
+            - |
+              echo 'server { listen 80; location / { return 200 "OK"; add_header Content-Type text/plain; } }' > /etc/nginx/conf.d/default.conf && nginx -g "daemon off;"
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+            limits:
+              cpu: 200m
+              memory: 128Mi
+
