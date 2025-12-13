@@ -45,11 +45,24 @@ spec:
           image: 586794457112.dkr.ecr.eu-west-2.amazonaws.com/liveclasses/bbb-html5:3.0.4
           imagePullPolicy: Always
           command:
-            - /tmp/entrypoint.sh
-            - /docker-entrypoint.sh
-            - nginx
-            - -g
-            - daemon off;
+            - sh
+            - -c
+            - |
+              # Wait for initContainer to finish and fix nginx config
+              sleep 2
+              # Fix nginx bigbluebutton config - check multiple possible locations
+              for file in /etc/nginx/bigbluebutton /etc/nginx/conf.d/bigbluebutton /usr/share/nginx/html/bigbluebutton; do
+                if [ -f "$file" ]; then
+                  echo "Fixing $file"
+                  sed -i 's/listen 10\.7\.7\.1:8185;/listen 0.0.0.0:8185;/g' "$file"
+                  sed -i 's/listen 127\.0\.0\.1:8185;/listen 0.0.0.0:8185;/g' "$file"
+                fi
+              done
+              # Also fix any files in /etc/nginx that might contain the IP
+              find /etc/nginx -type f -name "*bigbluebutton*" -exec sed -i 's/listen 10\.7\.7\.1:8185;/listen 0.0.0.0:8185;/g' {} \;
+              find /etc/nginx -type f -name "*bigbluebutton*" -exec sed -i 's/listen 127\.0\.0\.1:8185;/listen 0.0.0.0:8185;/g' {} \;
+              # Execute original entrypoint
+              exec /docker-entrypoint.sh nginx -g "daemon off;"
           ports:
             - containerPort: 3000
               name: http
