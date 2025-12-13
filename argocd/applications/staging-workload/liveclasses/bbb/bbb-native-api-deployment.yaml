@@ -43,6 +43,15 @@ spec:
                   key: api-secret
             - name: BBB_URL
               value: "https://streaming-stg.talentos.darey.io"
+            - name: DOMAIN
+              value: "streaming-stg.talentos.darey.io"
+            - name: STUN_SERVER
+              value: "stun:stun.l.google.com:19302"
+            - name: TURN_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: bbb-secrets
+                  key: turn-secret
             - name: ENABLE_RECORDING
               value: "true"
             - name: IGNORE_TLS_CERT_ERRORS

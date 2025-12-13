@@ -22,6 +22,10 @@ spec:
           ports:
             - containerPort: 3000
               name: http
+          volumeMounts:
+            - name: nginx-override
+              mountPath: /etc/nginx/bbb/demo.nginx
+              subPath: demo.nginx
           env:
             - name: NODE_ENV
               value: "production"
@@ -48,6 +52,10 @@ spec:
               port: 3000
             initialDelaySeconds: 10
             periodSeconds: 5
+      volumes:
+        - name: nginx-override
+          configMap:
+            name: bbb-html5-nginx-override
 
 ---
 apiVersion: autoscaling/v2

@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: bbb-html5-nginx-override
+  namespace: liveclasses
+data:
+  demo.nginx: |
+    # Demo configuration disabled for Kubernetes deployment
+    # Original config referenced host.docker.internal which doesn't exist in K8s
+    # location /demo {
+    #   proxy_pass http://host.docker.internal:8001;
+    # }
+
