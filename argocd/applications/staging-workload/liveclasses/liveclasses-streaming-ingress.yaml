@@ -10,6 +10,8 @@ metadata:
     nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
     nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
     nginx.ingress.kubernetes.io/proxy-buffering: "off"
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+    nginx.ingress.kubernetes.io/use-regex: "true"
     cert-manager.io/cluster-issuer: letsencrypt-prod
     external-dns.alpha.kubernetes.io/hostname: streaming-stg.talentos.darey.io
     external-dns.alpha.kubernetes.io/manage: "true"
@@ -35,7 +37,7 @@ spec:
                 name: jitsi-web
                 port:
                   number: 80
-          # BBB API service - native API
+          # BBB API service - native API (primary path)
           - path: /bigbluebutton/api
             pathType: Prefix
             backend:
@@ -43,7 +45,7 @@ spec:
                 name: bbb-api
                 port:
                   number: 8090
-          # BBB API service - legacy path
+          # BBB API service - alternative path
           - path: /bbb/api
             pathType: Prefix
             backend:
