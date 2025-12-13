@@ -35,14 +35,22 @@ spec:
                 name: jitsi-web
                 port:
                   number: 80
-          # BBB API service
+          # BBB API service - native API
+          - path: /bigbluebutton/api
+            pathType: Prefix
+            backend:
+              service:
+                name: bbb-api
+                port:
+                  number: 8090
+          # BBB API service - legacy path
           - path: /bbb/api
             pathType: Prefix
             backend:
               service:
-                name: liveclasses-bbb-api
+                name: bbb-api
                 port:
-                  number: 8080
+                  number: 8090
           # BBB web interface (when deployed)
           - path: /bbb
             pathType: Prefix
