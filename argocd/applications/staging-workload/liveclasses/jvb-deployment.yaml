@@ -69,7 +69,19 @@ spec:
             - name: JVB_PORT
               value: "10000"
             - name: JVB_OPTS
-              value: "--apis=rest,xmpp"
+              value: "--apis=rest,xmpp --host=prosody.liveclasses.svc.cluster.local --domain=streaming-stg.talentos.darey.io --subdomain=jvb"
+            - name: JVB_MUC_NICKNAME_FROM_HOSTNAME
+              value: "false"
+            - name: JVB_MUC_HOST
+              value: "internal-muc.meet.jitsi"
+            - name: JVB_MUC_DOMAIN
+              value: "internal-muc.meet.jitsi"
+            - name: JVB_BREWERY_MUC
+              value: "jvbbrewery@internal-muc.meet.jitsi"
+            - name: JVB_AUTH_USER
+              value: "jvb"
+            - name: JVB_AUTH_DOMAIN
+              value: "auth.meet.jitsi"
 
 ---
 apiVersion: v1
