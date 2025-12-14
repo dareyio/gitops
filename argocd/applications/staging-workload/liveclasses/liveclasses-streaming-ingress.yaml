@@ -20,9 +20,72 @@ spec:
     - host: streaming-stg.talentos.darey.io
       http:
         paths:
-          # Jitsi static assets (must come before /jitsi path to catch CSS/JS requests)
-          - path: /(css|libs|static|images|fonts|lang|sounds|connection_optimization|.well-known|transcripts|config.js|interface_config.js|external_api.js|pwa-worker.js|manifest.json)
+          # Jitsi static assets (must come before other paths)
+          - path: /css
             pathType: Prefix
+            backend:
+              service:
+                name: jitsi-web
+                port:
+                  number: 80
+          - path: /libs
+            pathType: Prefix
+            backend:
+              service:
+                name: jitsi-web
+                port:
+                  number: 80
+          - path: /static
+            pathType: Prefix
+            backend:
+              service:
+                name: jitsi-web
+                port:
+                  number: 80
+          - path: /images
+            pathType: Prefix
+            backend:
+              service:
+                name: jitsi-web
+                port:
+                  number: 80
+          - path: /fonts
+            pathType: Prefix
+            backend:
+              service:
+                name: jitsi-web
+                port:
+                  number: 80
+          - path: /lang
+            pathType: Prefix
+            backend:
+              service:
+                name: jitsi-web
+                port:
+                  number: 80
+          - path: /sounds
+            pathType: Prefix
+            backend:
+              service:
+                name: jitsi-web
+                port:
+                  number: 80
+          - path: /config.js
+            pathType: Exact
+            backend:
+              service:
+                name: jitsi-web
+                port:
+                  number: 80
+          - path: /interface_config.js
+            pathType: Exact
+            backend:
+              service:
+                name: jitsi-web
+                port:
+                  number: 80
+          - path: /external_api.js
+            pathType: Exact
             backend:
               service:
                 name: jitsi-web
