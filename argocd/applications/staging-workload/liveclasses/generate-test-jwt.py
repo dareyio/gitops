@@ -34,10 +34,12 @@ def get_jwt_secret():
             text=True,
             check=True
         )
-        secret_b64 = result.stdout.strip()
-        if not secret_b64:
-            raise ValueError("Secret not found or empty")
-        return base64.b64decode(secret_b64).decode('utf-8')
+    secret_b64 = result.stdout.strip()
+    if not secret_b64:
+        raise ValueError("Secret not found or empty")
+    secret = base64.b64decode(secret_b64).decode('utf-8')
+    # Strip any trailing whitespace/newlines that might cause signature mismatches
+    return secret.strip()
     except subprocess.CalledProcessError:
         print("❌ Error: Could not retrieve JWT secret from Kubernetes")
         print("   Make sure kubectl is configured and you have access to the liveclasses namespace")
