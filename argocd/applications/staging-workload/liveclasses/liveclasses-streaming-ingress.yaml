@@ -10,7 +10,6 @@ metadata:
     nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
     nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
     nginx.ingress.kubernetes.io/proxy-buffering: "off"
-    nginx.ingress.kubernetes.io/rewrite-target: /$2
     nginx.ingress.kubernetes.io/use-regex: "true"
     cert-manager.io/cluster-issuer: letsencrypt-prod
     external-dns.alpha.kubernetes.io/hostname: streaming-stg.talentos.darey.io
@@ -21,17 +20,25 @@ spec:
     - host: streaming-stg.talentos.darey.io
       http:
         paths:
+          # Jitsi static assets (must come before /jitsi path to catch CSS/JS requests)
+          - path: /(css|libs|static|images|fonts|lang|sounds|connection_optimization|.well-known|transcripts|config.js|interface_config.js|external_api.js|pwa-worker.js|manifest.json)
+            pathType: Prefix
+            backend:
+              service:
+                name: jitsi-web
+                port:
+                  number: 80
           # Jitsi XMPP/BOSH endpoints
-          - path: /jitsi/http-bind(/|$)(.*)
-            pathType: ImplementationSpecific
+          - path: /jitsi/http-bind
+            pathType: Prefix
             backend:
               service:
                 name: prosody
                 port:
                   number: 5280
           # Jitsi web interface
-          - path: /jitsi(/|$)(.*)
-            pathType: ImplementationSpecific
+          - path: /jitsi
+            pathType: Prefix
             backend:
               service:
                 name: jitsi-web
