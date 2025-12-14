@@ -8,32 +8,25 @@ resources:
   - ../../liveclasses-config.yaml
   - ../../liveclasses-recordings-serviceaccount.yaml
   - ../../liveclasses-streaming-ingress.yaml
-  - ../bbb/bbb-api-deployment.yaml
-  - ../bbb/bbb-api-service.yaml
-  - ../bbb/bbb-web-deployment.yaml
-  - ../bbb/bbb-web-service.yaml
-  - ../bbb/bbb-nginx-deployment.yaml
-  - ../bbb/freeswitch-daemonset.yaml
-  - ../bbb/freeswitch-service.yaml
-  - ../bbb/kurento-daemonset.yaml
-  - ../bbb/kurento-service.yaml
-  - ../bbb/mongodb-statefulset.yaml
-  - ../bbb/mongodb-service.yaml
-  - ../bbb/mongodb-configmap.yaml
-  - ../bbb/mongodb-secret.yaml
-  - ../bbb/mongodb-keyfile-externalsecret.yaml
-  - ../bbb/mongodb-secret-externalsecret.yaml
-  - ../bbb/mongodb-pdb.yaml
-  - ../bbb/mongodb-backup-cronjob.yaml
-  - ../bbb/mongodb-backup-serviceaccount.yaml
-  - ../bbb/bbb-secret-externalsecret.yaml
-  - ../bbb/bbb-native-api-deployment.yaml
-  - ../bbb/bbb-graphql-server-service.yaml
-  - ../bbb/bbb-demo-service.yaml
-  - ../bbb/bbb-html5-nginx-configmap.yaml
-  - ../bbb/bbb-graphql-middleware-service.yaml
-  - ../bbb/bbb-etherpad-service.yaml
-  - ../bbb/bbb-greenlight-service.yaml
-# Note: Jitsi resources are intentionally excluded from base
-# They should only be included when explicitly enabled via overlay
+  # BBB resources removed - files kept in ../bbb/ directory but not deployed
+  # Jitsi resources
+  - ../prosody-deployment.yaml
+  - ../service.yaml
+  - ../jicofo-deployment.yaml
+  - ../jvb-deployment.yaml
+  - ../jitsi-web-deployment.yaml
+  - ../jibri-deployment.yaml
+  - ../jibri-configmap.yaml
+  - ../jibri-serviceaccount.yaml
+  - ../jitsi-web-configmap.yaml
+  - ../configmap.yaml
+  - ../external-secret.yaml
+  - ../custom-css.yaml
+  - ../auto-tileview.yaml
+  - ../move-sidebar.yaml
+  - ../head-injection.yaml
+  - ../nginx-config.yaml
+  - ../servicemonitor-jicofo.yaml
+  - ../servicemonitor-jitsi-web.yaml
+  - ../servicemonitor-jvb.yaml
 
