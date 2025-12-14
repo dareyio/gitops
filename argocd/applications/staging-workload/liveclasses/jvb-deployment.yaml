@@ -66,6 +66,10 @@ spec:
               value: jvb
             - name: JVB_DISABLE_CERTIFICATE_VERIFICATION
               value: "true"
+            - name: JVB_PORT
+              value: "10000"
+            - name: JVB_ICE_UDP_PORT
+              value: "10000"
 
 ---
 apiVersion: v1
