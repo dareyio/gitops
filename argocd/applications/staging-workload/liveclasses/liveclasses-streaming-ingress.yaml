@@ -22,16 +22,16 @@ spec:
       http:
         paths:
           # Jitsi XMPP/BOSH endpoints
-          - path: /jitsi/http-bind
-            pathType: Prefix
+          - path: /jitsi/http-bind(/|$)(.*)
+            pathType: ImplementationSpecific
             backend:
               service:
                 name: prosody
                 port:
                   number: 5280
           # Jitsi web interface
-          - path: /jitsi
-            pathType: Prefix
+          - path: /jitsi(/|$)(.*)
+            pathType: ImplementationSpecific
             backend:
               service:
                 name: jitsi-web
