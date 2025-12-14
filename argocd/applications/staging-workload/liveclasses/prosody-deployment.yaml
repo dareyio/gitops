@@ -60,6 +60,8 @@ spec:
               value: "darey-io"
             - name: JWT_ACCEPTED_AUDIENCES
               value: "jitsi"
+            - name: PROSODY_APP_ID
+              value: "darey-io"
           volumeMounts:
             - name: prosody-config
               mountPath: /config/conf.d/streaming-stg.talentos.darey.io.cfg.lua
