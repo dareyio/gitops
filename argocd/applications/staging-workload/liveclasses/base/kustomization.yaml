@@ -4,10 +4,10 @@ kind: Kustomization
 namespace: liveclasses
 
 resources:
-  - ../../namespace.yaml
-  - ../../liveclasses-config.yaml
-  - ../../liveclasses-recordings-serviceaccount.yaml
-  - ../../liveclasses-streaming-ingress.yaml
+  - ../namespace.yaml
+  - ../liveclasses-config.yaml
+  - ../liveclasses-recordings-serviceaccount.yaml
+  - ../liveclasses-streaming-ingress.yaml
   # BBB resources removed - files kept in ../bbb/ directory but not deployed
   # Jitsi resources
   - ../prosody-deployment.yaml
