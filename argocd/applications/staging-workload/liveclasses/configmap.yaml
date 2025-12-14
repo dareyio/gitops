@@ -7,7 +7,7 @@ data:
   streaming-stg.talentos.darey.io.cfg.lua: |
     VirtualHost "streaming-stg.talentos.darey.io"
       authentication = "token"
-      app_id = "darey-io"
+      app_id = os.getenv("JWT_APP_ID") or "darey-io"
       app_secret = os.getenv("JWT_APP_SECRET")
       allow_empty_token = false
       token_affinity = false  -- Disabled to allow multiple users with different JWTs to join same room
