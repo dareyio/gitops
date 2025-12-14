@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: jvb-config
+  namespace: liveclasses
+data:
+  sip-communicator.properties: |
+    org.jitsi.videobridge.xmpp.user.shard.HOSTNAME=prosody.liveclasses.svc.cluster.local
+    org.jitsi.videobridge.xmpp.user.shard.DOMAIN=streaming-stg.talentos.darey.io
+    org.jitsi.videobridge.xmpp.user.shard.USERNAME=jvb
+    org.jitsi.videobridge.xmpp.user.shard.PASSWORD=${JVB_AUTH_PASSWORD}
+    org.jitsi.videobridge.xmpp.user.shard.MUC_JIDS=jvbbrewery@internal-muc.meet.jitsi
+    org.jitsi.videobridge.xmpp.user.shard.MUC_NICKNAME=jvb
+    org.jitsi.videobridge.xmpp.user.shard.DISABLE_CERTIFICATE_VERIFICATION=true
+

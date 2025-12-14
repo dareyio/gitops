@@ -3,18 +3,47 @@ kind: Kustomization
 
 namespace: liveclasses
 
-# Shared resources
+# ============================================================================
+# Liveclasses Streaming Application Kustomization
+# ============================================================================
+# This file controls which streaming provider (Jitsi or BBB) is deployed.
+# 
+# To switch providers:
+# 1. Update liveclasses-config.yaml (provider, bbb_enabled, jitsi_enabled)
+# 2. Add/remove the provider bundle below (bbb or jitsi resources)
+# 3. Commit and push - ArgoCD will sync automatically
+# ============================================================================
+
 resources:
+  # ==========================================================================
+  # Shared Resources (always deployed)
+  # ==========================================================================
   - namespace.yaml
   - liveclasses-config.yaml
   - liveclasses-recordings-serviceaccount.yaml
   - liveclasses-streaming-ingress.yaml
-  # BBB resources removed - files kept in bbb/ directory but not deployed
-  # Jitsi resources
+  
+  # ==========================================================================
+  # BBB Component Bundle
+  # ==========================================================================
+  # To ENABLE BBB: Uncomment the line below
+  # To DISABLE BBB: Comment out or remove the line below
+  # All BBB components are bundled in bbb/kustomization.yaml
+  # See BBB_COMPONENTS.md for complete list of included resources
+  # ==========================================================================
+  # - bbb
+  
+  # ==========================================================================
+  # Jitsi Component Bundle
+  # ==========================================================================
+  # To ENABLE Jitsi: Include all resources below
+  # To DISABLE Jitsi: Comment out or remove all resources below
+  # ==========================================================================
   - prosody-deployment.yaml
   - service.yaml
   - jicofo-deployment.yaml
   - jvb-deployment.yaml
+  - jvb-configmap.yaml
   - jitsi-web-deployment.yaml
   - jibri-deployment.yaml
   - jibri-configmap.yaml
