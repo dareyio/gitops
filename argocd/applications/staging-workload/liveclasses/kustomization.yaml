@@ -3,12 +3,31 @@ kind: Kustomization
 
 namespace: liveclasses
 
-# Include base resources (BBB, MongoDB, shared resources)
-# Base kustomization excludes Jitsi resources
+# Shared resources
 resources:
-  - base
-
-# Jitsi resources are NOT included here - they will be pruned by ArgoCD
-# To enable Jitsi, use the overlay: overlays/jitsi-enabled
-# Or manually add Jitsi resources to this kustomization
+  - namespace.yaml
+  - liveclasses-config.yaml
+  - liveclasses-recordings-serviceaccount.yaml
+  - liveclasses-streaming-ingress.yaml
+  # BBB resources removed - files kept in bbb/ directory but not deployed
+  # Jitsi resources
+  - prosody-deployment.yaml
+  - service.yaml
+  - jicofo-deployment.yaml
+  - jvb-deployment.yaml
+  - jitsi-web-deployment.yaml
+  - jibri-deployment.yaml
+  - jibri-configmap.yaml
+  - jibri-serviceaccount.yaml
+  - jitsi-web-configmap.yaml
+  - configmap.yaml
+  - external-secret.yaml
+  - custom-css.yaml
+  - auto-tileview.yaml
+  - move-sidebar.yaml
+  - head-injection.yaml
+  - nginx-config.yaml
+  - servicemonitor-jicofo.yaml
+  - servicemonitor-jitsi-web.yaml
+  - servicemonitor-jvb.yaml
 
