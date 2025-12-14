@@ -56,16 +56,16 @@ spec:
               value: prosody.liveclasses.svc.cluster.local
             - name: XMPP_AUTH_DOMAIN
               value: auth.meet.jitsi
-            - name: JVB_MUC_JIDS
-              value: jvbbrewery@internal-muc.meet.jitsi
+            - name: JVB_BREWERY_MUC
+              value: jvbbrewery
+            - name: XMPP_INTERNAL_MUC_DOMAIN
+              value: internal-muc.meet.jitsi
             - name: JVB_AUTH_USER
               value: jvb
             - name: JVB_MUC_NICKNAME
               value: jvb
             - name: JVB_DISABLE_CERTIFICATE_VERIFICATION
               value: "true"
-            - name: JVB_MUC_DOMAIN
-              value: internal-muc.meet.jitsi
 
 ---
 apiVersion: v1
