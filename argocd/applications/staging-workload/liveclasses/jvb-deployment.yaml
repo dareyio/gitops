@@ -50,6 +50,26 @@ spec:
                 secretKeyRef:
                   name: jitsi-auth-secrets
                   key: JVB_AUTH_PASSWORD
+            - name: XMPP_SERVER
+              value: prosody.liveclasses.svc.cluster.local
+            - name: XMPP_DOMAIN
+              value: streaming-stg.talentos.darey.io
+            - name: JVB_HOSTNAME
+              value: jvb.streaming-stg.talentos.darey.io
+            - name: JVB_MUC_DOMAIN
+              value: internal-muc.meet.jitsi
+            - name: JVB_MUC_NICKNAME
+              value: jvb
+            - name: JVB_BREWERY_MUC
+              value: jvbbrewery@internal-muc.meet.jitsi
+            - name: JVB_AUTH_USER
+              value: jvb
+            - name: JVB_AUTH_DOMAIN
+              value: auth.meet.jitsi
+            - name: JVB_PORT
+              value: "10000"
+            - name: JVB_OPTS
+              value: "--apis=rest,xmpp"
 
 ---
 apiVersion: v1
