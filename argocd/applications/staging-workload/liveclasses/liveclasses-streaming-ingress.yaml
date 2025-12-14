@@ -61,14 +61,14 @@ spec:
                 name: bbb-web
                 port:
                   number: 80
-          # Default root path - routes to BBB API (can be changed by updating this ingress)
+          # Default root path - routes to Jitsi (since Jitsi is enabled)
           - path: /
             pathType: Prefix
             backend:
               service:
-                name: liveclasses-bbb-api
+                name: jitsi-web
                 port:
-                  number: 8080
+                  number: 80
   tls:
     - hosts:
         - streaming-stg.talentos.darey.io
