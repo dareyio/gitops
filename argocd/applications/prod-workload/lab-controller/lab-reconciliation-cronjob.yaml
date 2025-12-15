@@ -1,0 +1,110 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: lab-resource-reconciliation
+  namespace: lab-controller
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+spec:
+  schedule: "*/5 * * * *"
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  concurrencyPolicy: Forbid
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          serviceAccountName: lab-controller-sa
+          containers:
+            - name: reconciliation
+              image: bitnami/kubectl:latest
+              command:
+                - /bin/bash
+                - -c
+                - |
+                  set -e
+                  echo "🔍 Starting lab resource reconciliation..."
+                  
+                  # Lab namespaces to check
+                  LAB_NAMESPACES=("jupyter-lab" "ubuntu-lab" "vscode-lab" "postgresql-lab")
+                  
+                  ORPHANED_COUNT=0
+                  CLEANED_COUNT=0
+                  
+                  for NS in "${LAB_NAMESPACES[@]}"; do
+                    echo ""
+                    echo "📦 Checking namespace: $NS"
+                    
+                    # Get all services in the namespace
+                    SERVICES=$(kubectl get svc -n "$NS" -o jsonpath='{range .items[*]}{.metadata.name}{"\n"}{end}' 2>/dev/null || echo "")
+                    
+                    if [ -z "$SERVICES" ]; then
+                      echo "  No services found in $NS"
+                      continue
+                    fi
+                    
+                    while IFS= read -r SVC_NAME; do
+                      if [ -z "$SVC_NAME" ]; then
+                        continue
+                      fi
+                      
+                      # Extract session ID from service name (format: jupyter-service-{session-id})
+                      SESSION_ID=$(echo "$SVC_NAME" | sed -E 's/^[^-]+-service-(.+)$/\1/')
+                      
+                      if [ -z "$SESSION_ID" ] || [ "$SESSION_ID" == "$SVC_NAME" ]; then
+                        continue
+                      fi
+                      
+                      # Determine lab type from service name
+                      LAB_TYPE=$(echo "$SVC_NAME" | sed -E 's/^([^-]+)-service-.+$/\1/')
+                      
+                      # Check if deployment exists for this session
+                      DEPLOYMENT_NAME="${LAB_TYPE}-lab-${SESSION_ID}"
+                      if ! kubectl get deployment "$DEPLOYMENT_NAME" -n "$NS" >/dev/null 2>&1; then
+                        echo "  ⚠️  Orphaned service found: $SVC_NAME (no deployment: $DEPLOYMENT_NAME)"
+                        ORPHANED_COUNT=$((ORPHANED_COUNT + 1))
+                        
+                        # Check if service has endpoints (double-check it's truly orphaned)
+                        ENDPOINTS=$(kubectl get endpoints "$SVC_NAME" -n "$NS" -o jsonpath='{.subsets[*].addresses[*].ip}' 2>/dev/null || echo "")
+                        if [ -z "$ENDPOINTS" ]; then
+                          echo "    ✅ Confirmed: Service has no endpoints, cleaning up..."
+                          
+                          # Delete orphaned service
+                          kubectl delete svc "$SVC_NAME" -n "$NS" --ignore-not-found=true
+                          
+                          # Delete orphaned ingress (if exists)
+                          INGRESS_NAME="${LAB_TYPE}-ingress-${SESSION_ID}"
+                          kubectl delete ingress "$INGRESS_NAME" -n "$NS" --ignore-not-found=true
+                          
+                          # Delete orphaned configmap (if exists)
+                          CONFIGMAP_NAME="${LAB_TYPE}-config-${SESSION_ID}"
+                          kubectl delete configmap "$CONFIGMAP_NAME" -n "$NS" --ignore-not-found=true
+                          
+                          CLEANED_COUNT=$((CLEANED_COUNT + 1))
+                          echo "    🧹 Cleaned up resources for session: $SESSION_ID"
+                        else
+                          echo "    ⚠️  Service has endpoints but no deployment - manual investigation needed"
+                        fi
+                      fi
+                    done <<< "$SERVICES"
+                  done
+                  
+                  echo ""
+                  echo "📊 Reconciliation Summary:"
+                  echo "   Orphaned resources found: $ORPHANED_COUNT"
+                  echo "   Resources cleaned up: $CLEANED_COUNT"
+                  
+                  if [ $ORPHANED_COUNT -gt 0 ]; then
+                    echo "   ⚠️  Note: Some orphaned resources may require manual investigation"
+                  fi
+                  
+                  echo "✅ Reconciliation completed"
+              resources:
+                requests:
+                  cpu: 50m
+                  memory: 64Mi
+                limits:
+                  cpu: 200m
+                  memory: 128Mi
+          restartPolicy: OnFailure
+
