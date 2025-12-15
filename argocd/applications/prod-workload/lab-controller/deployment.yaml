@@ -126,6 +126,12 @@ spec:
               value: "GET,POST,PUT,DELETE,OPTIONS,PATCH"
             - name: CORS_ALLOW_HEADERS
               value: "Authorization,Content-Type,X-Lab-Session-Id,X-Lab-Session-Token,X-Lab-Auth-Mode"
+            - name: RECONCILIATION_ENABLED
+              value: "true"
+            - name: RECONCILIATION_INTERVAL
+              value: "300"
+            - name: RECONCILIATION_NAMESPACES
+              value: "jupyter-lab,ubuntu-lab,vscode-lab,postgresql-lab"
           resources:
             requests:
               cpu: "100m"

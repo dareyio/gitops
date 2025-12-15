@@ -138,6 +138,12 @@ spec:
               value: "50"
             - name: K8S_CLIENT_BURST
               value: "100"
+            - name: RECONCILIATION_ENABLED
+              value: "true"
+            - name: RECONCILIATION_INTERVAL
+              value: "300"
+            - name: RECONCILIATION_NAMESPACES
+              value: "jupyter-lab,ubuntu-lab,vscode-lab,postgresql-lab"
           resources:
             requests:
               cpu: "200m"
