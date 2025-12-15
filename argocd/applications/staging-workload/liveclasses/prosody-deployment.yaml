@@ -29,6 +29,8 @@ spec:
             - containerPort: 5280
             - containerPort: 5347
           env:
+            - name: PROSODY_PLUGINS_DIR
+              value: "/prosody-plugins:/prosody-plugins-custom"
             - name: JICOFO_AUTH_PASSWORD
               valueFrom:
                 secretKeyRef:
@@ -66,7 +68,12 @@ spec:
             - name: prosody-config
               mountPath: /config/conf.d/streaming-stg.talentos.darey.io.cfg.lua
               subPath: streaming-stg.talentos.darey.io.cfg.lua
+            - name: prosody-custom-plugins
+              mountPath: /prosody-plugins-custom
       volumes:
         - name: prosody-config
           configMap:
             name: prosody-custom-config
+        - name: prosody-custom-plugins
+          configMap:
+            name: prosody-custom-plugins
