@@ -5,6 +5,36 @@ metadata:
   namespace: liveclasses
 data:
   streaming-stg.talentos.darey.io.cfg.lua: |
+    -- Ensure custom plugins are loaded first
+    plugin_paths = { "/prosody-plugins-custom", "/prosody-plugins" }
+
+    -- Global fallbacks so token_verification always sees app_id/app_secret
+    app_id = "darey-io"
+    app_secret = os.getenv("JWT_APP_SECRET")
+
+    -- Parent host (used by mod_token_verification parentCtx lookup)
+    VirtualHost "talentos.darey.io"
+      authentication = "token"
+      app_id = "darey-io"
+      app_secret = os.getenv("JWT_APP_SECRET")
+      allow_empty_token = false
+      c2s_require_encryption = false
+      -- No token_verification here; child hosts will read app_id/app_secret from this parent
+      accepted_issuers = { "darey-io" }
+      accepted_audiences = { "jitsi" }
+
+    -- Parent ctx derived from streaming-stg.talentos.darey.io (mod_token_verification looks at parent)
+    VirtualHost "stg.talentos.darey.io"
+      authentication = "token"
+      app_id = "darey-io"
+      app_secret = os.getenv("JWT_APP_SECRET")
+      allow_empty_token = false
+      c2s_require_encryption = false
+      -- No token_verification here; child host will use these values
+      accepted_issuers = { "darey-io" }
+      accepted_audiences = { "jitsi" }
+
+    -- Tenant host
     VirtualHost "streaming-stg.talentos.darey.io"
       authentication = "token"
       app_id = "darey-io"

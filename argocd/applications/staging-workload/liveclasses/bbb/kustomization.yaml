@@ -1,0 +1,79 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: liveclasses
+
+# ============================================================================
+# Complete BBB Component Bundle
+# ============================================================================
+# This kustomization includes ALL BBB-related resources.
+# When BBB is enabled/disabled, all components in this file are included/excluded together.
+# 
+# To enable BBB: Add "- bbb" to the main kustomization.yaml resources list
+# To disable BBB: Remove "- bbb" from the main kustomization.yaml resources list
+# ============================================================================
+
+resources:
+  # ==========================================================================
+  # Core BBB Services
+  # ==========================================================================
+  - bbb-api-deployment.yaml              # Custom BBB API wrapper (liveclasses-bbb-api)
+  - bbb-api-service.yaml                 # Service for custom BBB API
+  - bbb-native-api-deployment.yaml       # Native BBB API service
+  - bbb-web-deployment.yaml              # BBB HTML5 frontend (includes HPA)
+  - bbb-web-service.yaml                 # Service for BBB web
+  - bbb-nginx-deployment.yaml            # Nginx reverse proxy
+  
+  # ==========================================================================
+  # BBB Supporting Services
+  # ==========================================================================
+  - bbb-graphql-server-service.yaml      # GraphQL server (placeholder)
+  - bbb-graphql-middleware-service.yaml  # GraphQL middleware (placeholder)
+  - bbb-etherpad-service.yaml            # Etherpad collaborative editor
+  - bbb-greenlight-service.yaml          # Greenlight frontend
+  - bbb-redis-service.yaml               # Redis cache
+  - bbb-demo-service.yaml                # Demo service (placeholder)
+  
+  # ==========================================================================
+  # Media Servers (DaemonSets)
+  # ==========================================================================
+  - freeswitch-daemonset.yaml            # FreeSWITCH for SIP/audio
+  - freeswitch-service.yaml              # Service for FreeSWITCH
+  - kurento-daemonset.yaml               # Kurento Media Server for WebRTC
+  - kurento-service.yaml                 # Service for Kurento
+  
+  # ==========================================================================
+  # Database (MongoDB)
+  # ==========================================================================
+  - mongodb-statefulset.yaml             # MongoDB replica set (3 replicas)
+  - mongodb-service.yaml                 # Headless service for MongoDB
+  - mongodb-configmap.yaml               # MongoDB configuration
+  - mongodb-secret.yaml                  # MongoDB credentials secret
+  - mongodb-keyfile-secret.yaml          # MongoDB keyfile for replica set
+  - mongodb-pdb.yaml                     # Pod Disruption Budget
+  - mongodb-init-job.yaml                # Replica set initialization job
+  - mongodb-backup-cronjob.yaml          # Daily backup cronjob
+  - mongodb-backup-serviceaccount.yaml   # Service account for backups
+  - mongodb-restore-job.yaml             # Restore job template
+  
+  # ==========================================================================
+  # Configuration
+  # ==========================================================================
+  - bbb-bigbluebutton-configmap.yaml     # BBB Nginx configuration
+  - bbb-html5-nginx-configmap.yaml       # HTML5 client Nginx config
+  - bbb-config-secret.yaml               # BBB configuration secret
+  
+  # ==========================================================================
+  # Secrets (ExternalSecrets - sync from AWS Secrets Manager)
+  # ==========================================================================
+  - bbb-secret-externalsecret.yaml       # BBB API secret
+  - mongodb-secret-externalsecret.yaml   # MongoDB credentials
+  - mongodb-keyfile-externalsecret.yaml  # MongoDB keyfile
+
+# ============================================================================
+# Note: HPAs (HorizontalPodAutoscalers) are defined inline in deployment files
+# Note: PVCs (PersistentVolumeClaims) are created automatically by StatefulSets
+# Note: TURN server (coturn) and turn-credentials-api are separate and may be
+#       shared with Jitsi, so they're not included here
+# ============================================================================
+

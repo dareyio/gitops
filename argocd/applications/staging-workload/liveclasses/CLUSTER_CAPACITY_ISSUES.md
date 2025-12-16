@@ -10,22 +10,27 @@
 ## Required Resources
 
 ### MongoDB (StatefulSet, 3 replicas)
+
 - **Per pod**: 2 CPU, 4GB memory
 - **Total**: 6 CPU, 12GB memory
 
 ### FreeSWITCH (DaemonSet, 6 pods - one per node)
+
 - **Per pod**: 2 CPU, 4GB memory
 - **Total**: 12 CPU, 24GB memory
 
 ### Kurento Media Server (DaemonSet, 6 pods - one per node)
+
 - **Per pod**: 2 CPU, 4GB memory
 - **Total**: 12 CPU, 24GB memory
 
 ### BBB Web (Deployment, 2 replicas)
+
 - **Per pod**: ~500m CPU, 512MB memory
 - **Total**: ~1 CPU, 1GB memory
 
 ### BBB Native API (Deployment, 2 replicas)
+
 - **Per pod**: ~500m CPU, 512MB memory
 - **Total**: ~1 CPU, 1GB memory
 
@@ -56,6 +61,7 @@ eks_managed_node_groups = {
 ```
 
 **After update**:
+
 - Run `terraform plan` to see changes
 - Run `terraform apply` to scale nodes
 - Wait for new nodes to join cluster
@@ -70,6 +76,7 @@ desired_size = 10  # Add 4 more nodes
 ```
 
 **After update**:
+
 - Total capacity: 20 CPU, ~37GB (still insufficient for FreeSWITCH/Kurento)
 
 ### Option 3: Reduce Resource Requests (Temporary)
@@ -80,11 +87,11 @@ Reduce FreeSWITCH and Kurento resource requests to fit current cluster:
 # In freeswitch-daemonset.yaml and kurento-daemonset.yaml
 resources:
   requests:
-    cpu: 1000m      # Reduce from 2000m
-    memory: 2Gi     # Reduce from 4Gi
+    cpu: 1000m # Reduce from 2000m
+    memory: 2Gi # Reduce from 4Gi
   limits:
-    cpu: 2000m      # Reduce from 4000m
-    memory: 4Gi     # Reduce from 8Gi
+    cpu: 2000m # Reduce from 4000m
+    memory: 4Gi # Reduce from 8Gi
 ```
 
 **Note**: This may impact performance but allows deployment on current cluster.
@@ -114,6 +121,7 @@ eks_managed_node_groups = {
 ```
 
 Then update DaemonSets to use node selector:
+
 ```yaml
 nodeSelector:
   node-type: media-processing
@@ -128,4 +136,3 @@ nodeSelector:
 ## StorageClass Issue
 
 MongoDB is using `gp3` but cluster only has `gp2` and `gp2-csi`. Fixed in StatefulSet manifest.
-

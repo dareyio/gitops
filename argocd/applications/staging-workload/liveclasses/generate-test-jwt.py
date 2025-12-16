@@ -63,7 +63,8 @@ def generate_jwt_token(room_id, user_id=None, display_name=None, is_moderator=Fa
     payload = {
         "iss": "darey-io",  # Issuer (must match prosody config)
         "aud": "jitsi",     # Audience (must match prosody config)
-        "sub": "streaming-api.infra.darey.io",
+        # Must match Prosody VirtualHost/tenant
+        "sub": "streaming-stg.talentos.darey.io",
         "room": room_id,    # Room ID
         "exp": now + (60 * 60),  # 1 hour expiration
         "iat": now,

@@ -1,13 +1,18 @@
 #!/bin/bash
+# Generate SSH keypair for ArgoCD repository access
+# Keys stored in gitops/.ssh/ (gitignored)
+
 set -e
 
-echo "🔐 Setting up ArgoCD Deploy Keys for GitOps Repository..."
+echo "🔐 Setting up ArgoCD Deploy Keys..."
 echo ""
 
-mkdir -p .ssh
-chmod 700 .ssh
+# Create directory if it doesn't exist
+mkdir -p gitops/.ssh
+chmod 700 gitops/.ssh
 
-ssh-keygen -t ed25519 -C "argocd-deploy-key" -f .ssh/argocd-deploy-key -N ""
+# Generate SSH keypair
+ssh-keygen -t ed25519 -C "argocd-deploy-key" -f gitops/.ssh/argocd-deploy-key -N ""
 
 echo ""
 echo "✅ SSH keypair generated successfully!"
@@ -17,7 +22,7 @@ echo "📋 NEXT STEPS:"
 echo "═══════════════════════════════════════════════════════════════"
 echo ""
 echo "1️⃣  Add PUBLIC key to GitHub as Deploy Key:"
-echo "   - Go to: https://github.com/dareyio/gitops/settings/keys"
+echo "   - Go to: https://github.com/dareyio/terraform/settings/keys"
 echo "   - Click 'Add deploy key'"
 echo "   - Title: 'ArgoCD Deploy Key'"
 echo "   - Key: (copy the public key below)"
@@ -26,32 +31,27 @@ echo ""
 echo "═══════════════════════════════════════════════════════════════"
 echo "PUBLIC KEY (copy this):"
 echo "═══════════════════════════════════════════════════════════════"
-cat .ssh/argocd-deploy-key.pub
+cat gitops/.ssh/argocd-deploy-key.pub
 echo ""
 echo "═══════════════════════════════════════════════════════════════"
 echo ""
-echo "2️⃣  Add PRIVATE key to Terraform Repository GitHub Secrets:"
+echo "2️⃣  Add PRIVATE key to GitHub Secrets:"
 echo "   - Go to: https://github.com/dareyio/terraform/settings/secrets/actions"
 echo "   - Click 'New repository secret'"
 echo "   - Name: ARGOCD_SSH_PRIVATE_KEY"
 echo "   - Value: (copy the private key from the command below)"
 echo ""
 echo "   Run this command to copy private key:"
-echo "   cat .ssh/argocd-deploy-key | pbcopy    # macOS"
-echo "   cat .ssh/argocd-deploy-key | xclip     # Linux"
-echo ""
-echo "   Or manually:"
-echo "   cat .ssh/argocd-deploy-key"
+echo "   cat gitops/.ssh/argocd-deploy-key | pbcopy    # macOS"
+echo "   cat gitops/.ssh/argocd-deploy-key | xclip     # Linux"
 echo ""
 echo "═══════════════════════════════════════════════════════════════"
 echo ""
 echo "⚠️  SECURITY NOTES:"
-echo "   - Keys are stored in .ssh/ (gitignored)"
+echo "   - Keys are stored in gitops/.ssh/ (gitignored)"
 echo "   - NEVER commit these keys to git"
-echo "   - Private key: .ssh/argocd-deploy-key"
-echo "   - Public key: .ssh/argocd-deploy-key.pub"
-echo "   - The private key goes to dareyio/terraform repository secrets"
-echo "   - The public key goes to dareyio/gitops repository deploy keys"
+echo "   - Private key location: gitops/.ssh/argocd-deploy-key"
+echo "   - Public key location: gitops/.ssh/argocd-deploy-key.pub"
 echo ""
 echo "✅ Setup complete!"
 

@@ -99,6 +99,27 @@ spec:
                 name: prosody
                 port:
                   number: 5280
+          - path: /jitsi/xmpp-websocket
+            pathType: Prefix
+            backend:
+              service:
+                name: prosody
+                port:
+                  number: 5280
+          - path: /http-bind
+            pathType: Prefix
+            backend:
+              service:
+                name: prosody
+                port:
+                  number: 5280
+          - path: /xmpp-websocket
+            pathType: Prefix
+            backend:
+              service:
+                name: prosody
+                port:
+                  number: 5280
           # Jitsi web interface
           - path: /jitsi
             pathType: Prefix
