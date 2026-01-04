@@ -20,114 +20,6 @@ spec:
     - host: streaming-stg.talentos.darey.io
       http:
         paths:
-          # Jitsi static assets (must come before other paths)
-          - path: /css
-            pathType: Prefix
-            backend:
-              service:
-                name: jitsi-web
-                port:
-                  number: 80
-          - path: /libs
-            pathType: Prefix
-            backend:
-              service:
-                name: jitsi-web
-                port:
-                  number: 80
-          - path: /static
-            pathType: Prefix
-            backend:
-              service:
-                name: jitsi-web
-                port:
-                  number: 80
-          - path: /images
-            pathType: Prefix
-            backend:
-              service:
-                name: jitsi-web
-                port:
-                  number: 80
-          - path: /fonts
-            pathType: Prefix
-            backend:
-              service:
-                name: jitsi-web
-                port:
-                  number: 80
-          - path: /lang
-            pathType: Prefix
-            backend:
-              service:
-                name: jitsi-web
-                port:
-                  number: 80
-          - path: /sounds
-            pathType: Prefix
-            backend:
-              service:
-                name: jitsi-web
-                port:
-                  number: 80
-          - path: /config.js
-            pathType: Exact
-            backend:
-              service:
-                name: jitsi-web
-                port:
-                  number: 80
-          - path: /interface_config.js
-            pathType: Exact
-            backend:
-              service:
-                name: jitsi-web
-                port:
-                  number: 80
-          - path: /external_api.js
-            pathType: Exact
-            backend:
-              service:
-                name: jitsi-web
-                port:
-                  number: 80
-          # Jitsi XMPP/BOSH endpoints
-          - path: /jitsi/http-bind
-            pathType: Prefix
-            backend:
-              service:
-                name: prosody
-                port:
-                  number: 5280
-          - path: /jitsi/xmpp-websocket
-            pathType: Prefix
-            backend:
-              service:
-                name: prosody
-                port:
-                  number: 5280
-          - path: /http-bind
-            pathType: Prefix
-            backend:
-              service:
-                name: prosody
-                port:
-                  number: 5280
-          - path: /xmpp-websocket
-            pathType: Prefix
-            backend:
-              service:
-                name: prosody
-                port:
-                  number: 5280
-          # Jitsi web interface
-          - path: /jitsi
-            pathType: Prefix
-            backend:
-              service:
-                name: jitsi-web
-                port:
-                  number: 80
           # BBB API service - native API (primary path)
           - path: /bigbluebutton/api
             pathType: Prefix
@@ -152,14 +44,14 @@ spec:
                 name: bbb-web
                 port:
                   number: 80
-          # Default root path - routes to Jitsi (since Jitsi is enabled)
+          # Default root path - routes to BBB API
           - path: /
             pathType: Prefix
             backend:
               service:
-                name: jitsi-web
+                name: bbb-api
                 port:
-                  number: 80
+                  number: 8090
   tls:
     - hosts:
         - streaming-stg.talentos.darey.io

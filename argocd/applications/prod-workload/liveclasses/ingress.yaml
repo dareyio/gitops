@@ -16,22 +16,6 @@ spec:
     - host: streaming.talentos.darey.io
       http:
         paths:
-          # Jitsi XMPP/BOSH endpoints
-          - path: /jitsi/http-bind
-            pathType: Prefix
-            backend:
-              service:
-                name: prosody
-                port:
-                  number: 5280
-          # Jitsi web interface
-          - path: /jitsi
-            pathType: Prefix
-            backend:
-              service:
-                name: jitsi-web
-                port:
-                  number: 80
           # BBB API service
           - path: /bbb/api
             pathType: Prefix

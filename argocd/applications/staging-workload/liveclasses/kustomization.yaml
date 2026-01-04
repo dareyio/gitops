@@ -34,29 +34,8 @@ resources:
   # - bbb
   
   # ==========================================================================
-  # Jitsi Component Bundle
+  # Jitsi Component Bundle - REMOVED
   # ==========================================================================
-  # To ENABLE Jitsi: Include all resources below
-  # To DISABLE Jitsi: Comment out or remove all resources below
+  # Jitsi services have been removed to free up resources
   # ==========================================================================
-  - prosody-deployment.yaml
-  - service.yaml
-  - jicofo-deployment.yaml
-  - jvb-deployment.yaml
-  - jvb-configmap.yaml
-  - jitsi-web-deployment.yaml
-  - jibri-deployment.yaml
-  - jibri-configmap.yaml
-  - jibri-serviceaccount.yaml
-  - jitsi-web-configmap.yaml
-  - configmap.yaml
-  - external-secret.yaml
-  - custom-css.yaml
-  - auto-tileview.yaml
-  - move-sidebar.yaml
-  - head-injection.yaml
-  - nginx-config.yaml
-  - servicemonitor-jicofo.yaml
-  - servicemonitor-jitsi-web.yaml
-  - servicemonitor-jvb.yaml
 
