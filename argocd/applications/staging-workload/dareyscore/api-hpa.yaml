@@ -8,13 +8,18 @@ spec:
     apiVersion: apps/v1
     kind: Deployment
     name: dareyscore-api
-  minReplicas: 5
-  maxReplicas: 50
+  minReplicas: 2
+  maxReplicas: 20
   metrics:
     - type: Resource
       resource:
         name: cpu
         target:
           type: Utilization
-          averageUtilization: 70
-
+          averageUtilization: 60
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: 80

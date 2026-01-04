@@ -13,7 +13,12 @@ metadata:
     argocd-image-updater.argoproj.io/update-strategy: latest
     argocd-image-updater.argoproj.io/kustomize.image: api=lab-controller-api
 spec:
-  replicas: 5
+  replicas: 2
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
   selector:
     matchLabels:
       app: lab-controller
@@ -22,6 +27,13 @@ spec:
       labels:
         app: lab-controller
     spec:
+      nodeSelector:
+        capacity-type: SPOT
+      tolerations:
+        - key: "spot"
+          operator: "Equal"
+          value: "true"
+          effect: "NoSchedule"
       serviceAccountName: lab-controller-sa
       containers:
         - name: lab-controller
