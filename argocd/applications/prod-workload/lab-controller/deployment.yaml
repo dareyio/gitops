@@ -107,9 +107,9 @@ spec:
             - name: REDIS_MAX_CONNECTIONS
               value: "150"
             - name: REDIS_SOCKET_TIMEOUT
-              value: "5"
+              value: "10"
             - name: REDIS_CONNECT_TIMEOUT
-              value: "2"
+              value: "5"
             - name: ENABLE_LAB_PASSWORD
               value: "true"
             - name: LAB_TYPES_PATH
