@@ -5,7 +5,6 @@ metadata:
   namespace: lab-controller
   labels:
     app: lab-controller
-    argocd-test: "2026-01-10-verification"
   annotations:
     argocd-image-updater.argoproj.io/image-list: api=586794457112.dkr.ecr.eu-west-2.amazonaws.com/lab-controller/labcontroller-api
     argocd-image-updater.argoproj.io/write-back-method: git
