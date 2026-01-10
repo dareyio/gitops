@@ -20,6 +20,13 @@ spec:
               enabled: false
         loki:
           enabled: true
+          nodeSelector:
+            capacity-type: SPOT
+          tolerations:
+            - key: "spot"
+              operator: "Equal"
+              value: "true"
+              effect: "NoSchedule"
           resources:
             requests:
               cpu: 500m

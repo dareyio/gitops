@@ -7,7 +7,7 @@ namespace: liveclasses
 # Liveclasses Streaming Application Kustomization
 # ============================================================================
 # This file controls which streaming provider (Jitsi or BBB) is deployed.
-# 
+#
 # To switch providers:
 # 1. Update liveclasses-config.yaml (provider, bbb_enabled, jitsi_enabled)
 # 2. Add/remove the provider bundle below (bbb or jitsi resources)
@@ -22,7 +22,7 @@ resources:
   - liveclasses-config.yaml
   - liveclasses-recordings-serviceaccount.yaml
   - liveclasses-streaming-ingress.yaml
-  
+
   # ==========================================================================
   # BBB Component Bundle
   # ==========================================================================
@@ -32,10 +32,9 @@ resources:
   # See BBB_COMPONENTS.md for complete list of included resources
   # ==========================================================================
   # - bbb
-  
+
   # ==========================================================================
   # Jitsi Component Bundle - REMOVED
   # ==========================================================================
   # Jitsi services have been removed to free up resources
   # ==========================================================================
-

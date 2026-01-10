@@ -16,6 +16,13 @@ spec:
         prometheus:
           prometheusSpec:
             retention: 30d
+            nodeSelector:
+              capacity-type: SPOT
+            tolerations:
+              - key: "spot"
+                operator: "Equal"
+                value: "true"
+                effect: "NoSchedule"
             resources:
               requests:
                 cpu: 500m
@@ -35,37 +42,44 @@ spec:
               cluster: ops
               prometheus_replica: $(POD_NAME)
             additionalScrapeConfigs:
-              - job_name: 'federate-blue'
+              - job_name: "federate-staging-workload"
                 honor_labels: true
-                metrics_path: '/federate'
+                metrics_path: "/federate"
                 scheme: https
                 tls_config:
                   insecure_skip_verify: true
                 params:
-                  'match[]':
+                  "match[]":
                     - '{__name__=~".+"}'
                 static_configs:
                   - targets:
-                      - 'prometheus-blue.talentos.darey.io'
+                      - "prometheus-stg.talentos.darey.io"
                     labels:
-                      source_cluster: 'blue'
-              - job_name: 'federate-green'
+                      source_cluster: "staging-workload"
+              - job_name: "federate-prod-workload"
                 honor_labels: true
-                metrics_path: '/federate'
+                metrics_path: "/federate"
                 scheme: https
                 tls_config:
                   insecure_skip_verify: true
                 params:
-                  'match[]':
+                  "match[]":
                     - '{__name__=~".+"}'
                 static_configs:
                   - targets:
-                      - 'prometheus-green.talentos.darey.io'
+                      - "prometheus-prod-workload.talentos.darey.io"
                     labels:
-                      source_cluster: 'green'
+                      source_cluster: "prod-workload"
         alertmanager:
           enabled: true
           alertmanagerSpec:
+            nodeSelector:
+              capacity-type: SPOT
+            tolerations:
+              - key: "spot"
+                operator: "Equal"
+                value: "true"
+                effect: "NoSchedule"
             resources:
               requests:
                 cpu: 200m
@@ -120,6 +134,13 @@ spec:
         grafana:
           enabled: false
         prometheusOperator:
+          nodeSelector:
+            capacity-type: SPOT
+          tolerations:
+            - key: "spot"
+              operator: "Equal"
+              value: "true"
+              effect: "NoSchedule"
           resources:
             requests:
               cpu: 200m

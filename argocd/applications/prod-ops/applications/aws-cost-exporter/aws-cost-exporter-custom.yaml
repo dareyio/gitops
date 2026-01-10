@@ -29,6 +29,13 @@ spec:
         app: aws-cost-exporter
     spec:
       serviceAccountName: aws-cost-exporter
+      nodeSelector:
+        capacity-type: SPOT
+      tolerations:
+        - key: "spot"
+          operator: "Equal"
+          value: "true"
+          effect: "NoSchedule"
       containers:
         - name: exporter
           image: python:3.11-slim
@@ -36,7 +43,7 @@ spec:
             - name: AWS_REGION
               value: "eu-west-2"
             - name: INITIAL_CREDITS_AMOUNT
-              value: "25000"  # Initial promotional credit: $25,000.00 (AWS Activate - alx ventures)
+              value: "25000" # Initial promotional credit: $25,000.00 (AWS Activate - alx ventures)
           command: ["/bin/sh"]
           args:
             - -c
@@ -51,7 +58,7 @@ spec:
 
               # Initialize AWS clients
               ce = boto3.client('ce', region_name=os.environ.get('AWS_REGION', 'eu-west-2'))
-              
+
               # Get initial credits amount from environment variable
               try:
                   initial_credits = float(os.environ.get('INITIAL_CREDITS_AMOUNT', '0'))

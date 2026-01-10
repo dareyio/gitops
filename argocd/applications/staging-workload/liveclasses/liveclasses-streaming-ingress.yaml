@@ -56,4 +56,3 @@ spec:
     - hosts:
         - streaming-stg.talentos.darey.io
       secretName: liveclasses-tls-cert
-
