@@ -21,8 +21,16 @@ fi
 
 echo "Getting staging-workload cluster credentials..."
 
-ENDPOINT=$(kubectl config view -o jsonpath="{.clusters[?(@.name==\"$STAGING_WORKLOAD_CONTEXT\")].cluster.server}" 2>/dev/null | sed 's|https://||')
-CA_CERT=$(kubectl config view --raw -o jsonpath="{.clusters[?(@.name==\"$STAGING_WORKLOAD_CONTEXT\")].cluster.certificate-authority-data}" 2>/dev/null)
+CLUSTER_NAME=$(kubectl config view -o jsonpath="{.contexts[?(@.name==\"$STAGING_WORKLOAD_CONTEXT\")].context.cluster}" 2>/dev/null)
+ENDPOINT=$(kubectl config view -o jsonpath="{.clusters[?(@.name==\"$CLUSTER_NAME\")].cluster.server}" 2>/dev/null | sed 's|https://||')
+CA_CERT=$(kubectl config view --raw -o jsonpath="{.clusters[?(@.name==\"$CLUSTER_NAME\")].cluster.certificate-authority-data}" 2>/dev/null)
+
+if [ -z "$CLUSTER_NAME" ]; then
+    echo "Error: Unable to find cluster name for context $STAGING_WORKLOAD_CONTEXT"
+    echo "Available contexts:"
+    kubectl config get-contexts
+    exit 1
+fi
 
 if [ -z "$ENDPOINT" ] || [ -z "$CA_CERT" ]; then
     echo "Error: Unable to get cluster endpoint or CA cert from kubeconfig"

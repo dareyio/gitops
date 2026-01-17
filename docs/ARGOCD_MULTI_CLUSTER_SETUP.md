@@ -9,6 +9,7 @@
 ## Summary
 
 ArgoCD running in the `prod-ops` cluster is now configured to manage deployments into both:
+
 - ✅ **prod-workload** cluster (configured and verified)
 - ✅ **staging-workload** cluster (configured and verified)
 
@@ -57,19 +58,19 @@ ArgoCD running in the `prod-ops` cluster is now configured to manage deployments
 
 ### Staging-Workload Applications (Managed from prod-ops)
 
-| Application | Sync Status | Health Status |
-|------------|-------------|---------------|
-| cert-manager | ✅ Synced | Healthy |
-| cluster-resources | ✅ Synced | Healthy |
-| dareyscore | ⚠️ OutOfSync | Healthy |
-| external-dns | ✅ Synced | Healthy |
-| external-secrets-operator | ✅ Synced | Healthy |
-| kube-prometheus-stack | ✅ Synced | Degraded* |
-| lab-controller | ✅ Synced | Healthy |
-| liveclasses | ✅ Synced | Healthy |
-| nginx-ingress | ✅ Synced | Healthy |
+| Application               | Sync Status  | Health Status |
+| ------------------------- | ------------ | ------------- |
+| cert-manager              | ✅ Synced    | Healthy       |
+| cluster-resources         | ✅ Synced    | Healthy       |
+| dareyscore                | ⚠️ OutOfSync | Healthy       |
+| external-dns              | ✅ Synced    | Healthy       |
+| external-secrets-operator | ✅ Synced    | Healthy       |
+| kube-prometheus-stack     | ✅ Synced    | Degraded\*    |
+| lab-controller            | ✅ Synced    | Healthy       |
+| liveclasses               | ✅ Synced    | Healthy       |
+| nginx-ingress             | ✅ Synced    | Healthy       |
 
-*Degraded status may be due to pre-existing configuration issues, not connectivity problems
+\*Degraded status may be due to pre-existing configuration issues, not connectivity problems
 
 ### Prod-Workload Applications (Managed from prod-ops)
 
@@ -87,6 +88,7 @@ cd gitops
 ```
 
 This script verifies:
+
 - Cluster secret exists and is correctly labeled
 - Bootstrap application exists
 - Applications are discovered
@@ -173,9 +175,9 @@ roleRef:
   kind: ClusterRole
   name: cluster-admin
 subjects:
-- kind: ServiceAccount
-  name: argocd-manager
-  namespace: kube-system
+  - kind: ServiceAccount
+    name: argocd-manager
+    namespace: kube-system
 ```
 
 ---
@@ -185,22 +187,27 @@ subjects:
 ### If applications show "Unknown" or connection errors:
 
 1. **Verify cluster secret exists:**
+
    ```bash
    kubectl get secret staging-workload-cluster-secret -n argocd --context=prod-ops
    ```
 
 2. **Check secret labels:**
+
    ```bash
    kubectl get secret staging-workload-cluster-secret -n argocd --context=prod-ops -o yaml | grep "argocd.argoproj.io/secret-type"
    ```
+
    Should show: `argocd.argoproj.io/secret-type: cluster`
 
 3. **Verify ServiceAccount token:**
+
    ```bash
    kubectl get secret -n kube-system --context=staging-workload | grep argocd-manager
    ```
 
 4. **Check ArgoCD logs:**
+
    ```bash
    kubectl logs -n argocd --context=prod-ops -l app.kubernetes.io/name=argocd-application-controller --tail=100 | grep -i "staging-workload\|error"
    ```

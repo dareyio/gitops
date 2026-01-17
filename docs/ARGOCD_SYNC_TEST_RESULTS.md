@@ -9,6 +9,7 @@
 ## Test Objective
 
 Verify that ArgoCD running in the `prod-ops` cluster can successfully:
+
 1. Detect changes in the GitOps repository
 2. Automatically sync changes to the `staging-workload` cluster
 3. Deploy changes without breaking the application
@@ -58,32 +59,35 @@ Verify that ArgoCD running in the `prod-ops` cluster can successfully:
 
 ## Test Results Summary
 
-| Phase | Status | Time | Details |
-|-------|--------|------|---------|
-| **Git Commit** | ✅ Success | ~1s | Change committed and pushed |
-| **Detection** | ✅ Success | ~35s | ArgoCD detected OutOfSync |
-| **Sync** | ✅ Success | <5s | Change synced automatically |
-| **Deployment** | ✅ Success | ~5s | Label verified in cluster |
-| **Health** | ✅ Success | - | Deployment remained healthy (2/2) |
-| **Cleanup** | ✅ Success | ~10s | Test label removed |
+| Phase          | Status     | Time | Details                           |
+| -------------- | ---------- | ---- | --------------------------------- |
+| **Git Commit** | ✅ Success | ~1s  | Change committed and pushed       |
+| **Detection**  | ✅ Success | ~35s | ArgoCD detected OutOfSync         |
+| **Sync**       | ✅ Success | <5s  | Change synced automatically       |
+| **Deployment** | ✅ Success | ~5s  | Label verified in cluster         |
+| **Health**     | ✅ Success | -    | Deployment remained healthy (2/2) |
+| **Cleanup**    | ✅ Success | ~10s | Test label removed                |
 
 ---
 
 ## Verification Details
 
 ### Before Change
+
 ```
 Status: Synced
 Revision: 277187a19c197a97bcd9c28f241d31e62b6f48e4
 ```
 
 ### After Change Detected
+
 ```
 Status: OutOfSync
 Revision: 9eb48d6360199ce272f8cbbcce87e6371453ed55
 ```
 
 ### After Sync
+
 ```
 Status: Synced
 Health: Healthy
@@ -99,6 +103,7 @@ Replicas: 2/2 ready
 ✅ **ArgoCD multi-cluster management is fully operational**
 
 The test confirms that:
+
 1. ✅ ArgoCD in prod-ops can detect changes in the GitOps repository
 2. ✅ ArgoCD can automatically sync changes to staging-workload cluster
 3. ✅ Changes are successfully deployed without breaking applications
@@ -110,6 +115,7 @@ The test confirms that:
 ## Test Script
 
 The test was automated using:
+
 - **Script:** `gitops/scripts/test-argocd-sync.sh`
 - **Features:**
   - Monitors ArgoCD application status
