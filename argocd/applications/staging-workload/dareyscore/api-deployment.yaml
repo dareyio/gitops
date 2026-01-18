@@ -28,7 +28,7 @@ spec:
       serviceAccountName: dareyscore-sa
       containers:
         - name: api
-          image: 586794457112.dkr.ecr.eu-west-2.amazonaws.com/dareyscore/dareyscore-api:79ee9c83361ccf08aad5e3e123d69c2f742e7297
+          image: 586794457112.dkr.ecr.eu-west-2.amazonaws.com/dareyscore/dareyscore-api:0697c28911b198d0859f7bd994cb9246441b1bfd
           imagePullPolicy: Always
           ports:
             - containerPort: 8080
