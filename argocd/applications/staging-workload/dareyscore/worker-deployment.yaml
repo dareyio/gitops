@@ -28,7 +28,7 @@ spec:
       serviceAccountName: dareyscore-sa
       containers:
         - name: worker
-          image: 586794457112.dkr.ecr.eu-west-2.amazonaws.com/dareyscore/dareyscore-worker:35d77f3b6bc017f7fe05290bf3c50fbf91e2394a
+          image: 586794457112.dkr.ecr.eu-west-2.amazonaws.com/dareyscore/dareyscore-worker:bcb425cb67c4fef11b21f8abdf9bf7bcc76f1f1a
           imagePullPolicy: Always
           envFrom:
             - configMapRef:
